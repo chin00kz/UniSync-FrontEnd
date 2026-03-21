@@ -45,7 +45,12 @@ export default function BannedUsersPage() {
   const fetchBannedUsers = async () => {
     setIsLoading(true)
     try {
-      const response = await fetch("http://localhost:5000/api/users")
+      const token = JSON.parse(localStorage.getItem("user"))?.id;
+      const response = await fetch("http://localhost:5000/api/users", {
+        headers: {
+          "x-admin-id": token
+        }
+      })
       const data = await response.json()
       if (data.success) {
         const banned = data.data.filter(user => user.isBanned)
@@ -61,9 +66,13 @@ export default function BannedUsersPage() {
   const handleUnbanUser = async (user) => {
     setIsActionLoading(true)
     try {
+      const token = JSON.parse(localStorage.getItem("user"))?.id;
       const response = await fetch(`http://localhost:5000/api/users/${user._id}/unban`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "x-admin-id": token
+        },
       })
       const data = await response.json()
       if (data.success) {

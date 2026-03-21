@@ -13,6 +13,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
+import { NotificationsSheet } from "@/components/notifications-sheet"
 
 import { useState, useEffect } from "react"
 import { UsersIcon, ShieldAlertIcon, FileTextIcon, ActivityIcon, ArrowRightIcon, Loader2Icon } from "lucide-react"
@@ -165,11 +166,14 @@ export default function DashboardPage() {
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
+          <div className="ml-auto flex items-center gap-4">
+            <NotificationsSheet />
+          </div>
         </header>
         <main className="flex-1 overflow-auto p-6 lg:p-10">
           <div className="mx-auto max-w-7xl space-y-8">
             <div className="flex flex-col gap-1">
-              <h1 className="text-4xl font-extrabold tracking-tight bg-clip-text text-transparent brand-gradient">
+              <h1 className="text-4xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-brand-blue to-brand-pink">
                 Admin Dashboard
               </h1>
               <p className="text-lg text-muted-foreground font-medium">
@@ -260,24 +264,24 @@ export default function DashboardPage() {
                   <p className="text-sm text-muted-foreground">Common management tasks.</p>
                 </div>
                 <div className="space-y-3">
-                  <Button variant="outline" className="w-full justify-between group h-12 border-primary/10 hover:border-primary/30" asChild>
+                  <Button variant="outline" className="w-full justify-between group h-12 border-primary/10 hover:border-primary/30" render={
                     <a href="/dashboard/reports">
                       Review Pending Reports
                       <ArrowRightIcon className="size-4 transition-transform group-hover:translate-x-1" />
                     </a>
-                  </Button>
-                  <Button variant="outline" className="w-full justify-between group h-12 border-primary/10 hover:border-primary/30" asChild>
+                  } />
+                  <Button variant="outline" className="w-full justify-between group h-12 border-primary/10 hover:border-primary/30" render={
                     <a href="/dashboard/users">
                       Manage User Roles
                       <ArrowRightIcon className="size-4 transition-transform group-hover:translate-x-1" />
                     </a>
-                  </Button>
-                  <Button variant="outline" className="w-full justify-between group h-12 border-primary/10 hover:border-primary/30" asChild>
+                  } />
+                  <Button variant="outline" className="w-full justify-between group h-12 border-primary/10 hover:border-primary/30" render={
                     <a href="/dashboard/bans">
                       View Banned Accounts
                       <ArrowRightIcon className="size-4 transition-transform group-hover:translate-x-1" />
                     </a>
-                  </Button>
+                  } />
                   <div className="pt-4">
                     <Button 
                       className="w-full h-11 brand-gradient border-none hover:opacity-90 transition-opacity"

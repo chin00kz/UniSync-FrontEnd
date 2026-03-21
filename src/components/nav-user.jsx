@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import {
   Avatar,
@@ -19,7 +20,14 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
-import { ChevronsUpDownIcon, BadgeCheckIcon, BellIcon, LogOutIcon } from "lucide-react"
+import { 
+  SheetTitle 
+} from "@/components/ui/sheet"
+import { Badge } from "@/components/ui/badge"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Button } from "@/components/ui/button"
+import { NotificationsSheet } from "@/components/notifications-sheet"
+import { ChevronsUpDownIcon, BadgeCheckIcon, BellIcon, LogOutIcon, InfoIcon, ShieldAlertIcon, UserPlusIcon, CheckCircle2Icon } from "lucide-react"
 
 export function NavUser({
   user
@@ -75,9 +83,18 @@ export function NavUser({
                 <BadgeCheckIcon />
                 Account
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <BellIcon />
-                Notifications
+              <DropdownMenuItem onClick={(e) => e.preventDefault()} render={<div />}>
+                <NotificationsSheet 
+                  trigger={
+                    <div className="flex w-full items-center gap-2">
+                      <BellIcon className="size-4" />
+                      <span>Notifications</span>
+                      <Badge className="ml-auto h-5 w-5 rounded-full p-0 flex items-center justify-center text-[10px] brand-gradient border-0">
+                        4
+                      </Badge>
+                    </div>
+                  }
+                />
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />

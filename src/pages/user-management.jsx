@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react"
+import { cn } from "@/lib/utils"
 import { AppSidebar } from "@/components/app-sidebar"
 import {
   SidebarInset,
@@ -14,6 +15,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
+import { NotificationsSheet } from "@/components/notifications-sheet"
 import {
   Table,
   TableBody,
@@ -58,6 +60,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { Switch } from "@/components/ui/switch"
 
 export default function UserManagementPage() {
   const currentUser = useMemo(() => JSON.parse(localStorage.getItem("user") || "{}"), [])
@@ -171,6 +174,31 @@ export default function UserManagementPage() {
     }
   }
 
+  const handleStatusToggle = async (user) => {
+    if (user.role === 'superadmin') return // Prevent toggling super admins
+    
+    setIsActionLoading(true)
+    try {
+      const endpoint = user.isBanned ? "unban" : "ban"
+      const response = await fetch(`http://localhost:5000/api/users/${user._id}/${endpoint}`, {
+        method: "PUT",
+        headers: { 
+          "Content-Type": "application/json",
+          "x-admin-id": currentUser?.id
+        },
+        body: JSON.stringify({ reason: "Quick toggle from management" }),
+      })
+      const data = await response.json()
+      if (data.success) {
+        fetchUsers()
+      }
+    } catch (error) {
+      console.error("Failed to toggle status:", error)
+    } finally {
+      setIsActionLoading(false)
+    }
+  }
+
   const filteredUsers = users.filter(user => 
     user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -182,6 +210,8 @@ export default function UserManagementPage() {
       case 'superadmin': return <Badge variant="outline" className="bg-red-500/10 text-red-600 border-red-500/20 font-medium">Super Admin</Badge>
       case 'admin': return <Badge variant="outline" className="bg-fuchsia-500/10 text-fuchsia-600 border-fuchsia-500/20 font-medium">Admin</Badge>
       case 'moderator': return <Badge variant="outline" className="bg-blue-500/10 text-blue-600 border-blue-500/20 font-medium">Moderator</Badge>
+      case 'student': return <Badge variant="outline" className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 font-medium">Student</Badge>
+      case 'staff': return <Badge variant="outline" className="bg-amber-500/10 text-amber-600 border-amber-500/20 font-medium">Staff</Badge>
       default: return <Badge variant="outline" className="bg-slate-500/10 text-slate-600 border-slate-500/20 font-medium">User</Badge>
     }
   }
@@ -207,7 +237,9 @@ export default function UserManagementPage() {
             </Breadcrumb>
           </div>
           
-          <div className="relative w-full max-w-sm group">
+          <div className="flex flex-1 justify-end items-center gap-4">
+            <NotificationsSheet />
+            <div className="relative w-full max-w-sm group">
             <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
             <Input
               placeholder="Search users by name, email, or ID..."
@@ -216,7 +248,8 @@ export default function UserManagementPage() {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-        </header>
+        </div>
+      </header>
 
         <div className="flex flex-1 flex-col gap-6 p-6 lg:p-10">
           <div className="flex flex-col gap-1">
@@ -271,14 +304,20 @@ export default function UserManagementPage() {
                       <TableCell className="font-mono text-sm">{user.sliitId}</TableCell>
                       <TableCell>{getRoleBadge(user.role)}</TableCell>
                       <TableCell>
-                        {user.isBanned ? (
-                          <Badge variant="outline" className="flex w-fit items-center gap-1 bg-rose-500/10 text-rose-600 border-rose-500/20 font-medium font-medium">
-                            <BanIcon className="size-3" />
-                            Banned
-                          </Badge>
-                        ) : (
-                          <Badge variant="outline" className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 font-medium">Active</Badge>
-                        )}
+                        <div className="flex items-center gap-2">
+                          <Switch 
+                            checked={!user.isBanned}
+                            onCheckedChange={() => handleStatusToggle(user)}
+                            disabled={isActionLoading || user.role === 'superadmin' || user._id === currentUser?.id}
+                            className="data-[state=checked]:bg-emerald-500"
+                          />
+                          <span className={cn(
+                            "text-xs font-bold uppercase tracking-tight transition-colors",
+                            user.isBanned ? "text-rose-600" : "text-emerald-600"
+                          )}>
+                            {user.isBanned ? "Banned" : "Active"}
+                          </span>
+                        </div>
                       </TableCell>
                       <TableCell className="text-sm text-muted-foreground">
                         {new Date(user.createdAt).toLocaleDateString()}
@@ -286,9 +325,11 @@ export default function UserManagementPage() {
                       <TableCell className="text-right">
                         {isAdmin ? (
                           <DropdownMenu>
-                            <DropdownMenuTrigger className="inline-flex items-center justify-center rounded-md p-2 text-muted-foreground hover:bg-accent hover:text-accent-foreground focus:outline-none">
-                              <MoreVerticalIcon className="size-4" />
-                            </DropdownMenuTrigger>
+                            <DropdownMenuTrigger render={
+                              <button className="inline-flex items-center justify-center rounded-md p-2 text-muted-foreground hover:bg-accent hover:text-accent-foreground focus:outline-none">
+                                <MoreVerticalIcon className="size-4" />
+                              </button>
+                            } />
                             <DropdownMenuContent align="end" className="w-52">
                               <p className="px-2 py-1.5 text-xs text-muted-foreground font-medium truncate">{user.name}</p>
                               <DropdownMenuSeparator />
@@ -304,27 +345,37 @@ export default function UserManagementPage() {
                                   Demote to User
                                 </DropdownMenuItem>
                               )}
-                              <DropdownMenuItem onClick={() => {
-                                setSelectedUser(user)
-                                setNewRole(user.role)
-                                setIsRoleDialogOpen(true)
-                              }}>
-                                <UserCogIcon className="mr-2 size-4" />
-                                Change Role
-                              </DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem 
-                                className={user.isBanned ? "text-emerald-600" : "text-destructive"}
-                                onClick={() => {
-                                  setSelectedUser(user)
-                                  setIsBanDialogOpen(true)
-                                }}
-                              >
-                                {user.isBanned
-                                  ? <span className="flex items-center gap-2"><UnlockIcon className="size-4" /> Lift Ban</span>
-                                  : <span className="flex items-center gap-2"><BanIcon className="size-4" /> Ban User</span>
-                                }
-                              </DropdownMenuItem>
+                              
+                              {(currentUser?.role === 'superadmin' || user.role !== 'superadmin') && (
+                                <>
+                                  <DropdownMenuItem onClick={() => {
+                                    setSelectedUser(user)
+                                    setNewRole(user.role)
+                                    setIsRoleDialogOpen(true)
+                                  }}>
+                                    <UserCogIcon className="mr-2 size-4" />
+                                    Change Role
+                                  </DropdownMenuItem>
+                                  
+                                  {user.role !== 'superadmin' && (
+                                    <>
+                                      <DropdownMenuSeparator />
+                                      <DropdownMenuItem 
+                                        className={user.isBanned ? "text-emerald-600" : "text-destructive"}
+                                        onClick={() => {
+                                          setSelectedUser(user)
+                                          setIsBanDialogOpen(true)
+                                        }}
+                                      >
+                                        {user.isBanned
+                                          ? <span className="flex items-center gap-2"><UnlockIcon className="size-4" /> Lift Ban</span>
+                                          : <span className="flex items-center gap-2"><BanIcon className="size-4" /> Ban User</span>
+                                        }
+                                      </DropdownMenuItem>
+                                    </>
+                                  )}
+                                </>
+                              )}
                             </DropdownMenuContent>
                           </DropdownMenu>
                         ) : (
@@ -355,10 +406,15 @@ export default function UserManagementPage() {
                   <SelectValue placeholder="Select a role" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="user">User (Student/Staff)</SelectItem>
-                  <SelectItem value="moderator">Moderator</SelectItem>
+                  <SelectItem value="student">Student</SelectItem>
+                  <SelectItem value="staff">Staff</SelectItem>
                   <SelectItem value="admin">Administrator</SelectItem>
-                  <SelectItem value="superadmin">Super Administrator</SelectItem>
+                  {currentUser?.role === 'superadmin' && (
+                    <>
+                      <SelectItem value="moderator">Moderator</SelectItem>
+                      <SelectItem value="superadmin">Super Administrator</SelectItem>
+                    </>
+                  )}
                 </SelectContent>
               </Select>
             </div>

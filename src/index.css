@@ -63,7 +63,7 @@
 }
 
 .brand-gradient {
-  background: linear-gradient(135deg, var(--color-brand-blue) 0%, var(--color-brand-pink) 100%);
+  background: linear-gradient(135deg, oklch(0.6 0.2 250) 0%, oklch(0.65 0.25 0) 100%);
 }
 
 .premium-card {

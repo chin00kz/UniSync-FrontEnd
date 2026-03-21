@@ -14,6 +14,14 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
+import { NotificationsSheet } from "@/components/notifications-sheet"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   Table,
@@ -72,8 +80,8 @@ export default function AdminManagementPage() {
       })
       const data = await response.json()
       if (data.success) {
-        // Filter only admins for now on the frontend
-        const adminList = data.data.filter(user => user.role === 'admin')
+        // Filter administrative roles for the list
+        const adminList = data.data.filter(user => ['admin', 'moderator', 'superadmin'].includes(user.role))
         setAdmins(adminList)
       }
     } catch (error) {
@@ -171,13 +179,14 @@ export default function AdminManagementPage() {
           </div>
           
           <div className="flex items-center gap-4">
+            <NotificationsSheet />
             <Dialog open={open} onOpenChange={setOpen}>
-              <DialogTrigger asChild>
+              <DialogTrigger render={
                 <Button size="sm" className="brand-gradient border-none hover:opacity-90 transition-opacity font-bold px-6">
                   <PlusIcon className="mr-2 size-4" />
                   Add New Admin
                 </Button>
-              </DialogTrigger>
+              } />
             <DialogContent className="sm:max-w-[425px]">
               <form onSubmit={handleAddAdmin}>
                 <DialogHeader>
@@ -242,6 +251,28 @@ export default function AdminManagementPage() {
                       onChange={(e) => setNewAdmin({...newAdmin, phone: e.target.value})}
                     />
                   </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="role">Role</Label>
+                    <Select 
+                      value={newAdmin.role} 
+                      onValueChange={(value) => setNewAdmin({...newAdmin, role: value})}
+                    >
+                      <SelectTrigger id="role">
+                        <SelectValue placeholder="Select role" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="student">Student</SelectItem>
+                        <SelectItem value="staff">Staff</SelectItem>
+                        <SelectItem value="admin">Admin</SelectItem>
+                        {userData?.role === 'superadmin' && (
+                          <>
+                            <SelectItem value="moderator">Moderator</SelectItem>
+                            <SelectItem value="superadmin">SuperAdmin</SelectItem>
+                          </>
+                        )}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
                 <DialogFooter>
                   <Button type="submit" disabled={isAdding}>
@@ -299,7 +330,14 @@ export default function AdminManagementPage() {
                             </AvatarFallback>
                           </Avatar>
                           <div className="flex flex-col">
-                            <span className="font-medium text-foreground">{admin.name}</span>
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium text-foreground">{admin.name}</span>
+                              {admin.role === 'superadmin' && (
+                                <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-red-500/10 text-red-600 border border-red-500/20">
+                                  Super
+                                </span>
+                              )}
+                            </div>
                             <span className="text-xs text-muted-foreground">{admin.email}</span>
                           </div>
                         </div>
@@ -308,17 +346,19 @@ export default function AdminManagementPage() {
                       <TableCell>{admin.phone || "N/A"}</TableCell>
                       <TableCell>{new Date(admin.createdAt).toLocaleDateString()}</TableCell>
                       <TableCell className="text-right">
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                          onClick={() => {
-                            setAdminToDelete(admin._id)
-                            setDeleteDialogOpen(true)
-                          }}
-                        >
-                          <Trash2Icon className="size-4" />
-                        </Button>
+                        {(userData?.role === 'superadmin' && admin._id !== userData?.id) && (
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                            onClick={() => {
+                              setAdminToDelete(admin._id)
+                              setDeleteDialogOpen(true)
+                            }}
+                          >
+                            <Trash2Icon className="size-4" />
+                          </Button>
+                        )}
                       </TableCell>
                     </TableRow>
                   ))

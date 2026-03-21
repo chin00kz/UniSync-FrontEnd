@@ -40,7 +40,12 @@ export default function AuditLogsPage() {
   const fetchLogs = async () => {
     setIsLoading(true)
     try {
-      const response = await fetch("http://localhost:5000/api/audit-logs")
+      const token = JSON.parse(localStorage.getItem("user"))?.id;
+      const response = await fetch("http://localhost:5000/api/audit-logs", {
+        headers: {
+          "x-admin-id": token
+        }
+      })
       const data = await response.json()
       if (data.success) {
         setLogs(data.data)

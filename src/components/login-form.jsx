@@ -10,6 +10,8 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { AlertCircle } from "lucide-react"
 
 export function LoginForm({
   className,
@@ -72,9 +74,13 @@ export function LoginForm({
           <form onSubmit={handleSubmit}>
             <div className="grid gap-6">
               {error && (
-                <div className="bg-destructive/10 text-destructive text-center text-xs p-3 rounded-lg border border-destructive/20 font-bold">
-                  {error}
-                </div>
+                <Alert variant="destructive" className="py-2.5">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle className="text-xs font-bold uppercase tracking-tight">Login Failed</AlertTitle>
+                  <AlertDescription className="text-xs font-medium">
+                    {error}
+                  </AlertDescription>
+                </Alert>
               )}
               <div className="grid gap-2">
                 <label className="text-xs font-bold uppercase tracking-wider text-slate-500" htmlFor="email">Work Email</label>

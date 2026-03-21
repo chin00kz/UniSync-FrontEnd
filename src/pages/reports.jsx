@@ -45,7 +45,12 @@ export default function ReportsPage() {
   const fetchReports = async () => {
     setIsLoading(true)
     try {
-      const response = await fetch("http://localhost:5000/api/reports")
+      const token = JSON.parse(localStorage.getItem("user"))?.id;
+      const response = await fetch("http://localhost:5000/api/reports", {
+        headers: {
+          "x-admin-id": token
+        }
+      })
       const data = await response.json()
       if (data.success) {
         setReports(data.data)
