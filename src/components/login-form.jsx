@@ -40,6 +40,14 @@ export function LoginForm({
 
       if (data.success) {
         // Successful login
+        const userToStore = {
+          id: data.id,
+          role: data.role,
+          name: data.name,
+          email: email
+        }
+        console.log("Storing in localStorage:", userToStore)
+        localStorage.setItem("user", JSON.stringify(userToStore))
         navigate("/dashboard")
       } else {
         setError(data.error || "Login failed")
@@ -53,37 +61,38 @@ export function LoginForm({
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card>
-        <CardHeader className="text-center">
-          <CardTitle className="text-xl">Welcome back</CardTitle>
-          <CardDescription>
-            Login with your email and password
+      <Card className="premium-card border-slate-200/60 shadow-2xl shadow-slate-200/50">
+        <CardHeader className="text-center space-y-1">
+          <CardTitle className="text-xl font-bold">Secure Login</CardTitle>
+          <CardDescription className="text-xs font-medium">
+            Enter your SLIIT credentials to access the dashboard
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit}>
             <div className="grid gap-6">
               {error && (
-                <div className="text-destructive text-center text-sm font-medium">
+                <div className="bg-destructive/10 text-destructive text-center text-xs p-3 rounded-lg border border-destructive/20 font-bold">
                   {error}
                 </div>
               )}
               <div className="grid gap-2">
-                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70" htmlFor="email">Email</label>
+                <label className="text-xs font-bold uppercase tracking-wider text-slate-500" htmlFor="email">Work Email</label>
                 <Input 
                   id="email" 
                   type="email" 
-                  placeholder="m@example.com" 
+                  placeholder="name@sliit.lk" 
                   required 
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  className="bg-slate-50/50 focus:ring-brand-blue/20"
                 />
               </div>
               <div className="grid gap-2">
                 <div className="flex items-center">
-                  <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70" htmlFor="password">Password</label>
-                  <a href="#" className="ml-auto text-sm underline-offset-4 hover:underline">
-                    Forgot your password?
+                  <label className="text-xs font-bold uppercase tracking-wider text-slate-500" htmlFor="password">Password</label>
+                  <a href="#" className="ml-auto text-[10px] font-bold text-brand-blue hover:text-brand-pink transition-colors">
+                    Reset Password
                   </a>
                 </div>
                 <Input 
@@ -92,10 +101,11 @@ export function LoginForm({
                   required 
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  className="bg-slate-50/50 focus:ring-brand-blue/20"
                 />
               </div>
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? "Logging in..." : "Login"}
+              <Button type="submit" className="w-full brand-gradient border-0 text-sm font-bold shadow-lg shadow-brand-blue/25 hover:opacity-90 active:scale-[0.98] transition-all" disabled={isLoading}>
+                {isLoading ? "Authenticating..." : "Sign In to Dashboard"}
               </Button>
             </div>
           </form>

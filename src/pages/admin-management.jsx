@@ -34,13 +34,17 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { PlusIcon, Loader2Icon } from "lucide-react"
+import { PlusIcon, Loader2Icon, Trash2Icon } from "lucide-react"
 
 export default function AdminManagementPage() {
+  const userData = JSON.parse(localStorage.getItem("user") || "{}")
   const [admins, setAdmins] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [isAdding, setIsAdding] = useState(false)
   const [open, setOpen] = useState(false)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [adminToDelete, setAdminToDelete] = useState(null)
+  const [error, setError] = useState("")
 
   // New Admin State
   const [newAdmin, setNewAdmin] = useState({
@@ -76,11 +80,27 @@ export default function AdminManagementPage() {
   const handleAddAdmin = async (e) => {
     e.preventDefault()
     setIsAdding(true)
+    setError("")
+    
+    // Frontend Validation
+    if (!newAdmin.email.endsWith("@sliit.lk")) {
+      setError("Email must be a valid SLIIT email (@sliit.lk)")
+      setIsAdding(false)
+      return
+    }
+
+    if (newAdmin.password.length < 8) {
+      setError("Password must be at least 8 characters long")
+      setIsAdding(false)
+      return
+    }
+
     try {
       const response = await fetch("http://localhost:5000/api/users", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "x-admin-id": userData.id || userData._id
         },
         body: JSON.stringify(newAdmin),
       })
@@ -88,12 +108,36 @@ export default function AdminManagementPage() {
       if (data.success) {
         setOpen(false)
         setNewAdmin({ name: "", email: "", password: "", sliitId: "", phone: "", role: "admin" })
+        setError("")
         fetchAdmins()
+      } else {
+        setError(data.error || "Failed to add admin")
       }
     } catch (error) {
       console.error("Failed to add admin:", error)
     } finally {
       setIsAdding(false)
+    }
+  }
+
+  const handleDeleteAdmin = async () => {
+    if (!adminToDelete) return
+    
+    try {
+      const response = await fetch(`http://localhost:5000/api/users/${adminToDelete}`, {
+        method: "DELETE",
+        headers: {
+          "x-admin-id": userData.id || userData._id
+        }
+      })
+      const data = await response.json()
+      if (data.success) {
+        setDeleteDialogOpen(false)
+        setAdminToDelete(null)
+        fetchAdmins()
+      }
+    } catch (error) {
+      console.error("Failed to delete admin:", error)
     }
   }
 
@@ -120,13 +164,14 @@ export default function AdminManagementPage() {
             </Breadcrumb>
           </div>
           
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button size="sm">
-                <PlusIcon className="mr-2 size-4" />
-                Add Admin
-              </Button>
-            </DialogTrigger>
+          <div className="flex items-center gap-4">
+            <Dialog open={open} onOpenChange={setOpen}>
+              <DialogTrigger asChild>
+                <Button size="sm" className="brand-gradient border-none hover:opacity-90 transition-opacity font-bold px-6">
+                  <PlusIcon className="mr-2 size-4" />
+                  Add New Admin
+                </Button>
+              </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
               <form onSubmit={handleAddAdmin}>
                 <DialogHeader>
@@ -135,6 +180,11 @@ export default function AdminManagementPage() {
                     Create a new administrator account for the system.
                   </DialogDescription>
                 </DialogHeader>
+                {error && (
+                  <div className="bg-destructive/10 text-destructive text-sm p-3 rounded-md mb-4 border border-destructive/20">
+                    {error}
+                  </div>
+                )}
                 <div className="grid gap-4 py-4">
                   <div className="grid gap-2">
                     <Label htmlFor="name">Name</Label>
@@ -196,10 +246,15 @@ export default function AdminManagementPage() {
               </form>
             </DialogContent>
           </Dialog>
-        </header>
+        </div>
+      </header>
 
-        <div className="flex flex-1 flex-col gap-4 p-4">
-          <div className="rounded-xl border bg-card text-card-foreground shadow">
+        <div className="flex flex-1 flex-col gap-6 p-6 lg:p-10">
+          <div className="flex flex-col gap-1">
+            <h1 className="text-3xl font-extrabold tracking-tight">Admin Management</h1>
+            <p className="text-muted-foreground font-medium">Manage and monitor system administrators.</p>
+          </div>
+          <div className="premium-card overflow-hidden !p-0">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -208,6 +263,7 @@ export default function AdminManagementPage() {
                   <TableHead>SLIIT ID</TableHead>
                   <TableHead>Phone</TableHead>
                   <TableHead>Joined Date</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -234,6 +290,19 @@ export default function AdminManagementPage() {
                       <TableCell>{admin.sliitId}</TableCell>
                       <TableCell>{admin.phone || "N/A"}</TableCell>
                       <TableCell>{new Date(admin.createdAt).toLocaleDateString()}</TableCell>
+                      <TableCell className="text-right">
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                          onClick={() => {
+                            setAdminToDelete(admin._id)
+                            setDeleteDialogOpen(true)
+                          }}
+                        >
+                          <Trash2Icon className="size-4" />
+                        </Button>
+                      </TableCell>
                     </TableRow>
                   ))
                 )}
@@ -241,6 +310,25 @@ export default function AdminManagementPage() {
             </Table>
           </div>
         </div>
+
+        <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Confirm Deletion</DialogTitle>
+              <DialogDescription>
+                Are you sure you want to remove this administrator? This action cannot be undone.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button variant="destructive" onClick={handleDeleteAdmin}>
+                Remove Admin
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </SidebarInset>
     </SidebarProvider>
   )
