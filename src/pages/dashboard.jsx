@@ -16,6 +16,8 @@ import {
 
 import { useState, useEffect } from "react"
 import { UsersIcon, ShieldAlertIcon, FileTextIcon, ActivityIcon, ArrowRightIcon, Loader2Icon } from "lucide-react"
+import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
+import * as XLSX from "xlsx"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 
@@ -26,7 +28,19 @@ export default function DashboardPage() {
     bannedUsers: 0,
     pendingReports: 0
   })
+  
+  // Mock data for the activity chart
+  const activityData = [
+    { date: "Mon", actions: 12 },
+    { date: "Tue", actions: 19 },
+    { date: "Wed", actions: 15 },
+    { date: "Thu", actions: 25 },
+    { date: "Fri", actions: 22 },
+    { date: "Sat", actions: 30 },
+    { date: "Sun", actions: 28 },
+  ]
   const [isLoading, setIsLoading] = useState(true)
+  const [isGeneratingReport, setIsGeneratingReport] = useState(false)
 
   useEffect(() => {
     fetchStats()
@@ -34,7 +48,12 @@ export default function DashboardPage() {
 
   const fetchStats = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/users/stats")
+      const token = JSON.parse(localStorage.getItem("user"))?.id;
+      const response = await fetch("http://localhost:5000/api/users/stats", {
+        headers: {
+          "x-admin-id": token
+        }
+      })
       const data = await response.json()
       if (data.success) {
         setStats(data.data)
@@ -43,6 +62,63 @@ export default function DashboardPage() {
       console.error("Failed to fetch stats:", error)
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const handleGenerateReport = async () => {
+    setIsGeneratingReport(true)
+    try {
+      // Fetch users data
+      const token = JSON.parse(localStorage.getItem("user"))?.id;
+      const response = await fetch("http://localhost:5000/api/users", {
+        headers: {
+          "x-admin-id": token
+        }
+      })
+      const data = await response.json()
+      
+      if (data.success) {
+        // Format the data for Excel
+        const exportData = data.data.map(user => ({
+          "Name": user.name,
+          "Email": user.email,
+          "SLIIT ID": user.sliitId,
+          "Role": user.role.toUpperCase(),
+          "Status": user.isBanned ? "BANNED" : "ACTIVE",
+          "Joined Date": new Date(user.createdAt).toLocaleDateString(),
+          "Last Login": user.lastLogin ? new Date(user.lastLogin).toLocaleString() : "Never"
+        }))
+
+        // Create workbook and worksheet
+        const worksheet = XLSX.utils.json_to_sheet(exportData)
+        const workbook = XLSX.utils.book_new()
+        XLSX.utils.book_append_sheet(workbook, worksheet, "UniSync Users Report")
+        
+        // Auto-sizing columns (simple heuristic)
+        const colWidths = [
+          { wch: 25 }, // Name
+          { wch: 30 }, // Email
+          { wch: 15 }, // ID
+          { wch: 15 }, // Role
+          { wch: 10 }, // Status
+          { wch: 15 }, // Joined
+          { wch: 25 }  // Last Login
+        ]
+        worksheet["!cols"] = colWidths
+
+        // Generate date string for filename
+        const dateStr = new Date().toISOString().split('T')[0]
+        
+        // Download the file
+        XLSX.writeFile(workbook, `UniSync_System_Report_${dateStr}.xlsx`)
+      } else {
+        alert("Failed to fetch data for report.")
+      }
+    } catch (error) {
+      console.error("Error generating report:", error)
+      alert("An error occurred while generating the report.")
+    } finally {
+      setIsGeneratingReport(false)
     }
   }
 
@@ -138,11 +214,43 @@ export default function DashboardPage() {
                   <CardTitle>Moderation Activity</CardTitle>
                   <CardDescription>Activity overview from the last 24 hours.</CardDescription>
                 </CardHeader>
-                <CardContent className="h-[300px] flex items-center justify-center text-muted-foreground bg-muted/20 rounded-lg m-6 mt-0">
-                  <div className="flex flex-col items-center gap-2">
-                    <ActivityIcon className="size-8 opacity-20" />
-                    <p>Activity visualization will appear here</p>
-                  </div>
+                <CardContent className="h-[300px] text-muted-foreground rounded-lg m-6 mt-0 p-0">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={activityData} margin={{ top: 20, right: 20, left: -20, bottom: 0 }}>
+                      <defs>
+                        <linearGradient id="colorActions" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#2563eb" stopOpacity={0.3} />
+                          <stop offset="95%" stopColor="#2563eb" stopOpacity={0} />
+                        </linearGradient>
+                      </defs>
+                      <XAxis 
+                        dataKey="date" 
+                        stroke="#888888" 
+                        fontSize={12} 
+                        tickLine={false} 
+                        axisLine={false} 
+                      />
+                      <YAxis 
+                        stroke="#888888" 
+                        fontSize={12} 
+                        tickLine={false} 
+                        axisLine={false} 
+                        tickFormatter={(value) => `${value}`} 
+                      />
+                      <Tooltip 
+                        contentStyle={{ borderRadius: "8px", border: "none", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}
+                        labelStyle={{ color: "#888888", marginBottom: "4px" }}
+                      />
+                      <Area 
+                        type="monotone" 
+                        dataKey="actions" 
+                        stroke="#2563eb" 
+                        strokeWidth={3}
+                        fillOpacity={1} 
+                        fill="url(#colorActions)" 
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
                 </CardContent>
               </Card>
               
@@ -171,8 +279,19 @@ export default function DashboardPage() {
                     </a>
                   </Button>
                   <div className="pt-4">
-                    <Button className="w-full h-11 brand-gradient border-none hover:opacity-90 transition-opacity">
-                      Generate System Report
+                    <Button 
+                      className="w-full h-11 brand-gradient border-none hover:opacity-90 transition-opacity"
+                      onClick={handleGenerateReport}
+                      disabled={isGeneratingReport}
+                    >
+                      {isGeneratingReport ? (
+                        <>
+                          <Loader2Icon className="mr-2 size-4 animate-spin text-white" />
+                          Generating Report...
+                        </>
+                      ) : (
+                        "Generate System Report"
+                      )}
                     </Button>
                   </div>
                 </div>

@@ -14,6 +14,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   Table,
   TableBody,
@@ -63,7 +64,12 @@ export default function AdminManagementPage() {
   const fetchAdmins = async () => {
     setIsLoading(true)
     try {
-      const response = await fetch("http://localhost:5000/api/users")
+      const token = JSON.parse(localStorage.getItem("user"))?.id;
+      const response = await fetch("http://localhost:5000/api/users", {
+        headers: {
+          "x-admin-id": token
+        }
+      })
       const data = await response.json()
       if (data.success) {
         // Filter only admins for now on the frontend
@@ -254,16 +260,15 @@ export default function AdminManagementPage() {
             <h1 className="text-3xl font-extrabold tracking-tight">Admin Management</h1>
             <p className="text-muted-foreground font-medium">Manage and monitor system administrators.</p>
           </div>
-          <div className="premium-card overflow-hidden !p-0">
+          <div className="premium-card overflow-hidden !p-0 border border-border/50 shadow-sm rounded-xl">
             <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>SLIIT ID</TableHead>
-                  <TableHead>Phone</TableHead>
-                  <TableHead>Joined Date</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+              <TableHeader className="bg-muted/50">
+                <TableRow className="hover:bg-transparent">
+                  <TableHead className="font-semibold text-muted-foreground w-[300px]">Administrator</TableHead>
+                  <TableHead className="font-semibold text-muted-foreground">SLIIT ID</TableHead>
+                  <TableHead className="font-semibold text-muted-foreground">Phone</TableHead>
+                  <TableHead className="font-semibold text-muted-foreground">Joined Date</TableHead>
+                  <TableHead className="text-right font-semibold text-muted-foreground">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -285,9 +290,21 @@ export default function AdminManagementPage() {
                 ) : (
                   admins.map((admin) => (
                     <TableRow key={admin._id}>
-                      <TableCell className="font-medium">{admin.name}</TableCell>
-                      <TableCell>{admin.email}</TableCell>
-                      <TableCell>{admin.sliitId}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                          <Avatar className="h-9 w-9 border border-border/50">
+                            <AvatarImage src={`https://api.dicebear.com/7.x/notionists/svg?seed=${admin.email}`} alt={admin.name} />
+                            <AvatarFallback className="bg-primary/5 text-primary text-xs font-semibold">
+                              {admin.name.substring(0, 2).toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex flex-col">
+                            <span className="font-medium text-foreground">{admin.name}</span>
+                            <span className="text-xs text-muted-foreground">{admin.email}</span>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="font-mono text-sm">{admin.sliitId}</TableCell>
                       <TableCell>{admin.phone || "N/A"}</TableCell>
                       <TableCell>{new Date(admin.createdAt).toLocaleDateString()}</TableCell>
                       <TableCell className="text-right">

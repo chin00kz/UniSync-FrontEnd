@@ -41,6 +41,7 @@ import {
   SelectValue 
 } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { 
   Loader2Icon, 
   SearchIcon, 
@@ -83,7 +84,11 @@ export default function UserManagementPage() {
   const fetchUsers = async () => {
     setIsLoading(true)
     try {
-      const response = await fetch("http://localhost:5000/api/users")
+      const response = await fetch("http://localhost:5000/api/users", {
+        headers: {
+          "x-admin-id": currentUser?.id
+        }
+      })
       const data = await response.json()
       if (data.success) {
         setUsers(data.data)
@@ -174,10 +179,10 @@ export default function UserManagementPage() {
 
   const getRoleBadge = (role) => {
     switch (role) {
-      case 'superadmin': return <Badge className="bg-red-500 hover:bg-red-600">Super Admin</Badge>
-      case 'admin': return <Badge className="bg-purple-500 hover:bg-purple-600">Admin</Badge>
-      case 'moderator': return <Badge className="bg-blue-500 hover:bg-blue-600">Moderator</Badge>
-      default: return <Badge variant="outline">User</Badge>
+      case 'superadmin': return <Badge variant="outline" className="bg-red-500/10 text-red-600 border-red-500/20 font-medium">Super Admin</Badge>
+      case 'admin': return <Badge variant="outline" className="bg-fuchsia-500/10 text-fuchsia-600 border-fuchsia-500/20 font-medium">Admin</Badge>
+      case 'moderator': return <Badge variant="outline" className="bg-blue-500/10 text-blue-600 border-blue-500/20 font-medium">Moderator</Badge>
+      default: return <Badge variant="outline" className="bg-slate-500/10 text-slate-600 border-slate-500/20 font-medium">User</Badge>
     }
   }
 
@@ -218,16 +223,16 @@ export default function UserManagementPage() {
             <h1 className="text-3xl font-extrabold tracking-tight">User Management</h1>
             <p className="text-muted-foreground font-medium">View and manage all registered accounts on the platform.</p>
           </div>
-          <div className="premium-card overflow-hidden !p-0">
+          <div className="premium-card overflow-hidden !p-0 border border-border/50 shadow-sm rounded-xl">
             <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>User</TableHead>
-                  <TableHead>SLIIT ID</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Joined</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+              <TableHeader className="bg-muted/50">
+                <TableRow className="hover:bg-transparent">
+                  <TableHead className="font-semibold text-muted-foreground w-[300px]">User</TableHead>
+                  <TableHead className="font-semibold text-muted-foreground">SLIIT ID</TableHead>
+                  <TableHead className="font-semibold text-muted-foreground">Role</TableHead>
+                  <TableHead className="font-semibold text-muted-foreground">Status</TableHead>
+                  <TableHead className="font-semibold text-muted-foreground">Joined</TableHead>
+                  <TableHead className="text-right font-semibold text-muted-foreground">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -250,21 +255,29 @@ export default function UserManagementPage() {
                   filteredUsers.map((user) => (
                     <TableRow key={user._id}>
                       <TableCell>
-                        <div className="flex flex-col">
-                          <span className="font-medium">{user.name}</span>
-                          <span className="text-xs text-muted-foreground">{user.email}</span>
+                        <div className="flex items-center gap-3">
+                          <Avatar className="h-9 w-9 border border-border/50">
+                            <AvatarImage src={`https://api.dicebear.com/7.x/notionists/svg?seed=${user.email}`} alt={user.name} />
+                            <AvatarFallback className="bg-primary/5 text-primary text-xs font-semibold">
+                              {user.name.substring(0, 2).toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex flex-col">
+                            <span className="font-medium text-foreground">{user.name}</span>
+                            <span className="text-xs text-muted-foreground">{user.email}</span>
+                          </div>
                         </div>
                       </TableCell>
                       <TableCell className="font-mono text-sm">{user.sliitId}</TableCell>
                       <TableCell>{getRoleBadge(user.role)}</TableCell>
                       <TableCell>
                         {user.isBanned ? (
-                          <Badge variant="destructive" className="flex w-fit items-center gap-1">
+                          <Badge variant="outline" className="flex w-fit items-center gap-1 bg-rose-500/10 text-rose-600 border-rose-500/20 font-medium font-medium">
                             <BanIcon className="size-3" />
                             Banned
                           </Badge>
                         ) : (
-                          <Badge variant="outline" className="border-emerald-500 text-emerald-500">Active</Badge>
+                          <Badge variant="outline" className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 font-medium">Active</Badge>
                         )}
                       </TableCell>
                       <TableCell className="text-sm text-muted-foreground">
