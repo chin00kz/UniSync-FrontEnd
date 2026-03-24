@@ -1,4 +1,4 @@
-import { AppSidebar } from "@/components/app-sidebar"
+import { AppSidebar } from "@/components/admin/app-sidebar"
 import {
   SidebarInset,
   SidebarProvider,
@@ -13,7 +13,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-import { NotificationsSheet } from "@/components/notifications-sheet"
+import { NotificationsSheet } from "@/components/admin/notifications-sheet"
 
 import { useState, useEffect } from "react"
 import { UsersIcon, ShieldAlertIcon, FileTextIcon, ActivityIcon, ArrowRightIcon, Loader2Icon } from "lucide-react"

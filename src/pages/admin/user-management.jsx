@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react"
 import { cn } from "@/lib/utils"
-import { AppSidebar } from "@/components/app-sidebar"
+import { AppSidebar } from "@/components/admin/app-sidebar"
 import {
   SidebarInset,
   SidebarProvider,
@@ -15,7 +15,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-import { NotificationsSheet } from "@/components/notifications-sheet"
+import { NotificationsSheet } from "@/components/admin/notifications-sheet"
 import {
   Table,
   TableBody,

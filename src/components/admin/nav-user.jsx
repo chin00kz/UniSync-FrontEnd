@@ -26,7 +26,7 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Button } from "@/components/ui/button"
-import { NotificationsSheet } from "@/components/notifications-sheet"
+import { NotificationsSheet } from "@/components/admin/notifications-sheet"
 import { ChevronsUpDownIcon, BadgeCheckIcon, BellIcon, LogOutIcon, InfoIcon, ShieldAlertIcon, UserPlusIcon, CheckCircle2Icon } from "lucide-react"
 
 export function NavUser({
