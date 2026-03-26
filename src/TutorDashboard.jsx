@@ -1,68 +1,201 @@
 import React from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { 
+  MessageSquare, 
+  CheckCircle2, 
+  Clock, 
+  MailCheck,
+  ArrowRight 
+} from 'lucide-react';
 
 const TutorDashboard = ({ questions }) => {
   const stats = [
-    { label: "Total Requests", value: questions.length, color: "#4318ff", bg: "#f4f7fe" },
-    { label: "Completed", value: questions.filter(q => q.status === 'Completed').length, color: "#05cd99", bg: "#e6faf5" },
-    { label: "Waiting", value: questions.filter(q => q.status === 'Not Started').length, color: "#ffb547", bg: "#fff9e6" },
-    { label: "Replied", value: questions.filter(q => q.status === 'Replied').length, color: "#707eae", bg: "#f4f7fe" }
+    { 
+      label: "Total Requests", 
+      value: questions.length, 
+      icon: MessageSquare,
+      color: "text-blue-600",
+      bgColor: "bg-blue-50"
+    },
+    { 
+      label: "Completed", 
+      value: questions.filter(q => q.status === 'Completed').length, 
+      icon: CheckCircle2,
+      color: "text-emerald-600",
+      bgColor: "bg-emerald-50"
+    },
+    { 
+      label: "Waiting", 
+      value: questions.filter(q => q.status === 'Not Started').length, 
+      icon: Clock,
+      color: "text-amber-600",
+      bgColor: "bg-amber-50"
+    },
+    { 
+      label: "Replied", 
+      value: questions.filter(q => q.status === 'Replied').length, 
+      icon: MailCheck,
+      color: "text-purple-600",
+      bgColor: "bg-purple-50"
+    }
   ];
 
+  const getStatusBadge = (status) => {
+    const variants = {
+      'Completed': { variant: 'default', className: 'bg-emerald-500 hover:bg-emerald-600' },
+      'Replied': { variant: 'secondary', className: 'bg-blue-100 text-blue-700 hover:bg-blue-200' },
+      'Not Started': { variant: 'outline', className: 'border-amber-200 text-amber-700 bg-amber-50' }
+    };
+    
+    const config = variants[status] || variants['Not Started'];
+    
+    return (
+      <Badge variant={config.variant} className={config.className}>
+        {status ? status.toUpperCase() : 'NOT STARTED'}
+      </Badge>
+    );
+  };
+
+  const getActionText = (status) => {
+    switch(status) {
+      case 'Not Started':
+        return { text: 'Review Request', icon: Clock, variant: 'default' };
+      case 'Replied':
+        return { text: 'View Reply', icon: MailCheck, variant: 'outline' };
+      case 'Completed':
+        return { text: 'View Details', icon: CheckCircle2, variant: 'secondary' };
+      default:
+        return { text: 'View', icon: ArrowRight, variant: 'ghost' };
+    }
+  };
+
   return (
-    <div>
-      <h1 style={{ color: '#1b2559', fontSize: '2.2rem', fontWeight: '700', marginBottom: '8px' }}>Dashboard Overview</h1>
-      <p style={{ color: '#a3aed0', marginBottom: '35px', fontWeight: '500' }}>Welcome back! Here's what's happening with UniSync today.</p>
-      
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '25px', marginBottom: '40px' }}>
-        {stats.map((stat, i) => (
-          <div key={i} style={{ backgroundColor: 'white', padding: '25px', borderRadius: '20px', boxShadow: '0 10px 30px rgba(0,0,0,0.02)', border: '1px solid #f0f2f9' }}>
-            <p style={{ color: '#a3aed0', textTransform: 'uppercase', fontSize: '0.75rem', fontWeight: '700', margin: '0 0 10px 0' }}>{stat.label}</p>
-            <h2 style={{ color: stat.color, fontSize: '2rem', margin: 0 }}>{stat.value}</h2>
-          </div>
-        ))}
+    <div className="space-y-8 p-6 bg-gray-50 min-h-screen">
+      {/* Header Section */}
+      <div className="space-y-2">
+        <h1 className="text-3xl font-bold tracking-tight text-gray-900">
+          Dashboard Overview
+        </h1>
+        <p className="text-gray-500">
+          Welcome back! Here's what's happening with UniSync today.
+        </p>
       </div>
 
-      <div style={{ backgroundColor: 'white', padding: '35px', borderRadius: '30px', boxShadow: '0 10px 40px rgba(0,0,0,0.03)', border: '1px solid #f0f2f9' }}>
-        <h3 style={{ color: '#1b2559', marginBottom: '25px', fontSize: '1.2rem' }}>Student Activity Tracker</h3>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr style={{ textAlign: 'left', borderBottom: '1px solid #f4f7fe', color: '#a3aed0', fontSize: '0.85rem' }}>
-              <th style={{ padding: '15px' }}>STUDENT NAME</th>
-              <th style={{ padding: '15px' }}>STATUS</th>
-              <th style={{ padding: '15px' }}>ACTION</th>
-            </tr>
-          </thead>
-          <tbody>
-            {questions.map(q => (
-              <tr key={q._id} style={{ borderBottom: '1px solid #f4f7fe' }}>
-                <td style={{ padding: '20px 15px', fontWeight: '700', color: '#1b2559' }}>{q.studentName}</td>
-                <td style={{ padding: '15px' }}>
-                  <StatusBadge status={q.status} />
-                </td>
-                <td style={{ padding: '15px', color: '#707eae', fontSize: '0.9rem' }}>
-                   {q.status === 'Not Started' ? '🕒 New Request' : q.status === 'Replied' ? '📩 Sent' : '✅ Finished'}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      {/* Stats Cards Grid */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        {stats.map((stat, index) => {
+          const Icon = stat.icon;
+          return (
+            <Card key={index} className="hover:shadow-lg transition-shadow">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-gray-500">
+                  {stat.label}
+                </CardTitle>
+                <div className={`p-2 rounded-lg ${stat.bgColor}`}>
+                  <Icon className={`h-4 w-4 ${stat.color}`} />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className={`text-3xl font-bold ${stat.color}`}>
+                  {stat.value}
+                </div>
+                <p className="text-xs text-gray-500 mt-2">
+                  {stat.label === 'Total Requests' ? 'All time requests' : 
+                   stat.label === 'Completed' ? 'Successfully completed' :
+                   stat.label === 'Waiting' ? 'Pending review' : 'Responses sent'}
+                </p>
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
+
+      {/* Student Activity Table */}
+      <Card className="shadow-lg">
+        <CardHeader>
+          <CardTitle className="text-xl font-semibold">
+            Student Activity Tracker
+          </CardTitle>
+          <p className="text-sm text-gray-500 mt-1">
+            Monitor and manage student requests
+          </p>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-gray-50 hover:bg-gray-50">
+                <TableHead className="font-semibold text-gray-700">
+                  Student Name
+                </TableHead>
+                <TableHead className="font-semibold text-gray-700">
+                  Status
+                </TableHead>
+                <TableHead className="font-semibold text-gray-700">
+                  Action
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {questions.map((q) => {
+                const action = getActionText(q.status);
+                const ActionIcon = action.icon;
+                
+                return (
+                  <TableRow key={q._id} className="hover:bg-gray-50 transition-colors">
+                    <TableCell className="font-medium">
+                      {q.studentName}
+                    </TableCell>
+                    <TableCell>
+                      {getStatusBadge(q.status)}
+                    </TableCell>
+                    <TableCell>
+                      <Button 
+                        variant={action.variant}
+                        size="sm"
+                        className="gap-2"
+                        onClick={() => handleAction(q)}
+                      >
+                        {action.text}
+                        <ActionIcon className="h-3 w-3" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+          
+          {/* Empty State */}
+          {questions.length === 0 && (
+            <div className="text-center py-12">
+              <MessageSquare className="h-12 w-12 text-gray-300 mx-auto mb-3" />
+              <p className="text-gray-500">No student requests yet</p>
+              <p className="text-sm text-gray-400 mt-1">
+                New requests will appear here when students reach out
+              </p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 };
 
-const StatusBadge = ({ status }) => {
-  const styles = {
-    'Completed': { bg: '#e6faf5', text: '#05cd99' },
-    'Replied': { bg: '#eef2ff', text: '#4318ff' },
-    'Not Started': { bg: '#fff9e6', text: '#ffb547' }
-  }[status || 'Not Started'];
-
-  return (
-    <span style={{ padding: '8px 16px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '800', backgroundColor: styles.bg, color: styles.text }}>
-      {status ? status.toUpperCase() : 'NOT STARTED'}
-    </span>
-  );
+// Action handler function
+const handleAction = (question) => {
+  // Implement your action logic here
+  console.log('Action for question:', question);
+  // You can navigate to a details page, open a modal, etc.
 };
 
 export default TutorDashboard;
