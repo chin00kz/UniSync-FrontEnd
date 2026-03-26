@@ -18,7 +18,8 @@ import {
   ArrowRight 
 } from 'lucide-react';
 
-const TutorDashboard = ({ questions }) => {
+// මෙතන onAction prop එක ඇතුළත් කළා
+const TutorDashboard = ({ questions, onAction }) => {
   const stats = [
     { 
       label: "Total Requests", 
@@ -82,7 +83,7 @@ const TutorDashboard = ({ questions }) => {
   return (
     <div className="space-y-8 p-6 bg-gray-50 min-h-screen">
       {/* Header Section */}
-      <div className="space-y-2">
+      <div className="space-y-2 text-left">
         <h1 className="text-3xl font-bold tracking-tight text-gray-900">
           Dashboard Overview
         </h1>
@@ -92,7 +93,7 @@ const TutorDashboard = ({ questions }) => {
       </div>
 
       {/* Stats Cards Grid */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 text-left">
         {stats.map((stat, index) => {
           const Icon = stat.icon;
           return (
@@ -121,8 +122,8 @@ const TutorDashboard = ({ questions }) => {
       </div>
 
       {/* Student Activity Table */}
-      <Card className="shadow-lg">
-        <CardHeader>
+      <Card className="shadow-lg text-left">
+        <CardHeader className="text-center">
           <CardTitle className="text-xl font-semibold">
             Student Activity Tracker
           </CardTitle>
@@ -131,49 +132,52 @@ const TutorDashboard = ({ questions }) => {
           </p>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-gray-50 hover:bg-gray-50">
-                <TableHead className="font-semibold text-gray-700">
-                  Student Name
-                </TableHead>
-                <TableHead className="font-semibold text-gray-700">
-                  Status
-                </TableHead>
-                <TableHead className="font-semibold text-gray-700">
-                  Action
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {questions.map((q) => {
-                const action = getActionText(q.status);
-                const ActionIcon = action.icon;
-                
-                return (
-                  <TableRow key={q._id} className="hover:bg-gray-50 transition-colors">
-                    <TableCell className="font-medium">
-                      {q.studentName}
-                    </TableCell>
-                    <TableCell>
-                      {getStatusBadge(q.status)}
-                    </TableCell>
-                    <TableCell>
-                      <Button 
-                        variant={action.variant}
-                        size="sm"
-                        className="gap-2"
-                        onClick={() => handleAction(q)}
-                      >
-                        {action.text}
-                        <ActionIcon className="h-3 w-3" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-gray-50 hover:bg-gray-50">
+                  <TableHead className="text-left font-semibold text-gray-700 pl-12">
+                    Student Name
+                  </TableHead>
+                  <TableHead className="text-center font-semibold text-gray-700">
+                    Status
+                  </TableHead>
+                  <TableHead className="text-right font-semibold text-gray-700 pr-12">
+                    Action
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {questions.map((q) => {
+                  const action = getActionText(q.status);
+                  const ActionIcon = action.icon;
+                  
+                  return (
+                    <TableRow key={q._id} className="hover:bg-gray-50 transition-colors">
+                      <TableCell className="font-medium py-4 align-middle text-left pl-12">
+                        {q.studentName}
+                      </TableCell>
+                      <TableCell className="py-4 align-middle text-center">
+                        {getStatusBadge(q.status)}
+                      </TableCell>
+                      <TableCell className="py-4 align-middle text-right pr-12">
+                        <Button 
+                          variant={action.variant}
+                          size="sm"
+                          className="gap-2 whitespace-nowrap"
+                          // මෙතන onAction prop එක පාවිච්චි කරලා ID එක pass කළා
+                          onClick={() => onAction(q._id)}
+                        >
+                          {action.text}
+                          <ActionIcon className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </div>
           
           {/* Empty State */}
           {questions.length === 0 && (
@@ -189,13 +193,6 @@ const TutorDashboard = ({ questions }) => {
       </Card>
     </div>
   );
-};
-
-// Action handler function
-const handleAction = (question) => {
-  // Implement your action logic here
-  console.log('Action for question:', question);
-  // You can navigate to a details page, open a modal, etc.
 };
 
 export default TutorDashboard;
