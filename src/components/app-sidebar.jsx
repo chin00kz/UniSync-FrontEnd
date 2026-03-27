@@ -90,6 +90,8 @@ const data = {
 }
 
 export function AppSidebar({
+  navMain,
+  portalName = "Admin Portal",
   ...props
 }) {
   const [user, setUser] = React.useState(data.user)
@@ -114,12 +116,12 @@ export function AppSidebar({
           </div>
           <div className="flex flex-col gap-0.5 leading-none">
             <span className="font-semibold text-brand-blue">UniSync</span>
-            <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold">Admin Portal</span>
+            <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold">{portalName}</span>
           </div>
         </div>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <NavMain items={navMain || data.navMain} />
         <NavProjects projects={data.projects} />
       </SidebarContent>
       <SidebarFooter>

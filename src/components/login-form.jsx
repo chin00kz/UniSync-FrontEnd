@@ -52,7 +52,15 @@ export function LoginForm({
         }
         console.log("Storing in localStorage:", userToStore)
         localStorage.setItem("user", JSON.stringify(userToStore))
-        navigate("/dashboard")
+        
+        // Role-based redirection
+        if (data.role === "staff") {
+          navigate("/tutor/dashboard")
+        } else if (data.role === "student") {
+          navigate("/student/dashboard")
+        } else {
+          navigate("/dashboard")
+        }
       } else {
         setError(data.error || "Login failed")
       }

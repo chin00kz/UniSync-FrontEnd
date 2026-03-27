@@ -29,7 +29,7 @@ import {
   ClockIcon
 } from "lucide-react"
 
-export default function AccountPage() {
+export default function AccountPage({ isSubPage = false }) {
   const [user, setUser] = useState(null)
   const [logs, setLogs] = useState([])
   const [isLoading, setIsLoading] = useState(true)
@@ -116,6 +116,179 @@ export default function AccountPage() {
     )
   }
 
+  const content = (
+    <div className="flex flex-1 flex-col gap-8 p-6 lg:p-10 max-w-5xl mx-auto w-full">
+      <div className="flex flex-col gap-1">
+        <h1 className="text-3xl font-extrabold tracking-tight">
+          {user?.role === "student" ? "Student Profile" : "Account Settings"}
+        </h1>
+        <p className="text-muted-foreground font-medium">
+          {user?.role === "student" 
+            ? "Manage your personal information and student credentials." 
+            : "Manage your professional profile and review recent activity."}
+        </p>
+      </div>
+
+      <div className="grid gap-8 md:grid-cols-3">
+        {/* Profile Overview Card */}
+        <div className="md:col-span-1 space-y-6">
+          <div className="premium-card flex flex-col items-center text-center gap-4">
+            <div className="size-24 rounded-full brand-gradient flex items-center justify-center text-white text-3xl font-bold shadow-lg shadow-primary/20">
+              {user?.name?.charAt(0)}
+            </div>
+            <div>
+              <h3 className="text-xl font-bold">{user?.name}</h3>
+              <p className="text-muted-foreground text-sm flex items-center justify-center gap-1">
+                <ShieldIcon className="size-3 text-brand-blue" />
+                {user?.role?.toUpperCase()}
+              </p>
+            </div>
+            <div className="w-full pt-4 border-t space-y-3 text-left">
+              <div className="flex items-center gap-3 text-sm">
+                <ClockIcon className="size-4 text-muted-foreground" />
+                <div className="flex flex-col">
+                  <span className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Last Login</span>
+                  <span className="font-medium">{user?.lastLogin ? new Date(user.lastLogin).toLocaleString() : "First session"}</span>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 text-sm">
+                <UserIcon className="size-4 text-muted-foreground" />
+                <div className="flex flex-col">
+                  <span className="text-xs text-muted-foreground uppercase font-bold tracking-wider">SLIIT ID</span>
+                  <span className="font-medium">{user?.sliitId}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Recent Activity Card - Admins Only */}
+          {(user?.role === "admin" || user?.role === "superadmin") && (
+            <div className="premium-card space-y-4">
+              <h4 className="font-bold flex items-center gap-2">
+                <HistoryIcon className="size-4 text-brand-pink" />
+                Recent Activity
+              </h4>
+              <div className="space-y-4">
+                {logs.length === 0 ? (
+                  <p className="text-xs text-muted-foreground italic">No recent activity detected.</p>
+                 ) : (
+                  logs.map((log) => (
+                    <div key={log._id} className="relative pl-4 border-l-2 border-muted hover:border-brand-blue transition-colors pb-2">
+                      <p className="text-xs font-bold text-brand-blue uppercase">{log.action}</p>
+                      <p className="text-[11px] text-muted-foreground truncate">{log.details}</p>
+                      <p className="text-[10px] text-muted-foreground mt-1">{new Date(log.timestamp).toLocaleDateString()}</p>
+                    </div>
+                  ))
+                )}
+              </div>
+              {logs.length > 0 && (
+                 <Button variant="link" className="p-0 h-auto text-xs font-bold text-brand-blue" asChild>
+                   <a href="/dashboard/audit-logs">View Full History</a>
+                 </Button>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Edit Profile Form */}
+        <div className="md:col-span-2">
+          <div className="premium-card">
+            <h3 className="text-xl font-bold mb-6">Edit Profile</h3>
+            <form onSubmit={handleUpdate} className="space-y-6">
+              {message.text && (
+                <div className={`p-4 rounded-lg flex items-center gap-3 ${
+                  message.type === "success" ? "bg-emerald-500/10 text-emerald-600 border border-emerald-500/20" : "bg-destructive/10 text-destructive border border-destructive/20"
+                }`}>
+                  {message.type === "success" && <CheckCircle2Icon className="size-5" />}
+                  <span className="font-medium text-sm">{message.text}</span>
+                </div>
+              )}
+
+              <div className="grid gap-6 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="name" className="text-xs font-bold uppercase tracking-wider">Full Name</Label>
+                  <div className="relative">
+                    <UserIcon className="absolute left-3 top-3 size-4 text-muted-foreground" />
+                    <Input 
+                      id="name" 
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      className="pl-10" 
+                      placeholder="John Doe"
+                      required
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="phone" className="text-xs font-bold uppercase tracking-wider">Phone Number</Label>
+                  <div className="relative">
+                    <PhoneIcon className="absolute left-3 top-3 size-4 text-muted-foreground" />
+                    <Input 
+                      id="phone" 
+                      value={formData.phone}
+                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      className="pl-10" 
+                      placeholder="+94 7X XXX XXXX"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-xs font-bold uppercase tracking-wider">Email Address</Label>
+                <div className="relative">
+                  <MailIcon className="absolute left-3 top-3 size-4 text-muted-foreground/40" />
+                  <Input 
+                    id="email" 
+                    value={user?.email} 
+                     disabled 
+                    className="pl-10 bg-muted/50 border-dashed" 
+                  />
+                </div>
+                <p className="text-[10px] text-muted-foreground italic">Email address is managed by organization and cannot be changed.</p>
+              </div>
+
+              <div className="pt-4 flex justify-end">
+                <Button type="submit" className="brand-gradient border-0 px-8" disabled={isSaving}>
+                  {isSaving ? (
+                    <>
+                      <Loader2Icon className="mr-2 size-4 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <SaveIcon className="mr-2 size-4" />
+                      Save Changes
+                    </>
+                  )}
+                </Button>
+              </div>
+            </form>
+          </div>
+
+          {/* Security Banner */}
+          <div className="mt-8 p-6 rounded-2xl bg-brand-blue/5 border border-brand-blue/10 flex items-start gap-4">
+            <div className="size-10 rounded-xl bg-brand-blue/20 flex items-center justify-center shrink-0">
+              <ShieldIcon className="size-6 text-brand-blue" />
+            </div>
+            <div>
+              <h4 className="font-bold text-brand-blue">Security Tip</h4>
+              <p className="text-sm text-brand-blue/80 mt-1">
+                {user?.role === "student"
+                  ? "Keep your contact information updated to ensure critical system alerts reach you. Your profile information is used for academic verification."
+                  : "Keep your contact information updated to ensure critical system alerts reach you. Your activity is logged as an administrator for security auditing."}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  if (isSubPage) {
+    return content;
+  }
+
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -137,162 +310,7 @@ export default function AccountPage() {
             </Breadcrumb>
           </div>
         </header>
-
-        <div className="flex flex-1 flex-col gap-8 p-6 lg:p-10 max-w-5xl mx-auto w-full">
-          <div className="flex flex-col gap-1">
-            <h1 className="text-3xl font-extrabold tracking-tight">Account Settings</h1>
-            <p className="text-muted-foreground font-medium">Manage your professional profile and review recent activity.</p>
-          </div>
-
-          <div className="grid gap-8 md:grid-cols-3">
-            {/* Profile Overview Card */}
-            <div className="md:col-span-1 space-y-6">
-              <div className="premium-card flex flex-col items-center text-center gap-4">
-                <div className="size-24 rounded-full brand-gradient flex items-center justify-center text-white text-3xl font-bold shadow-lg shadow-primary/20">
-                  {user?.name?.charAt(0)}
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold">{user?.name}</h3>
-                  <p className="text-muted-foreground text-sm flex items-center justify-center gap-1">
-                    <ShieldIcon className="size-3 text-brand-blue" />
-                    {user?.role?.toUpperCase()}
-                  </p>
-                </div>
-                <div className="w-full pt-4 border-t space-y-3 text-left">
-                  <div className="flex items-center gap-3 text-sm">
-                    <ClockIcon className="size-4 text-muted-foreground" />
-                    <div className="flex flex-col">
-                      <span className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Last Login</span>
-                      <span className="font-medium">{user?.lastLogin ? new Date(user.lastLogin).toLocaleString() : "First session"}</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3 text-sm">
-                    <UserIcon className="size-4 text-muted-foreground" />
-                    <div className="flex flex-col">
-                      <span className="text-xs text-muted-foreground uppercase font-bold tracking-wider">SLIIT ID</span>
-                      <span className="font-medium">{user?.sliitId}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="premium-card space-y-4">
-                <h4 className="font-bold flex items-center gap-2">
-                  <HistoryIcon className="size-4 text-brand-pink" />
-                  Recent Activity
-                </h4>
-                <div className="space-y-4">
-                  {logs.length === 0 ? (
-                    <p className="text-xs text-muted-foreground italic">No recent activity detected.</p>
-                   ) : (
-                    logs.map((log) => (
-                      <div key={log._id} className="relative pl-4 border-l-2 border-muted hover:border-brand-blue transition-colors pb-2">
-                        <p className="text-xs font-bold text-brand-blue uppercase">{log.action}</p>
-                        <p className="text-[11px] text-muted-foreground truncate">{log.details}</p>
-                        <p className="text-[10px] text-muted-foreground mt-1">{new Date(log.timestamp).toLocaleDateString()}</p>
-                      </div>
-                    ))
-                  )}
-                </div>
-                {logs.length > 0 && (
-                   <Button variant="link" className="p-0 h-auto text-xs font-bold text-brand-blue" asChild>
-                     <a href="/dashboard/audit-logs">View Full History</a>
-                   </Button>
-                )}
-              </div>
-            </div>
-
-            {/* Edit Profile Form */}
-            <div className="md:col-span-2">
-              <div className="premium-card">
-                <h3 className="text-xl font-bold mb-6">Edit Profile</h3>
-                <form onSubmit={handleUpdate} className="space-y-6">
-                  {message.text && (
-                    <div className={`p-4 rounded-lg flex items-center gap-3 ${
-                      message.type === "success" ? "bg-emerald-500/10 text-emerald-600 border border-emerald-500/20" : "bg-destructive/10 text-destructive border border-destructive/20"
-                    }`}>
-                      {message.type === "success" && <CheckCircle2Icon className="size-5" />}
-                      <span className="font-medium text-sm">{message.text}</span>
-                    </div>
-                  )}
-
-                  <div className="grid gap-6 sm:grid-cols-2">
-                    <div className="space-y-2">
-                      <Label htmlFor="name" className="text-xs font-bold uppercase tracking-wider">Full Name</Label>
-                      <div className="relative">
-                        <UserIcon className="absolute left-3 top-3 size-4 text-muted-foreground" />
-                        <Input 
-                          id="name" 
-                          value={formData.name}
-                          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                          className="pl-10" 
-                          placeholder="John Doe"
-                          required
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="phone" className="text-xs font-bold uppercase tracking-wider">Phone Number</Label>
-                      <div className="relative">
-                        <PhoneIcon className="absolute left-3 top-3 size-4 text-muted-foreground" />
-                        <Input 
-                          id="phone" 
-                          value={formData.phone}
-                          onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                          className="pl-10" 
-                          placeholder="+94 7X XXX XXXX"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="email" className="text-xs font-bold uppercase tracking-wider">Email Address</Label>
-                    <div className="relative">
-                      <MailIcon className="absolute left-3 top-3 size-4 text-muted-foreground/40" />
-                      <Input 
-                        id="email" 
-                        value={user?.email} 
-                         disabled 
-                        className="pl-10 bg-muted/50 border-dashed" 
-                      />
-                    </div>
-                    <p className="text-[10px] text-muted-foreground italic">Email address is managed by organization and cannot be changed.</p>
-                  </div>
-
-                  <div className="pt-4 flex justify-end">
-                    <Button type="submit" className="brand-gradient border-0 px-8" disabled={isSaving}>
-                      {isSaving ? (
-                        <>
-                          <Loader2Icon className="mr-2 size-4 animate-spin" />
-                          Saving...
-                        </>
-                      ) : (
-                        <>
-                          <SaveIcon className="mr-2 size-4" />
-                          Save Changes
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                </form>
-              </div>
-
-              {/* Security Banner */}
-              <div className="mt-8 p-6 rounded-2xl bg-brand-blue/5 border border-brand-blue/10 flex items-start gap-4">
-                <div className="size-10 rounded-xl bg-brand-blue/20 flex items-center justify-center shrink-0">
-                  <ShieldIcon className="size-6 text-brand-blue" />
-                </div>
-                <div>
-                  <h4 className="font-bold text-brand-blue">Security Tip</h4>
-                  <p className="text-sm text-brand-blue/80 mt-1">
-                    Keep your contact information updated to ensure critical system alerts reach you. Your activity is logged as an administrator for security auditing.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        {content}
       </SidebarInset>
     </SidebarProvider>
   )

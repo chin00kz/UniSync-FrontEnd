@@ -56,5 +56,22 @@ export default function ProtectedRoute({ children }) {
     )
   }
 
+  // Redirect based on role if they are in the wrong side of the portal
+  // Staff should go to /tutor/, Admins should go to /dashboard/
+  const path = window.location.pathname
+  
+  if (user.role === "staff" && path.startsWith("/dashboard")) {
+    return <Navigate to="/tutor/dashboard" replace />
+  }
+
+  if (user.role === "student" && (path.startsWith("/dashboard") || path.startsWith("/tutor"))) {
+    return <Navigate to="/student/dashboard" replace />
+  }
+  
+  if ((user.role === "admin" || user.role === "superadmin") && path.startsWith("/tutor")) {
+    // Admins are naturally allowed to see everything, but let's keep them in the admin dashboard by default
+    // or just let them stay if they explicitly went there.
+  }
+
   return children
 }
