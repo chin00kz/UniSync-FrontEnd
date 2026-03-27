@@ -77,7 +77,7 @@ export function LoginForm({
         <CardHeader className="text-center space-y-1">
           <CardTitle className="text-xl font-bold">Secure Login</CardTitle>
           <CardDescription className="text-xs font-medium">
-            Enter your SLIIT credentials to access the dashboard
+            Enter your SLIIT credentials to access the portal
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -93,7 +93,7 @@ export function LoginForm({
                 </Alert>
               )}
               <div className="grid gap-2">
-                <label className="text-xs font-bold uppercase tracking-wider text-slate-500" htmlFor="email">Work Email</label>
+                <label className="text-xs font-bold uppercase tracking-wider text-slate-500" htmlFor="email">SLIIT Email</label>
                 <Input 
                   id="email" 
                   type="email" 
@@ -121,7 +121,7 @@ export function LoginForm({
                 />
               </div>
               <Button type="submit" className="w-full brand-gradient border-0 text-sm font-bold shadow-lg shadow-brand-blue/25 hover:opacity-90 active:scale-[0.98] transition-all" disabled={isLoading}>
-                {isLoading ? "Authenticating..." : "Sign In to Dashboard"}
+                {isLoading ? "Authenticating..." : "Sign In to Portal"}
               </Button>
             </div>
           </form>
