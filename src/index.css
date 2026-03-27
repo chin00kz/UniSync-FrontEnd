@@ -70,3 +70,12 @@
   @apply rounded-xl border bg-card p-6 shadow-sm transition-all hover:shadow-md hover:border-primary/20;
   border-color: var(--color-border);
 }
+
+html,
+body,
+#root {
+  width: 100%;
+  max-width: 100%;
+  min-height: 100vh;
+  overflow-x: hidden;
+}

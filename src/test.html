@@ -1,0 +1,57 @@
+{/* LEFT COLUMN - SESSION LIST */}
+        <div className="lg:col-span-5 space-y-4">
+          <Card className="border-0 shadow-sm">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                <Inbox className="h-5 w-5 text-gray-500" />
+                Student Sessions
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-0">
+              <div className="divide-y">
+                {questions.map(q => {
+                  const statusStyle = getStatusStyle(q.status);
+                  return (
+                    <div
+                      key={q._id}
+                      onClick={() => { setActiveId(q._id); setReply(q.replyText || ''); }}
+                      className={`p-4 cursor-pointer transition-all hover:bg-gray-50 ${
+                        activeId === q._id ? 'bg-blue-50 border-l-4 border-l-blue-500' : ''
+                      }`}
+                    >
+                      <div className="flex items-start gap-3">
+                        <Avatar className="h-10 w-10">
+                          <AvatarFallback className="bg-gray-200 text-gray-700">
+                            {getInitials(q.studentName)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between mb-1">
+                            <p className="font-semibold text-gray-900 truncate">
+                              {q.studentName}
+                            </p>
+                            <Badge className={`${statusStyle.bg} ${statusStyle.text} border-0 text-xs`}>
+                              {q.status}
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-gray-500 truncate">
+                            {q.questionText?.substring(0, 60)}...
+                          </p>
+                          <div className="flex items-center gap-2 mt-2">
+                            <Clock className="h-3 w-3 text-gray-400" />
+                            <span className="text-xs text-gray-400">
+                              {q.createdAt ? new Date(q.createdAt).toLocaleDateString() : 'No date'}
+                            </span>
+                          </div>
+                        </div>
+                        <ChevronRight className={`h-4 w-4 text-gray-400 transition-transform ${
+                          activeId === q._id ? 'translate-x-1' : ''
+                        }`} />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        </div>

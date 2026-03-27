@@ -29,13 +29,15 @@ export function LoginForm({
     setIsLoading(true)
     setError("")
 
+    const normalizedEmail = email.trim().toLowerCase()
+
     try {
       const response = await fetch("http://localhost:5000/api/users/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email: normalizedEmail, password }),
       })
 
       const data = await response.json()
@@ -46,7 +48,7 @@ export function LoginForm({
           id: data.id,
           role: data.role,
           name: data.name,
-          email: email
+          email: data.email || normalizedEmail
         }
         console.log("Storing in localStorage:", userToStore)
         localStorage.setItem("user", JSON.stringify(userToStore))
