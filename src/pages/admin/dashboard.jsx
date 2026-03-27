@@ -22,7 +22,7 @@ import * as XLSX from "xlsx"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 
-export default function DashboardPage() {
+export default function DashboardPage({ isSubPage = false }) {
   const [stats, setStats] = useState({
     totalUsers: 0,
     totalAdmins: 0,
@@ -148,6 +148,150 @@ export default function DashboardPage() {
     </div>
   )
 
+  if (isSubPage) return (
+    <div className="flex flex-1 flex-col overflow-hidden">
+      <div className="flex items-center justify-between px-6 py-4 border-b bg-white shrink-0">
+        <div />
+        <div className="flex items-center gap-4">
+          <NotificationsSheet />
+        </div>
+      </div>
+      <main className="flex-1 overflow-auto p-6 lg:p-10 bg-slate-50/50">
+        <div className="mx-auto max-w-7xl space-y-8">
+          <div className="flex flex-col gap-1">
+            <h1 className="text-2xl font-black tracking-tight uppercase bg-clip-text text-transparent bg-gradient-to-r from-brand-blue to-brand-pink">
+              Global Dashboard
+            </h1>
+            <p className="text-lg text-muted-foreground font-medium italic">
+              Welcome back! Here's the pulse of UniSync today.
+            </p>
+          </div>
+
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <StatCard 
+            title="Total Users" 
+            value={stats.totalUsers} 
+            icon={UsersIcon} 
+            description="Registered students & staff" 
+            color="bg-blue-500"
+          />
+          <StatCard 
+            title="Active Admins" 
+            value={stats.totalAdmins} 
+            icon={ShieldAlertIcon} 
+            description="System administrators" 
+            color="bg-purple-500"
+          />
+          <StatCard 
+            title="Pending Reports" 
+            value={stats.pendingReports} 
+            icon={FileTextIcon} 
+            description="Flagged content awaiting review" 
+            color="bg-orange-500"
+          />
+          <StatCard 
+            title="Banned Users" 
+            value={stats.bannedUsers} 
+            icon={ActivityIcon} 
+            description="Accounts currently restricted" 
+            color="bg-red-500"
+          />
+        </div>
+
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
+          <Card className="lg:col-span-4 border-none shadow-lg">
+            <CardHeader>
+              <CardTitle>Moderation Activity</CardTitle>
+              <CardDescription>Activity overview from the last 24 hours.</CardDescription>
+            </CardHeader>
+            <CardContent className="h-[300px] text-muted-foreground rounded-lg m-6 mt-0 p-0">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={activityData} margin={{ top: 20, right: 20, left: -20, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="colorActions" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#2563eb" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#2563eb" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <XAxis 
+                    dataKey="date" 
+                    stroke="#888888" 
+                    fontSize={12} 
+                    tickLine={false} 
+                    axisLine={false} 
+                  />
+                  <YAxis 
+                    stroke="#888888" 
+                    fontSize={12} 
+                    tickLine={false} 
+                    axisLine={false} 
+                    tickFormatter={(value) => `${value}`} 
+                  />
+                  <Tooltip 
+                    contentStyle={{ borderRadius: "8px", border: "none", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}
+                    labelStyle={{ color: "#888888", marginBottom: "4px" }}
+                  />
+                  <Area 
+                    type="monotone" 
+                    dataKey="actions" 
+                    stroke="#2563eb" 
+                    strokeWidth={3}
+                    fillOpacity={1} 
+                    fill="url(#colorActions)" 
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+          
+          <div className="lg:col-span-3 premium-card space-y-6">
+            <div>
+              <h3 className="text-xl font-bold tracking-tight">Quick Actions</h3>
+              <p className="text-sm text-muted-foreground">Common management tasks.</p>
+            </div>
+            <div className="space-y-3">
+              <Button variant="outline" className="w-full justify-between group h-12 border-primary/10 hover:border-primary/30" asChild>
+                <a href="/dashboard/reports" className="flex items-center justify-between w-full">
+                  Review Pending Reports
+                  <ArrowRightIcon className="size-4 transition-transform group-hover:translate-x-1" />
+                </a>
+              </Button>
+              <Button variant="outline" className="w-full justify-between group h-12 border-primary/10 hover:border-primary/30" asChild>
+                <a href="/dashboard/users" className="flex items-center justify-between w-full">
+                  Manage User Roles
+                  <ArrowRightIcon className="size-4 transition-transform group-hover:translate-x-1" />
+                </a>
+              </Button>
+              <Button variant="outline" className="w-full justify-between group h-12 border-primary/10 hover:border-primary/30" asChild>
+                <a href="/dashboard/bans" className="flex items-center justify-between w-full">
+                  View Banned Accounts
+                  <ArrowRightIcon className="size-4 transition-transform group-hover:translate-x-1" />
+                </a>
+              </Button>
+              <div className="pt-4">
+                <Button 
+                  className="w-full h-11 brand-gradient border-none hover:opacity-90 transition-opacity"
+                  onClick={handleGenerateReport}
+                  disabled={isGeneratingReport}
+                >
+                  {isGeneratingReport ? (
+                    <>
+                      <Loader2Icon className="mr-2 size-4 animate-spin text-white" />
+                      Generating Report...
+                    </>
+                  ) : (
+                    "Generate System Report"
+                  )}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      </main>
+    </div>
+  );
+
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -173,8 +317,8 @@ export default function DashboardPage() {
         <main className="flex-1 overflow-auto p-6 lg:p-10">
           <div className="mx-auto max-w-7xl space-y-8">
             <div className="flex flex-col gap-1">
-              <h1 className="text-4xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-brand-blue to-brand-pink">
-                Admin Dashboard
+              <h1 className="text-2xl font-black tracking-tight uppercase bg-clip-text text-transparent bg-gradient-to-r from-brand-blue to-brand-pink">
+                Global Dashboard
               </h1>
               <p className="text-lg text-muted-foreground font-medium">
                 Welcome back! Here's the pulse of UniSync today.
@@ -264,24 +408,24 @@ export default function DashboardPage() {
                   <p className="text-sm text-muted-foreground">Common management tasks.</p>
                 </div>
                 <div className="space-y-3">
-                  <Button variant="outline" className="w-full justify-between group h-12 border-primary/10 hover:border-primary/30" render={
-                    <a href="/dashboard/reports">
+                  <Button variant="outline" className="w-full justify-between group h-12 border-primary/10 hover:border-primary/30" asChild>
+                    <a href="/dashboard/reports" className="flex items-center justify-between w-full">
                       Review Pending Reports
                       <ArrowRightIcon className="size-4 transition-transform group-hover:translate-x-1" />
                     </a>
-                  } />
-                  <Button variant="outline" className="w-full justify-between group h-12 border-primary/10 hover:border-primary/30" render={
-                    <a href="/dashboard/users">
+                  </Button>
+                  <Button variant="outline" className="w-full justify-between group h-12 border-primary/10 hover:border-primary/30" asChild>
+                    <a href="/dashboard/users" className="flex items-center justify-between w-full">
                       Manage User Roles
                       <ArrowRightIcon className="size-4 transition-transform group-hover:translate-x-1" />
                     </a>
-                  } />
-                  <Button variant="outline" className="w-full justify-between group h-12 border-primary/10 hover:border-primary/30" render={
-                    <a href="/dashboard/bans">
+                  </Button>
+                  <Button variant="outline" className="w-full justify-between group h-12 border-primary/10 hover:border-primary/30" asChild>
+                    <a href="/dashboard/bans" className="flex items-center justify-between w-full">
                       View Banned Accounts
                       <ArrowRightIcon className="size-4 transition-transform group-hover:translate-x-1" />
                     </a>
-                  } />
+                  </Button>
                   <div className="pt-4">
                     <Button 
                       className="w-full h-11 brand-gradient border-none hover:opacity-90 transition-opacity"
@@ -305,5 +449,5 @@ export default function DashboardPage() {
         </main>
       </SidebarInset>
     </SidebarProvider>
-  )
+  );
 }

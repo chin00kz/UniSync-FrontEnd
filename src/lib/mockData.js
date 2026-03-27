@@ -63,7 +63,7 @@ export const mockPeerTutoring = [
     rating: 4.9,
     price: "$15/hr",
     availability: "Available Now",
-    avatar: "https://i.pravatar.cc/150?u=emma"
+    avatar: "https://api.dicebear.com/7.x/notionists/svg?seed=emma"
   },
   {
     id: 2,
@@ -72,7 +72,7 @@ export const mockPeerTutoring = [
     rating: 4.8,
     price: "$20/hr",
     availability: "Tomorrow",
-    avatar: "https://i.pravatar.cc/150?u=james"
+    avatar: "https://api.dicebear.com/7.x/notionists/svg?seed=james"
   },
   {
     id: 3,
@@ -81,6 +81,6 @@ export const mockPeerTutoring = [
     rating: 5.0,
     price: "$18/hr",
     availability: "Next Week",
-    avatar: "https://i.pravatar.cc/150?u=sarah"
+    avatar: "https://api.dicebear.com/7.x/notionists/svg?seed=sarah"
   }
 ];

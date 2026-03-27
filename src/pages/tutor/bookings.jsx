@@ -115,11 +115,13 @@ export default function TutorBookingsPage() {
                 {/* Student Info Sidebar */}
                 <div className="md:w-64 bg-slate-50 p-8 flex flex-col items-center text-center gap-4 border-r border-slate-100">
                   <div className="relative">
-                    <img 
-                      src={booking.student?.avatar || `https://i.pravatar.cc/150?u=${booking.student?._id}`} 
-                      alt={booking.student?.name} 
-                      className="size-20 rounded-2xl border-4 border-white shadow-lg relative z-10" 
-                    />
+                    <div className="size-20 rounded-2xl border-4 border-white shadow-lg relative z-10 overflow-hidden bg-slate-50">
+                      <img 
+                        src={`https://api.dicebear.com/7.x/notionists/svg?seed=${booking.student?.email || booking.student?.name}`} 
+                        alt={booking.student?.name} 
+                        className="size-full object-cover" 
+                      />
+                    </div>
                     <div className="absolute -bottom-2 -right-2 size-8 bg-white rounded-xl shadow-sm border border-slate-100 flex items-center justify-center z-20">
                       <UserCheck className="size-4 text-brand-blue" />
                     </div>

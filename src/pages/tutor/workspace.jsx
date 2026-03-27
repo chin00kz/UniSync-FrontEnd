@@ -55,22 +55,22 @@ export default function TutorWorkspace({ initialPage = "dashboard" }) {
     {
       title: "Dashboard",
       url: "/tutor/dashboard",
-      icon: <LayoutDashboard />,
+      icon: <LayoutDashboard className="size-4" />,
     },
     {
       title: "Manage Bookings",
       url: "/tutor/bookings",
-      icon: <Calendar />,
+      icon: <Calendar className="size-4" />,
     },
     {
       title: "Session Reviews",
       url: "/tutor/sessionreview",
-      icon: <ClipboardList />,
+      icon: <ClipboardList className="size-4" />,
     },
     {
       title: "Account Settings",
       url: "/tutor/account",
-      icon: <UserIcon />,
+      icon: <UserIcon className="size-4" />,
     },
   ]
 

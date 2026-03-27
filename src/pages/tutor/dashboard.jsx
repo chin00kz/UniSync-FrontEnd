@@ -194,7 +194,7 @@ const TutorDashboard = ({ questions, onAction }) => {
 
         {/* Sidebar: Upcoming Sessions */}
         <div className="space-y-8 text-left">
-          <section className="rounded-3xl bg-slate-900 p-8 text-white relative overflow-hidden shadow-2xl shadow-slate-300">
+          <section className="rounded-3xl bg-[#0f172a] p-8 text-white relative overflow-hidden shadow-2xl shadow-slate-200">
             <div className="relative z-10 flex flex-col h-full gap-6">
               <div className="flex items-center justify-between">
                 <div className="size-12 rounded-2xl bg-white/10 flex items-center justify-center text-brand-blue">
@@ -224,11 +224,13 @@ const TutorDashboard = ({ questions, onAction }) => {
                 ) : (
                   bookings.slice(0, 3).map((b) => (
                     <div key={b._id} className="flex items-center gap-4 group cursor-pointer">
-                      <img 
-                        src={b.student?.avatar || `https://i.pravatar.cc/150?u=${b.student?._id}`} 
-                        className="size-10 rounded-xl border-2 border-white/10 group-hover:scale-110 transition-transform"
-                        alt={b.student?.name}
-                      />
+                      <div className="size-10 rounded-xl border-2 border-white/10 group-hover:scale-110 transition-transform overflow-hidden bg-slate-800">
+                        <img 
+                          src={`https://api.dicebear.com/7.x/notionists/svg?seed=${b.student?.email || b.student?.name}`} 
+                          alt={b.student?.name}
+                          className="size-full object-cover"
+                        />
+                      </div>
                       <div className="flex-1 min-w-0">
                         <h5 className="font-bold text-sm truncate text-white">{b.student?.name}</h5>
                         <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">{b.timeSlot}</p>

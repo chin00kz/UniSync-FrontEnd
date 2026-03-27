@@ -2,13 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from "r
 import { useEffect, useState } from "react"
 import axios from "axios"
 import LoginPage from "./pages/login"
-import DashboardPage from "./pages/admin/dashboard"
-import AdminManagementPage from "./pages/admin/admin-management"
-import UserManagementPage from "./pages/admin/user-management"
-import ReportsPage from "./pages/admin/reports"
-import AuditLogsPage from "./pages/admin/audit-logs"
-import BannedUsersPage from "./pages/admin/banned-users"
-import AccountPage from "./pages/admin/account"
+import AdminWorkspace from "./pages/admin/workspace"
 import StudentWorkspace from "./pages/student/workspace"
 import TutorWorkspace from "./pages/tutor/workspace"
 import ProtectedRoute from "./components/protected-route"
@@ -19,13 +13,16 @@ function App() {
     <Router>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
-        <Route path="/dashboard/admins" element={<ProtectedRoute><AdminManagementPage /></ProtectedRoute>} />
-        <Route path="/dashboard/users" element={<ProtectedRoute><UserManagementPage /></ProtectedRoute>} />
-        <Route path="/dashboard/reports" element={<ProtectedRoute><ReportsPage /></ProtectedRoute>} />
-        <Route path="/dashboard/audit-logs" element={<ProtectedRoute><AuditLogsPage /></ProtectedRoute>} />
-        <Route path="/dashboard/bans" element={<ProtectedRoute><BannedUsersPage /></ProtectedRoute>} />
-        <Route path="/dashboard/account" element={<ProtectedRoute><AccountPage /></ProtectedRoute>} />
+        
+        {/* Admin Dashboard Routes */}
+        <Route path="/dashboard" element={<ProtectedRoute><AdminWorkspace initialPage="dashboard" /></ProtectedRoute>} />
+        <Route path="/dashboard/admins" element={<ProtectedRoute><AdminWorkspace initialPage="admins" /></ProtectedRoute>} />
+        <Route path="/dashboard/users" element={<ProtectedRoute><AdminWorkspace initialPage="users" /></ProtectedRoute>} />
+        <Route path="/dashboard/reports" element={<ProtectedRoute><AdminWorkspace initialPage="reports" /></ProtectedRoute>} />
+        <Route path="/dashboard/audit-logs" element={<ProtectedRoute><AdminWorkspace initialPage="audit-logs" /></ProtectedRoute>} />
+        <Route path="/dashboard/bans" element={<ProtectedRoute><AdminWorkspace initialPage="bans" /></ProtectedRoute>} />
+        <Route path="/dashboard/account" element={<ProtectedRoute><AdminWorkspace initialPage="account" /></ProtectedRoute>} />
+
         <Route path="/tutor" element={<ProtectedRoute><TutorWorkspace /></ProtectedRoute>} />
         <Route path="/tutor/dashboard" element={<ProtectedRoute><TutorWorkspace initialPage="dashboard" /></ProtectedRoute>} />
         <Route path="/tutor/bookings" element={<ProtectedRoute><TutorWorkspace initialPage="bookings" /></ProtectedRoute>} />

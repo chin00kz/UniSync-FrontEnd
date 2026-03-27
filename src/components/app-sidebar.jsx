@@ -34,7 +34,7 @@ const data = {
       title: "Dashboard",
       url: "/dashboard",
       icon: (
-        <PieChartIcon />
+        <PieChartIcon className="size-4" />
       ),
       isActive: true,
     },
@@ -42,7 +42,7 @@ const data = {
       title: "User Management",
       url: "#",
       icon: (
-        <Settings2Icon />
+        <Settings2Icon className="size-4" />
       ),
       items: [
         {
@@ -59,7 +59,7 @@ const data = {
       title: "Moderation",
       url: "#",
       icon: (
-        <TerminalIcon />
+        <TerminalIcon className="size-4" />
       ),
       items: [
         {
@@ -76,7 +76,7 @@ const data = {
       title: "System Logs",
       url: "#",
       icon: (
-        <BotIcon />
+        <BotIcon className="size-4" />
       ),
       items: [
         {

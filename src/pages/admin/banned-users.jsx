@@ -14,6 +14,8 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
+import { UserBadge } from "@/components/user-badge"
+import { NotificationsSheet } from "@/components/notifications-sheet"
 import {
   Table,
   TableBody,
@@ -32,7 +34,7 @@ import {
 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 
-export default function BannedUsersPage() {
+export default function BannedUsersPage({ isSubPage = false }) {
   const [bannedUsers, setBannedUsers] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
@@ -91,105 +93,135 @@ export default function BannedUsersPage() {
     user.sliitId.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
+  const content = (
+    <div className="flex flex-1 flex-col gap-4 p-6 text-left">
+      <div className="flex items-center gap-2 text-destructive">
+        <BanIcon className="size-5" />
+        <h2 className="text-xl font-black uppercase tracking-tight">Restricted Accounts</h2>
+      </div>
+
+      <div className="premium-card overflow-hidden !p-0 border border-border/50 shadow-sm rounded-xl">
+        <Table>
+          <TableHeader className="bg-muted/50">
+            <TableRow>
+              <TableHead className="font-bold py-4">User</TableHead>
+              <TableHead className="font-bold py-4">SLIIT ID</TableHead>
+              <TableHead className="font-bold py-4">Reason for Ban</TableHead>
+              <TableHead className="font-bold py-4">Role</TableHead>
+              <TableHead className="text-right font-bold py-4 px-6">Action</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={5} className="h-24 text-center">
+                  <div className="flex items-center justify-center">
+                    <Loader2Icon className="size-6 animate-spin text-muted-foreground" />
+                    <span className="ml-2 font-bold">Loading banned users...</span>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ) : filteredUsers.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5} className="h-48 text-center text-muted-foreground font-bold italic">
+                  No banned users found.
+                </TableCell>
+              </TableRow>
+            ) : (
+              filteredUsers.map((user) => (
+                <TableRow key={user._id} className="hover:bg-slate-50/50 transition-colors">
+                  <TableCell>
+                    <UserBadge 
+                      name={user.name} 
+                      email={user.email} 
+                    />
+                  </TableCell>
+                  <TableCell className="font-mono text-sm font-bold">{user.sliitId}</TableCell>
+                  <TableCell className="max-w-[300px] truncate italic text-muted-foreground font-medium">
+                    {user.banReason || "No reason provided"}
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className="capitalize font-black text-[10px] tracking-widest px-2 py-0.5 border-primary/20 bg-primary/5 text-primary">
+                      {user.role}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-right px-6">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="h-9 font-black uppercase tracking-widest text-[9px] text-emerald-600 border-emerald-200 hover:bg-emerald-50 hover:border-emerald-300 shadow-sm"
+                      onClick={() => handleUnbanUser(user)}
+                      disabled={isActionLoading}
+                    >
+                      {isActionLoading ? <Loader2Icon className="size-4 animate-spin" /> : <UnlockIcon className="mr-2 size-3.5" />}
+                      Lift Ban
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
+  );
+
+  if (isSubPage) return (
+    <div className="flex flex-1 flex-col overflow-hidden">
+      <div className="flex items-center justify-between px-6 py-4 border-b bg-white shrink-0">
+        <div />
+        <div className="flex items-center gap-4">
+          <NotificationsSheet />
+          <div className="relative w-full max-w-sm group">
+            <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground group-focus-within:text-destructive transition-colors" />
+            <Input
+              placeholder="Search banned users..."
+              className="pl-10 h-10 border-destructive/10 bg-muted/30 focus-visible:ring-destructive/20 focus-visible:border-destructive/30 transition-all text-sm font-bold"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+        </div>
+      </div>
+      <div className="flex-1 overflow-auto">
+        {content}
+      </div>
+    </div>
+  );
+
   return (
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center justify-between gap-2 border-b px-6">
+        <header className="flex h-16 shrink-0 items-center justify-between gap-2 border-b px-6 bg-white/50 backdrop-blur-sm">
           <div className="flex items-center gap-2">
             <SidebarTrigger className="-ml-1" />
             <Separator orientation="vertical" className="mr-2 h-4" />
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem>
-                  <BreadcrumbLink href="/dashboard">UniSync</BreadcrumbLink>
+                  <BreadcrumbLink href="/dashboard" className="font-bold">UniSync</BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>
-                  <BreadcrumbPage>Banned Users</BreadcrumbPage>
+                  <BreadcrumbPage className="font-black text-rose-600 uppercase tracking-widest text-[11px]">Banned Users</BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
           </div>
           
-          <div className="relative w-full max-w-sm">
-            <SearchIcon className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
+          <div className="relative w-full max-w-sm group">
+            <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground group-focus-within:text-destructive transition-colors" />
             <Input
-              placeholder="Search banned users..."
-              className="pl-8"
+              placeholder="Search restricted accounts..."
+              className="pl-10 h-10 border-destructive/10 bg-muted/30 focus-visible:ring-destructive/20 focus-visible:border-destructive/30 transition-all text-sm font-bold shadow-inner"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
         </header>
-
-        <div className="flex flex-1 flex-col gap-4 p-6">
-          <div className="flex items-center gap-2 text-destructive">
-            <BanIcon className="size-5" />
-            <h2 className="text-xl font-semibold">Restricted Accounts</h2>
-          </div>
-
-          <div className="rounded-xl border bg-card text-card-foreground shadow-sm overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>User</TableHead>
-                  <TableHead>SLIIT ID</TableHead>
-                  <TableHead>Reason for Ban</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead className="text-right">Action</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {isLoading ? (
-                  <TableRow>
-                    <TableCell colSpan={5} className="h-24 text-center">
-                      <div className="flex items-center justify-center">
-                        <Loader2Icon className="size-6 animate-spin text-muted-foreground" />
-                        <span className="ml-2">Loading banned users...</span>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ) : filteredUsers.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={5} className="h-48 text-center text-muted-foreground">
-                      No banned users found.
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  filteredUsers.map((user) => (
-                    <TableRow key={user._id}>
-                      <TableCell>
-                        <div className="flex flex-col">
-                          <span className="font-medium">{user.name}</span>
-                          <span className="text-xs text-muted-foreground">{user.email}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="font-mono text-sm">{user.sliitId}</TableCell>
-                      <TableCell className="max-w-[300px] truncate italic text-muted-foreground">
-                        {user.banReason || "No reason provided"}
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="secondary" className="capitalize">{user.role}</Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="text-emerald-600 border-emerald-200 hover:bg-emerald-50"
-                          onClick={() => handleUnbanUser(user)}
-                          disabled={isActionLoading}
-                        >
-                          {isActionLoading ? <Loader2Icon className="size-4 animate-spin" /> : <UnlockIcon className="mr-2 size-4" />}
-                          Lift Ban
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </div>
+        <div className="flex-1 overflow-auto bg-slate-50/50">
+          {content}
         </div>
       </SidebarInset>
     </SidebarProvider>

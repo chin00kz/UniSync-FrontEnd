@@ -135,11 +135,13 @@ export default function PeerTutoringPage() {
             <div key={tutor._id} className="premium-card border-slate-200/60 flex flex-col items-center text-center p-8 gap-5 group hover:border-brand-blue/30 transition-all hover:translate-y-[-4px]">
               <div className="relative">
                 <div className="absolute inset-0 bg-brand-blue/20 rounded-full blur-xl group-hover:scale-110 transition-transform duration-500"></div>
-                <img 
-                  src={tutor.avatar || `https://i.pravatar.cc/150?u=${tutor._id}`} 
-                  alt={tutor.name} 
-                  className="size-24 rounded-full border-4 border-white shadow-xl relative z-10 p-0.5 group-hover:rotate-3 transition-transform" 
-                />
+                <div className="size-24 rounded-full border-4 border-white shadow-xl relative z-10 p-0.5 group-hover:rotate-3 transition-transform overflow-hidden bg-slate-50">
+                  <img 
+                    src={`https://api.dicebear.com/7.x/notionists/svg?seed=${tutor.email || tutor.name}`} 
+                    alt={tutor.name} 
+                    className="size-full object-cover" 
+                  />
+                </div>
                 <div className="absolute bottom-1 right-1 size-5 bg-emerald-500 rounded-full border-4 border-white z-20 shadow-sm animate-pulse"></div>
               </div>
               
@@ -201,11 +203,13 @@ export default function PeerTutoringPage() {
                     <X className="size-5" />
                   </button>
                   <div className="flex items-center gap-6">
-                    <img 
-                      src={selectedTutor?.avatar || `https://i.pravatar.cc/150?u=${selectedTutor?._id}`} 
-                      alt={selectedTutor?.name}
-                      className="size-20 rounded-2xl border-4 border-white/20 shadow-xl"
-                    />
+                    <div className="size-20 rounded-2xl border-4 border-white/20 shadow-xl overflow-hidden bg-white/10 shrink-0">
+                      <img 
+                        src={`https://api.dicebear.com/7.x/notionists/svg?seed=${selectedTutor?.email || selectedTutor?.name}`} 
+                        alt={selectedTutor?.name}
+                        className="size-full object-cover"
+                      />
+                    </div>
                     <div>
                       <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/10 text-[10px] font-black uppercase tracking-widest mb-2">
                         <Sparkles className="size-3" />

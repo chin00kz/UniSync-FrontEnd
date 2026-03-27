@@ -22,32 +22,32 @@ export default function StudentWorkspace({ initialPage = "dashboard" }) {
     {
       title: "Dashboard",
       url: "/student/dashboard",
-      icon: <LayoutDashboard />,
+      icon: <LayoutDashboard className="size-4" />,
     },
     {
       title: "Study Materials",
       url: "/student/materials",
-      icon: <BookOpen />,
+      icon: <BookOpen className="size-4" />,
     },
     {
       title: "Find Tutors",
       url: "/student/tutors",
-      icon: <UsersIcon />,
+      icon: <UsersIcon className="size-4" />,
     },
     {
       title: "Ask a Question",
       url: "/student/post",
-      icon: <PlusCircle />,
+      icon: <PlusCircle className="size-4" />,
     },
     {
       title: "My History",
       url: "/student/history",
-      icon: <ClipboardList />,
+      icon: <ClipboardList className="size-4" />,
     },
     {
       title: "Account Settings",
       url: "/student/account",
-      icon: <UserIcon />,
+      icon: <UserIcon className="size-4" />,
     },
   ]
 

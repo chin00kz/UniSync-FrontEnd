@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { 
   MessageSquare, 
@@ -112,7 +112,8 @@ function SessionReview({ questions, onUpdate, initialSelectedId }) {
                       }`}
                     >
                       <div className="flex items-start gap-3">
-                        <Avatar className="h-10 w-10">
+                        <Avatar className="h-10 w-10 border border-slate-200 shadow-sm">
+                          <AvatarImage src={`https://api.dicebear.com/7.x/notionists/svg?seed=${q.studentName}`} alt={q.studentName} />
                           <AvatarFallback className="bg-gray-200 text-gray-700">
                             {getInitials(q.studentName)}
                           </AvatarFallback>
@@ -156,7 +157,8 @@ function SessionReview({ questions, onUpdate, initialSelectedId }) {
               <div className="bg-linear-to-r from-blue-600 to-indigo-600 p-6 text-white">
                 <div className="flex justify-between items-start">
                   <div className="flex items-center gap-3">
-                    <Avatar className="h-12 w-12 border-2 border-white/20">
+                    <Avatar className="h-12 w-12 border-2 border-white/20 shadow-sm">
+                      <AvatarImage src={`https://api.dicebear.com/7.x/notionists/svg?seed=${current.studentName}`} alt={current.studentName} />
                       <AvatarFallback className="bg-white/20 text-white">
                         {getInitials(current.studentName)}
                       </AvatarFallback>

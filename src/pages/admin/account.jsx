@@ -121,108 +121,101 @@ export default function AccountPage({ isSubPage = false }) {
   const content = (
     <div className="flex flex-1 flex-col gap-6 p-4 lg:p-6 max-w-6xl mx-auto w-full h-[calc(100vh-4rem)] overflow-hidden">
       
-      {/* Compact Profile Header Hero */}
-      <div className="relative overflow-hidden rounded-[1.5rem] bg-brand-gradient shadow-xl shadow-brand-blue/10 p-1 group shrink-0">
-        <div className="bg-white/5 backdrop-blur-2xl rounded-[1.4rem] p-6 md:p-8 relative z-10">
-          <div className="flex flex-col md:flex-row items-center gap-6">
-            {/* Avatar Section */}
-            <div className="relative group/avatar shrink-0">
-              <div className="size-24 rounded-full bg-white p-1 shadow-lg transition-transform duration-500 group-hover/avatar:scale-105">
-                <div className="size-full rounded-full bg-slate-100 flex items-center justify-center text-3xl font-black text-brand-blue overflow-hidden relative">
-                   <span className="relative z-10">{user?.name?.charAt(0)}</span>
-                   <div className="absolute inset-0 bg-brand-gradient opacity-10"></div>
+      {/* Resized Profile Header for Balance */}
+      <div className="relative overflow-hidden rounded-[2rem] bg-brand-gradient shadow-xl shadow-brand-blue/10 p-1 shrink-0">
+        <div className="bg-white/5 backdrop-blur-3xl rounded-[1.9rem] p-6 md:p-8 lg:px-12 relative z-10">
+          <div className="flex flex-col md:flex-row items-center gap-8">
+            
+            {/* Optimized Avatar */}
+            <div className="relative shrink-0">
+              <div className="size-24 md:size-28 rounded-3xl bg-white p-1 shadow-xl overflow-hidden">
+                <div className="size-full rounded-[1.3rem] bg-slate-50 flex items-center justify-center border border-slate-100 relative overflow-hidden">
+                   <img src={`https://api.dicebear.com/7.x/notionists/svg?seed=${user?.email}`} alt={user?.name} className="size-full object-cover relative z-10" />
+                   <div className="absolute inset-0 bg-brand-gradient opacity-5"></div>
                 </div>
               </div>
-              <button className="absolute bottom-0 right-0 size-8 rounded-full bg-white text-slate-900 border-2 border-slate-50 flex items-center justify-center shadow-md hover:bg-brand-blue hover:text-white transition-all scale-90 group-hover/avatar:scale-100">
-                <CameraIcon className="size-3.5" />
+              <button className="absolute -bottom-1 -right-1 size-9 rounded-2xl bg-white text-slate-900 border-2 border-slate-50 flex items-center justify-center shadow-lg hover:bg-brand-blue hover:text-white transition-all scale-90 active:scale-95 z-20">
+                <CameraIcon className="size-4" />
               </button>
             </div>
 
-            {/* User Info */}
-            <div className="flex-1 text-center md:text-left space-y-2">
-              <div className="space-y-0.5">
-                <div className="flex items-center justify-center md:justify-start gap-2">
-                  <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">{user?.name}</h1>
-                  <BadgeCheckIcon className="size-5 text-blue-300 fill-white/20" />
+            {/* Identity & Details Row */}
+            <div className="flex-1 text-center md:text-left">
+              <div className="flex flex-col md:flex-row md:items-center gap-6 justify-between w-full">
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-center md:justify-start gap-3">
+                    <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight leading-tight">{user?.name}</h1>
+                    <div className="size-6 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/25">
+                      <BadgeCheckIcon className="size-3.5 text-white/60" />
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-center md:justify-start gap-4">
+                    <span className="px-3 py-1 rounded-xl bg-white text-brand-blue font-black uppercase tracking-widest text-[10px] shadow-lg shadow-black/5">
+                      {user?.role}
+                    </span>
+                    <span className="text-white/90 font-bold text-sm truncate max-w-[200px] md:max-w-none">
+                      {user?.email}
+                    </span>
+                  </div>
                 </div>
-                <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 text-white/80 font-bold uppercase tracking-widest text-[9px]">
-                  <span className="px-2 py-0.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20">
-                    {user?.role}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <MailIcon className="size-3" />
-                    {user?.email}
-                  </span>
-                </div>
-              </div>
-              <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 pt-1">
-                <div className="flex flex-col">
-                  <span className="text-[8px] text-white/60 font-black uppercase tracking-tighter">Member Since</span>
-                  <span className="text-white text-xs font-bold">{new Date(user?.createdAt).toLocaleDateString(undefined, { month: 'short', year: 'numeric' })}</span>
-                </div>
-                <div className="size-1 w-1 bg-white/20 rounded-full hidden md:block"></div>
-                <div className="flex flex-col">
-                  <span className="text-[8px] text-white/60 font-black uppercase tracking-tighter">SLIIT ID</span>
-                  <span className="text-white text-xs font-black tracking-widest">{user?.sliitId}</span>
+
+                <div className="hidden lg:flex items-center gap-10 border-l border-white/10 pl-10">
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-[10px] text-white/40 font-black uppercase tracking-widest">Origin Member</span>
+                    <span className="text-base font-black text-white">{new Date(user?.createdAt).toLocaleDateString(undefined, { month: 'short', year: 'numeric' })}</span>
+                  </div>
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-[10px] text-white/40 font-black uppercase tracking-widest">Global Identity</span>
+                    <span className="text-base font-black text-white tracking-widest">{user?.sliitId}</span>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
+        <div className="absolute top-[-20%] right-[-10%] size-64 bg-white/5 rounded-full blur-3xl pointer-events-none"></div>
       </div>
 
-      {/* Content Grid */}
+      {/* Main Content Area */}
       <div className="grid gap-6 lg:grid-cols-12 text-left flex-1 min-h-0 overflow-hidden">
         
-        {/* Left Column: Form Settings */}
-        <div className="lg:col-span-8 overflow-y-auto pr-2 custom-scrollbar">
-          <div className="premium-card p-6 md:p-8 space-y-6 h-full">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-lg font-black text-slate-800 uppercase tracking-tight">Personal Information</h3>
-                <p className="text-slate-500 font-medium text-xs mt-0.5">Manage your display profile and contact info.</p>
+        {/* Left Column: Essential Settings */}
+        <div className="lg:col-span-8 overflow-hidden flex flex-col">
+          <div className="premium-card p-6 md:p-8 space-y-6 h-full flex flex-col border-slate-100 shadow-sm">
+            <div className="flex items-center justify-between border-b border-slate-50 pb-5 shrink-0">
+              <div className="space-y-1">
+                <h3 className="text-lg font-black text-slate-800 uppercase tracking-tight">Identity Settings</h3>
+                <p className="text-slate-500 font-medium text-xs uppercase tracking-tighter">Your profile is synchronized across UniSync</p>
               </div>
-              <div className="size-10 rounded-xl bg-brand-blue/5 flex items-center justify-center text-brand-blue">
+              <div className="size-10 rounded-xl bg-brand-blue/5 flex items-center justify-center text-brand-blue shadow-inner">
                 <UserIcon className="size-5" />
               </div>
             </div>
 
-            <form onSubmit={handleUpdate} className="space-y-6">
-              {message.text && (
-                <div className={`p-4 rounded-xl flex items-center gap-3 transition-all animate-in fade-in slide-in-from-top-4 ${
-                  message.type === "success" 
-                    ? "bg-emerald-50 text-emerald-600 border border-emerald-200" 
-                    : "bg-rose-50 text-rose-600 border border-rose-200"
-                }`}>
-                  <CheckCircle2Icon className="size-4" />
-                  <span className="font-bold text-xs">{message.text}</span>
-                </div>
-              )}
-
+            <form onSubmit={handleUpdate} className="space-y-6 flex-1 overflow-y-auto pr-2 no-scrollbar pt-2">
               <div className="grid gap-6 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="name" className="text-[10px] font-black uppercase tracking-widest text-slate-400">Display Name</Label>
+                  <Label htmlFor="name" className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Full Name</Label>
                   <div className="relative group">
-                    <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-400 group-focus-within:text-brand-blue transition-colors" />
+                    <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-slate-300 group-focus-within:text-brand-blue transition-colors" />
                     <Input 
                       id="name" 
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="h-11 pl-10 rounded-xl border-slate-200 focus:border-brand-blue focus:ring-4 focus:ring-brand-blue/5 transition-all text-sm font-bold text-slate-700" 
-                      placeholder="e.g. John Doe"
+                      className="h-11 pl-11 rounded-xl border-slate-200 focus:ring-4 focus:ring-brand-blue/5 transition-all text-sm font-bold text-slate-700 bg-slate-50/50" 
                       required
                     />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="phone" className="text-[10px] font-black uppercase tracking-widest text-slate-400">Phone</Label>
+                  <Label htmlFor="phone" className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Phone Number</Label>
                   <div className="relative group">
-                    <PhoneIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-400 group-focus-within:text-brand-blue transition-colors" />
+                    <PhoneIcon className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-slate-300 group-focus-within:text-brand-blue transition-colors" />
                     <Input 
                       id="phone" 
                       value={formData.phone}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      className="h-11 pl-10 rounded-xl border-slate-200 focus:border-brand-blue focus:ring-4 focus:ring-brand-blue/5 transition-all text-sm font-bold text-slate-700" 
+                      className="h-11 pl-11 rounded-xl border-slate-200 focus:ring-4 focus:ring-brand-blue/5 transition-all text-sm font-bold text-slate-700 bg-slate-50/50" 
                       placeholder="+94 7X XXX XXXX"
                     />
                   </div>
@@ -230,25 +223,25 @@ export default function AccountPage({ isSubPage = false }) {
               </div>
 
               <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Institutional Email</Label>
+                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Institutional Email</Label>
                 <div className="relative">
-                  <MailIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-300" />
+                  <MailIcon className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-slate-200" />
                   <Input 
                     disabled 
                     value={user?.email} 
-                    className="h-11 pl-10 rounded-xl bg-slate-50/50 border-slate-200 border-dashed text-slate-400 font-bold text-sm" 
+                    className="h-11 pl-11 rounded-xl bg-slate-100 border-slate-200 border-dashed text-slate-400 font-bold text-sm" 
                   />
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-100 border border-slate-200">
-                    <ShieldIcon className="size-2.5 text-slate-400" />
-                    <span className="text-[8px] font-black text-slate-500 uppercase tracking-tighter">Verified</span>
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white border border-slate-100 shadow-sm">
+                    <ShieldIcon className="size-3 text-emerald-500" />
+                    <span className="text-[8px] font-black text-slate-500 uppercase tracking-tighter">Identity Verified</span>
                   </div>
                 </div>
               </div>
 
-              <div className="pt-4 flex items-center gap-4">
+              <div className="pt-4 flex items-center justify-between border-t border-slate-50 shrink-0">
                  <Button 
                     type="submit" 
-                    className="h-11 px-8 rounded-xl bg-brand-gradient border-0 text-white font-black uppercase tracking-widest text-[11px] shadow-lg shadow-brand-blue/20 hover:scale-[1.02] active:scale-95 transition-all" 
+                    className="h-12 px-10 rounded-xl bg-brand-gradient border-0 text-white font-black uppercase tracking-widest text-[11px] shadow-lg shadow-brand-blue/20 hover:scale-[1.02] active:scale-95 transition-all" 
                     disabled={isSaving}
                   >
                   {isSaving ? (
@@ -256,80 +249,87 @@ export default function AccountPage({ isSubPage = false }) {
                   ) : (
                     <>
                       <SaveIcon className="mr-2 size-4" />
-                      Save Settings
+                      Save Changes
                     </>
                   )}
                 </Button>
-                <p className="text-[10px] text-slate-400 font-medium">Auto-syncs across all platforms.</p>
+                
+                {message.text && (
+                  <div className={`flex items-center gap-2 animate-in fade-in slide-in-from-right-4 ${
+                    message.type === "success" ? "text-emerald-600" : "text-rose-600"
+                  }`}>
+                    <CheckCircle2Icon className="size-4" />
+                    <span className="font-bold text-xs uppercase tracking-tighter">{message.text}</span>
+                  </div>
+                )}
               </div>
             </form>
           </div>
         </div>
 
-        {/* Right Column: Mini Stats/Audit */}
-        <div className="lg:col-span-4 flex flex-col gap-6 overflow-y-auto pr-1">
+        {/* Right Column: Status & History */}
+        <div className="lg:col-span-4 flex flex-col gap-6 overflow-hidden">
           
           {/* Status Tracker */}
-          <div className="premium-card p-6 bg-slate-50 border-slate-100 border-2 space-y-4 shrink-0">
-            <h4 className="text-sm font-black text-slate-800 flex items-center gap-2">
+          <div className="premium-card p-6 bg-slate-50/50 border-slate-100 space-y-4 shrink-0 shadow-sm">
+            <h4 className="text-xs font-black text-slate-800 flex items-center gap-2 uppercase tracking-widest">
               <ShieldIcon className="size-4 text-brand-blue" />
-              Security Sync
+              Session Status
             </h4>
             <div className="grid grid-cols-2 gap-4">
-              <div className="flex flex-col gap-1 p-3 rounded-xl bg-white border border-slate-100">
-                <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Status</span>
+              <div className="flex flex-col gap-1 p-3.5 rounded-xl bg-white border border-slate-100 shadow-sm">
+                <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Auth Level</span>
                 <span className="text-[11px] font-black text-emerald-600 flex items-center gap-1">
-                  Active <CheckCircle2Icon className="size-3" />
+                   Secured <CheckCircle2Icon className="size-3" />
                 </span>
               </div>
-              <div className="flex flex-col gap-1 p-3 rounded-xl bg-white border border-slate-100">
-                <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Last Login</span>
-                <span className="text-[11px] font-black text-slate-700">{user?.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : "Today"}</span>
+              <div className="flex flex-col gap-1 p-3.5 rounded-xl bg-white border border-slate-100 shadow-sm">
+                <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Last Activity</span>
+                <span className="text-[11px] font-black text-slate-700">Today</span>
               </div>
             </div>
           </div>
 
-          {/* Activity Feed */}
+          {/* Activity Feed (Admins Only) */}
            {(user?.role === "admin" || user?.role === "superadmin") && (
-            <div className="premium-card p-6 space-y-4 flex-1">
-              <h4 className="font-extrabold text-xs text-slate-800 flex items-center gap-2 uppercase tracking-widest">
-                <HistoryIcon className="size-3.5 text-brand-pink" />
-                Audit Trail
+            <div className="premium-card p-6 space-y-4 flex-1 min-h-0 flex flex-col shadow-sm border-slate-100">
+              <h4 className="font-black text-xs text-slate-800 flex items-center gap-2 uppercase tracking-widest shrink-0">
+                <HistoryIcon className="size-4 text-brand-pink" />
+                Global Audit
               </h4>
-              <div className="space-y-4">
+              <div className="space-y-4 flex-1 overflow-y-auto pr-1 no-scrollbar">
                 {logs.length === 0 ? (
-                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest italic text-center py-4">No History</p>
+                  <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest italic text-center py-6">No recent audit logs</p>
                  ) : (
-                  logs.slice(0, 4).map((log) => (
-                    <div key={log._id} className="relative pl-4 border-l border-slate-100 hover:border-brand-blue transition-colors pb-1">
-                      <div className="absolute left-[-2.5px] top-0 size-1 rounded-full bg-slate-200 group-hover:bg-brand-blue"></div>
-                      <p className="text-[9px] font-black text-brand-blue uppercase tracking-widest leading-none mb-0.5">{log.action}</p>
-                      <p className="text-[10px] text-slate-600 font-medium line-clamp-1">{log.details}</p>
+                  logs.slice(0, 5).map((log) => (
+                    <div key={log._id} className="relative pl-4 border-l-2 border-slate-50 transition-colors pb-1">
+                      <div className="absolute left-[-5px] top-0 size-2 rounded-full bg-slate-100"></div>
+                      <p className="text-[9px] font-black text-brand-blue uppercase tracking-widest leading-none mb-1">{log.action}</p>
+                      <p className="text-[11px] text-slate-600 font-medium line-clamp-1">{log.details}</p>
                     </div>
                   ))
                 )}
               </div>
-              <Button variant="outline" className="w-full h-9 border-slate-200 text-slate-600 font-bold text-[10px] rounded-lg hover:bg-slate-50" asChild>
-                <a href="/dashboard/audit-logs" className="flex items-center justify-center gap-1.5">
-                  Full Audit
-                  <ExternalLinkIcon className="size-2.5" />
-                </a>
+              <Button variant="outline" className="w-full h-10 border-slate-100 text-slate-500 font-bold text-[10px] uppercase tracking-widest rounded-xl hover:bg-slate-50 shrink-0" asChild>
+                <a href="/dashboard/audit-logs">Detailed Log</a>
               </Button>
             </div>
           )}
 
            {/* Feedback/Help Card for Students */}
            {user?.role === "student" && (
-             <div className="premium-card p-6 bg-brand-blue/5 border-brand-blue/10 border p-6 flex flex-col gap-3 justify-center text-center">
-                <div className="size-10 rounded-xl bg-brand-blue/10 flex items-center justify-center text-brand-blue mx-auto">
-                   <ShieldIcon className="size-5" />
+             <div className="premium-card p-6 bg-brand-blue/5 border-brand-blue/10 border flex flex-col gap-4 justify-center text-center shadow-sm flex-1">
+                <div className="size-11 rounded-2xl bg-brand-blue/10 flex items-center justify-center text-brand-blue mx-auto shadow-inner">
+                   <ShieldIcon className="size-6" />
                 </div>
-                <h4 className="text-xs font-black text-brand-blue uppercase tracking-widest">Support Portal</h4>
-                <p className="text-[10px] text-brand-blue/70 font-bold leading-relaxed">
-                   Need to change your institutional ID or email? Contact SLIIT support.
-                </p>
-                <Button className="h-8 bg-brand-blue text-white text-[9px] font-black uppercase tracking-widest rounded-lg">
-                   Contact Support
+                <div className="space-y-1">
+                  <h4 className="text-xs font-black text-brand-blue uppercase tracking-widest">Institutional Support</h4>
+                  <p className="text-[10px] text-brand-blue/70 font-bold leading-relaxed px-4">
+                     Any issues with your email? Contact the SLIIT Network Center.
+                  </p>
+                </div>
+                <Button className="h-10 bg-brand-blue text-white text-[10px] font-black uppercase tracking-widest rounded-xl shadow-md w-full hover:scale-[1.02] transition-transform">
+                   Open Support Ticket
                 </Button>
              </div>
            )}
@@ -361,7 +361,7 @@ export default function AccountPage({ isSubPage = false }) {
             </Breadcrumb>
           </div>
         </header>
-        <div className="bg-slate-50/50 min-h-screen">
+        <div className="bg-slate-50/50 h-[calc(100vh-4rem)] overflow-hidden">
           {content}
         </div>
       </SidebarInset>

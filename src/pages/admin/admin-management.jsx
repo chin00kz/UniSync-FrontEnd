@@ -23,6 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { UserBadge } from "@/components/user-badge"
 import {
   Table,
   TableBody,
@@ -45,7 +46,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { PlusIcon, Loader2Icon, Trash2Icon } from "lucide-react"
 
-export default function AdminManagementPage() {
+export default function AdminManagementPage({ isSubPage = false }) {
   const userData = JSON.parse(localStorage.getItem("user") || "{}")
   const [admins, setAdmins] = useState([])
   const [isLoading, setIsLoading] = useState(true)
@@ -155,58 +156,129 @@ export default function AdminManagementPage() {
     }
   }
 
-  return (
-    <SidebarProvider>
-      <AppSidebar />
-      <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center justify-between gap-2 border-b px-4">
-          <div className="flex items-center gap-2">
-            <SidebarTrigger className="-ml-1" />
-            <Separator orientation="vertical" className="mr-2 h-4" />
-            <Breadcrumb>
-              <BreadcrumbList>
-                <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink href="#">
-                    UniSync
-                  </BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator className="hidden md:block" />
-                <BreadcrumbItem>
-                  <BreadcrumbPage>Admin Management</BreadcrumbPage>
-                </BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb>
-          </div>
-          
-          <div className="flex items-center gap-4">
-            <NotificationsSheet />
-            <Dialog open={open} onOpenChange={setOpen}>
-              <DialogTrigger render={
-                <Button size="sm" className="brand-gradient border-none hover:opacity-90 transition-opacity font-bold px-6">
-                  <PlusIcon className="mr-2 size-4" />
-                  Add New Admin
-                </Button>
-              } />
+  const content = (
+    <div className="flex flex-1 flex-col gap-6 p-6 lg:p-10">
+      <div className="flex flex-col gap-1">
+        <h1 className="text-2xl font-black tracking-tight uppercase">Admin Management</h1>
+        <p className="text-muted-foreground font-medium text-left text-sm">Manage and monitor system administrators.</p>
+      </div>
+      <div className="premium-card overflow-hidden !p-0 border border-border/50 shadow-sm rounded-xl text-left">
+        <Table>
+          <TableHeader className="bg-muted/50">
+            <TableRow className="hover:bg-transparent">
+              <TableHead className="font-semibold text-muted-foreground w-[300px]">Administrator</TableHead>
+              <TableHead className="font-semibold text-muted-foreground">SLIIT ID</TableHead>
+              <TableHead className="font-semibold text-muted-foreground">Phone</TableHead>
+              <TableHead className="font-semibold text-muted-foreground">Joined Date</TableHead>
+              <TableHead className="text-right font-semibold text-muted-foreground">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={5} className="h-24 text-center">
+                  <div className="flex items-center justify-center">
+                    <Loader2Icon className="size-6 animate-spin text-muted-foreground" />
+                    <span className="ml-2 font-bold">Loading admins...</span>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ) : admins.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5} className="h-24 text-center font-bold">
+                  No admins found.
+                </TableCell>
+              </TableRow>
+            ) : (
+              admins.map((admin) => (
+                <TableRow key={admin._id} className="hover:bg-slate-50/50">
+                  <TableCell>
+                    <UserBadge 
+                      name={admin.name} 
+                      email={admin.email} 
+                      role={admin.role}
+                    />
+                  </TableCell>
+                  <TableCell className="font-mono text-sm font-bold">{admin.sliitId}</TableCell>
+                  <TableCell className="font-bold">{admin.phone || "N/A"}</TableCell>
+                  <TableCell className="font-bold text-slate-500">{new Date(admin.createdAt).toLocaleDateString()}</TableCell>
+                  <TableCell className="text-right">
+                    {(userData?.role === 'superadmin' && admin._id !== (userData.id || userData._id)) && (
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10 transition-colors"
+                        onClick={() => {
+                          setAdminToDelete(admin._id)
+                          setDeleteDialogOpen(true)
+                        }}
+                      >
+                        <Trash2Icon className="size-4" />
+                      </Button>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Confirm Deletion</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to remove this administrator? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)} className="font-bold">
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleDeleteAdmin} className="font-bold">
+              Remove Admin
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+
+  if (isSubPage) return (
+    <div className="flex flex-1 flex-col overflow-hidden">
+      <div className="flex items-center justify-between px-6 py-4 border-b bg-white shrink-0">
+        <div />
+        <div className="flex items-center gap-4">
+          <NotificationsSheet />
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button size="sm" className="brand-gradient border-none hover:opacity-90 transition-opacity font-extrabold px-6 h-9 shadow-lg shadow-brand-blue/20 tracking-tight">
+                <PlusIcon className="mr-2 size-4" />
+                Add New User
+              </Button>
+            </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
               <form onSubmit={handleAddAdmin}>
                 <DialogHeader>
-                  <DialogTitle>Add New Admin</DialogTitle>
+                  <DialogTitle>Add New User</DialogTitle>
                   <DialogDescription>
-                    Create a new administrator account for the system.
+                    Create a new system user with specific administrative permissions.
                   </DialogDescription>
                 </DialogHeader>
                 {error && (
-                  <div className="bg-destructive/10 text-destructive text-sm p-3 rounded-md mb-4 border border-destructive/20">
+                  <div className="bg-destructive/10 text-destructive text-sm p-3 rounded-md mb-4 border border-destructive/20 font-bold">
                     {error}
                   </div>
                 )}
-                <div className="grid gap-4 py-4">
+                <div className="grid gap-4 py-4 text-left">
                   <div className="grid gap-2">
                     <Label htmlFor="name">Name</Label>
                     <Input 
                       id="name" 
                       placeholder="John Doe" 
                       required 
+                      className="font-bold h-11"
                       value={newAdmin.name}
                       onChange={(e) => setNewAdmin({...newAdmin, name: e.target.value})}
                     />
@@ -216,8 +288,9 @@ export default function AdminManagementPage() {
                     <Input 
                       id="email" 
                       type="email" 
-                      placeholder="john@example.com" 
+                      placeholder="john@sliit.lk" 
                       required 
+                      className="font-bold h-11"
                       value={newAdmin.email}
                       onChange={(e) => setNewAdmin({...newAdmin, email: e.target.value})}
                     />
@@ -228,6 +301,7 @@ export default function AdminManagementPage() {
                       id="password" 
                       type="password" 
                       required 
+                      className="font-bold h-11"
                       value={newAdmin.password}
                       onChange={(e) => setNewAdmin({...newAdmin, password: e.target.value})}
                     />
@@ -238,6 +312,7 @@ export default function AdminManagementPage() {
                       id="sliitId" 
                       placeholder="IT21XXXXXX" 
                       required 
+                      className="font-bold h-11"
                       value={newAdmin.sliitId}
                       onChange={(e) => setNewAdmin({...newAdmin, sliitId: e.target.value})}
                     />
@@ -247,6 +322,7 @@ export default function AdminManagementPage() {
                     <Input 
                       id="phone" 
                       placeholder="071XXXXXXX" 
+                      className="font-bold h-11"
                       value={newAdmin.phone}
                       onChange={(e) => setNewAdmin({...newAdmin, phone: e.target.value})}
                     />
@@ -257,7 +333,7 @@ export default function AdminManagementPage() {
                       value={newAdmin.role} 
                       onValueChange={(value) => setNewAdmin({...newAdmin, role: value})}
                     >
-                      <SelectTrigger id="role">
+                      <SelectTrigger id="role" className="font-bold h-11">
                         <SelectValue placeholder="Select role" />
                       </SelectTrigger>
                       <SelectContent>
@@ -275,7 +351,7 @@ export default function AdminManagementPage() {
                   </div>
                 </div>
                 <DialogFooter>
-                  <Button type="submit" disabled={isAdding}>
+                  <Button type="submit" disabled={isAdding} className="font-black uppercase tracking-widest text-[11px] h-12 w-full">
                     {isAdding && <Loader2Icon className="mr-2 size-4 animate-spin" />}
                     Save Admin
                   </Button>
@@ -284,108 +360,80 @@ export default function AdminManagementPage() {
             </DialogContent>
           </Dialog>
         </div>
-      </header>
+      </div>
+      <div className="flex-1 overflow-auto">
+        {content}
+      </div>
+    </div>
+  );
 
-        <div className="flex flex-1 flex-col gap-6 p-6 lg:p-10">
-          <div className="flex flex-col gap-1">
-            <h1 className="text-3xl font-extrabold tracking-tight">Admin Management</h1>
-            <p className="text-muted-foreground font-medium">Manage and monitor system administrators.</p>
+  return (
+    <SidebarProvider>
+      <AppSidebar />
+      <SidebarInset>
+        <header className="flex h-16 shrink-0 items-center justify-between gap-2 border-b px-6 bg-white/50 backdrop-blur-sm">
+          <div className="flex items-center gap-2">
+            <SidebarTrigger className="-ml-1" />
+            <Separator orientation="vertical" className="mr-2 h-4" />
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem className="hidden md:block">
+                  <BreadcrumbLink href="/dashboard" className="font-bold">
+                    UniSync
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator className="hidden md:block" />
+                <BreadcrumbItem>
+                  <BreadcrumbPage className="font-black text-brand-blue uppercase tracking-widest text-[11px]">Admin Management</BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
           </div>
-          <div className="premium-card overflow-hidden !p-0 border border-border/50 shadow-sm rounded-xl">
-            <Table>
-              <TableHeader className="bg-muted/50">
-                <TableRow className="hover:bg-transparent">
-                  <TableHead className="font-semibold text-muted-foreground w-[300px]">Administrator</TableHead>
-                  <TableHead className="font-semibold text-muted-foreground">SLIIT ID</TableHead>
-                  <TableHead className="font-semibold text-muted-foreground">Phone</TableHead>
-                  <TableHead className="font-semibold text-muted-foreground">Joined Date</TableHead>
-                  <TableHead className="text-right font-semibold text-muted-foreground">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {isLoading ? (
-                  <TableRow>
-                    <TableCell colSpan={5} className="h-24 text-center">
-                      <div className="flex items-center justify-center">
-                        <Loader2Icon className="size-6 animate-spin text-muted-foreground" />
-                        <span className="ml-2">Loading admins...</span>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ) : admins.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={5} className="h-24 text-center">
-                      No admins found.
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  admins.map((admin) => (
-                    <TableRow key={admin._id}>
-                      <TableCell>
-                        <div className="flex items-center gap-3">
-                          <Avatar className="h-9 w-9 border border-border/50">
-                            <AvatarImage src={`https://api.dicebear.com/7.x/notionists/svg?seed=${admin.email}`} alt={admin.name} />
-                            <AvatarFallback className="bg-primary/5 text-primary text-xs font-semibold">
-                              {admin.name.substring(0, 2).toUpperCase()}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="flex flex-col">
-                            <div className="flex items-center gap-2">
-                              <span className="font-medium text-foreground">{admin.name}</span>
-                              {admin.role === 'superadmin' && (
-                                <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-red-500/10 text-red-600 border border-red-500/20">
-                                  Super
-                                </span>
-                              )}
-                            </div>
-                            <span className="text-xs text-muted-foreground">{admin.email}</span>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell className="font-mono text-sm">{admin.sliitId}</TableCell>
-                      <TableCell>{admin.phone || "N/A"}</TableCell>
-                      <TableCell>{new Date(admin.createdAt).toLocaleDateString()}</TableCell>
-                      <TableCell className="text-right">
-                        {(userData?.role === 'superadmin' && admin._id !== userData?.id) && (
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                            onClick={() => {
-                              setAdminToDelete(admin._id)
-                              setDeleteDialogOpen(true)
-                            }}
-                          >
-                            <Trash2Icon className="size-4" />
-                          </Button>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
+          
+          <div className="flex items-center gap-4">
+            <NotificationsSheet />
+            <Dialog open={open} onOpenChange={setOpen}>
+              <DialogTrigger asChild>
+                <Button size="sm" className="brand-gradient border-none hover:opacity-90 transition-opacity font-extrabold px-6 h-9 shadow-lg shadow-brand-blue/20">
+                  <PlusIcon className="mr-2 size-4" />
+                  Add New User
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[425px]">
+                <form onSubmit={handleAddAdmin}>
+                  <DialogHeader>
+                    <DialogTitle className="text-xl font-black">Add New User</DialogTitle>
+                    <DialogDescription className="font-medium text-slate-500">
+                      Create a new user account for system administration.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-6 text-left">
+                    <div className="space-y-2">
+                      <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Full Name</Label>
+                      <Input value={newAdmin.name} onChange={(e) => setNewAdmin({...newAdmin, name: e.target.value})} className="h-11 font-bold" required />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Email Address</Label>
+                      <Input type="email" value={newAdmin.email} onChange={(e) => setNewAdmin({...newAdmin, email: e.target.value})} className="h-11 font-bold" required />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Initial Password</Label>
+                      <Input type="password" value={newAdmin.password} onChange={(e) => setNewAdmin({...newAdmin, password: e.target.value})} className="h-11 font-bold" required />
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button type="submit" disabled={isAdding} className="w-full h-12 brand-gradient border-0 text-white font-black uppercase tracking-widest text-[11px]">
+                      Create System User
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
           </div>
+        </header>
+        <div className="flex-1 overflow-auto bg-slate-50/50">
+          {content}
         </div>
-
-        <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>Confirm Deletion</DialogTitle>
-              <DialogDescription>
-                Are you sure you want to remove this administrator? This action cannot be undone.
-              </DialogDescription>
-            </DialogHeader>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
-                Cancel
-              </Button>
-              <Button variant="destructive" onClick={handleDeleteAdmin}>
-                Remove Admin
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
       </SidebarInset>
     </SidebarProvider>
   )
