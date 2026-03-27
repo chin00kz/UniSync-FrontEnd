@@ -79,7 +79,12 @@ export function NavUser({
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem onClick={() => navigate("/dashboard/account")}>
+              <DropdownMenuItem onClick={() => {
+                const savedUser = JSON.parse(localStorage.getItem("user") || "{}");
+                if (savedUser.role === "staff") navigate("/tutor/account");
+                else if (savedUser.role === "student") navigate("/student/account");
+                else navigate("/dashboard/account");
+              }}>
                 <BadgeCheckIcon />
                 Account
               </DropdownMenuItem>

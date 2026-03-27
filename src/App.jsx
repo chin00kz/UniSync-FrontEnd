@@ -28,10 +28,15 @@ function App() {
         <Route path="/dashboard/account" element={<ProtectedRoute><AccountPage /></ProtectedRoute>} />
         <Route path="/tutor" element={<ProtectedRoute><TutorWorkspace /></ProtectedRoute>} />
         <Route path="/tutor/dashboard" element={<ProtectedRoute><TutorWorkspace initialPage="dashboard" /></ProtectedRoute>} />
+        <Route path="/tutor/bookings" element={<ProtectedRoute><TutorWorkspace initialPage="bookings" /></ProtectedRoute>} />
         <Route path="/tutor/sessionreview" element={<ProtectedRoute><TutorWorkspace initialPage="review" /></ProtectedRoute>} />
+        <Route path="/tutor/account" element={<ProtectedRoute><TutorWorkspace initialPage="account" /></ProtectedRoute>} />
         <Route path="/student" element={<ProtectedRoute><StudentWorkspace /></ProtectedRoute>} />
         <Route path="/student/dashboard" element={<ProtectedRoute><StudentWorkspace initialPage="dashboard" /></ProtectedRoute>} />
+        <Route path="/student/materials" element={<ProtectedRoute><StudentWorkspace initialPage="materials" /></ProtectedRoute>} />
+        <Route path="/student/tutors" element={<ProtectedRoute><StudentWorkspace initialPage="tutors" /></ProtectedRoute>} />
         <Route path="/student/post" element={<ProtectedRoute><StudentWorkspace initialPage="post" /></ProtectedRoute>} />
+        <Route path="/student/history" element={<ProtectedRoute><StudentWorkspace initialPage="history" /></ProtectedRoute>} />
         <Route path="/student/account" element={<ProtectedRoute><StudentWorkspace initialPage="account" /></ProtectedRoute>} />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>

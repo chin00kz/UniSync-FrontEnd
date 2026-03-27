@@ -62,8 +62,15 @@
   }
 }
 
-.brand-gradient {
+.bg-brand-gradient, .brand-gradient {
   background: linear-gradient(135deg, oklch(0.6 0.2 250) 0%, oklch(0.65 0.25 0) 100%);
+}
+
+.glass-morphism {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .premium-card {

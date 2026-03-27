@@ -1,11 +1,14 @@
 import { useState, useEffect } from "react"
-import { LayoutDashboard, PlusCircle, UserIcon } from "lucide-react"
+import { LayoutDashboard, PlusCircle, UserIcon, BookOpen, Users as UsersIcon, ClipboardList } from "lucide-react"
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { Separator } from "@/components/ui/separator"
 import { AppSidebar } from "@/components/app-sidebar"
 import StudentDashboard from "@/pages/student/dashboard"
 import StudentPost from "@/pages/student/post"
 import AccountPage from "@/pages/admin/account"
+import OrganizedContentPage from "@/pages/student/organized-content"
+import PeerTutoringPage from "@/pages/student/peer-tutoring"
+import QuestionHistoryPage from "@/pages/student/question-history"
 
 export default function StudentWorkspace({ initialPage = "dashboard" }) {
   const [currentPage, setCurrentPage] = useState(initialPage)
@@ -22,16 +25,43 @@ export default function StudentWorkspace({ initialPage = "dashboard" }) {
       icon: <LayoutDashboard />,
     },
     {
-      title: "Submit Question",
+      title: "Study Materials",
+      url: "/student/materials",
+      icon: <BookOpen />,
+    },
+    {
+      title: "Find Tutors",
+      url: "/student/tutors",
+      icon: <UsersIcon />,
+    },
+    {
+      title: "Ask a Question",
       url: "/student/post",
       icon: <PlusCircle />,
     },
     {
-      title: "My Profile",
+      title: "My History",
+      url: "/student/history",
+      icon: <ClipboardList />,
+    },
+    {
+      title: "Account Settings",
       url: "/student/account",
       icon: <UserIcon />,
     },
   ]
+
+  const getPageTitle = () => {
+    switch (currentPage) {
+      case "dashboard": return "Dashboard Overview";
+      case "materials": return "Study Materials";
+      case "tutors": return "Peer Tutoring";
+      case "post": return "Ask a Question";
+      case "history": return "Question History";
+      case "account": return "Account Settings";
+      default: return "Student Portal";
+    }
+  }
 
   return (
     <SidebarProvider>
@@ -43,19 +73,22 @@ export default function StudentWorkspace({ initialPage = "dashboard" }) {
           <div className="flex items-center gap-2 text-sm">
             <span className="text-muted-foreground font-medium">UniSync</span>
             <Separator orientation="vertical" className="h-4" />
-            <span className="font-semibold text-brand-blue uppercase tracking-wider">
-              {currentPage === "dashboard" ? "Dashboard" : currentPage === "post" ? "Submit Question" : "Account Settings"}
+            <span className="font-extrabold text-brand-blue uppercase tracking-widest text-[11px]">
+              {getPageTitle()}
             </span>
           </div>
         </header>
         <main className="flex-1 overflow-auto p-6 lg:p-10 bg-[#f4f7fe]">
           <div className="mx-auto max-w-7xl">
             {currentPage === "dashboard" && <StudentDashboard user={user} />}
+            {currentPage === "materials" && <OrganizedContentPage />}
+            {currentPage === "tutors" && <PeerTutoringPage />}
             {currentPage === "post" && <StudentPost onPostSuccess={() => { setCurrentPage("dashboard") }} />}
+            {currentPage === "history" && <QuestionHistoryPage />}
             {currentPage === "account" && <AccountPage isSubPage={true} />}
           </div>
         </main>
       </SidebarInset>
     </SidebarProvider>
-  )
+  );
 }

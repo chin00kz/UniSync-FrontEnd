@@ -1,16 +1,20 @@
 import { useState, useEffect } from "react"
 import axios from "axios"
-import { LayoutDashboard, ClipboardList } from "lucide-react"
+import { LayoutDashboard, ClipboardList, Calendar, User as UserIcon } from "lucide-react"
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { Separator } from "@/components/ui/separator"
 import { AppSidebar } from "@/components/app-sidebar"
 import TutorDashboard from "@/pages/tutor/dashboard"
 import SessionReview from "@/pages/tutor/reviews"
+import TutorBookingsPage from "@/pages/tutor/bookings"
+import AccountPage from "@/pages/admin/account"
 
 export default function TutorWorkspace({ initialPage = "dashboard" }) {
   const [currentPage, setCurrentPage] = useState(initialPage)
   const [questions, setQuestions] = useState([])
   const [selectedId, setSelectedId] = useState(null)
+  
+  const user = JSON.parse(localStorage.getItem("user") || "null")
 
   const fetchSessions = async () => {
     try {
@@ -54,11 +58,31 @@ export default function TutorWorkspace({ initialPage = "dashboard" }) {
       icon: <LayoutDashboard />,
     },
     {
+      title: "Manage Bookings",
+      url: "/tutor/bookings",
+      icon: <Calendar />,
+    },
+    {
       title: "Session Reviews",
       url: "/tutor/sessionreview",
       icon: <ClipboardList />,
     },
+    {
+      title: "Account Settings",
+      url: "/tutor/account",
+      icon: <UserIcon />,
+    },
   ]
+
+  const getPageTitle = () => {
+    switch (currentPage) {
+      case "dashboard": return "Dashboard Overview";
+      case "bookings": return "Manage Bookings";
+      case "review": return "Session Reviews";
+      case "account": return "Account Settings";
+      default: return "Tutor Portal";
+    }
+  }
 
   return (
     <SidebarProvider>
@@ -68,15 +92,17 @@ export default function TutorWorkspace({ initialPage = "dashboard" }) {
           <SidebarTrigger className="-ml-1" />
           <Separator orientation="vertical" className="mr-2 h-4" />
           <div className="flex items-center gap-2">
-            <span className="font-semibold text-brand-blue uppercase tracking-wider text-sm">
-              Tutor Dashboard
+            <span className="font-extrabold text-brand-blue uppercase tracking-widest text-[11px]">
+              {getPageTitle()}
             </span>
           </div>
         </header>
         <main className="flex-1 overflow-auto p-6 lg:p-10 bg-[#f4f7fe]">
           <div className="mx-auto max-w-7xl">
             {currentPage === "dashboard" && <TutorDashboard questions={questions} onAction={handleSelectQuestion} />}
+            {currentPage === "bookings" && <TutorBookingsPage />}
             {currentPage === "review" && <SessionReview questions={questions} onUpdate={handleUpdate} initialSelectedId={selectedId} />}
+            {currentPage === "account" && <AccountPage isSubPage={true} />}
           </div>
         </main>
       </SidebarInset>
