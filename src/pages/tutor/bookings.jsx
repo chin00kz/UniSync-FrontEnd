@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { 
-  Calendar, 
-  Clock, 
-  User, 
-  CheckCircle2, 
-  XCircle, 
-  Loader2, 
+import {
+  Calendar,
+  Clock,
+  User,
+  CheckCircle2,
+  XCircle,
+  Loader2,
   MessageSquare,
   AlertCircle,
   ChevronRight,
@@ -20,11 +20,11 @@ export default function TutorBookingsPage() {
   const [bookings, setBookings] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState('All');
-  
+
   const fetchBookings = async () => {
     try {
       const user = JSON.parse(localStorage.getItem('user') || '{}');
-      const res = await axios.get("http://localhost:5000/api/bookings/tutor", {
+      const res = await axios.get("http://localhost:5000/api/tutor/bookings", {
         headers: { "x-user-id": user.id || user._id }
       });
       setBookings(res.data.data);
@@ -42,7 +42,7 @@ export default function TutorBookingsPage() {
   const handleUpdateStatus = async (bookingId, newStatus) => {
     try {
       const user = JSON.parse(localStorage.getItem('user') || '{}');
-      await axios.patch(`http://localhost:5000/api/bookings/${bookingId}`, 
+      await axios.patch(`http://localhost:5000/api/tutor/bookings/${bookingId}`,
         { status: newStatus },
         { headers: { "x-user-id": user.id || user._id } }
       );
@@ -54,8 +54,8 @@ export default function TutorBookingsPage() {
     }
   };
 
-  const filteredBookings = filter === 'All' 
-    ? bookings 
+  const filteredBookings = filter === 'All'
+    ? bookings
     : bookings.filter(b => b.status === filter);
 
   const getStatusColor = (status) => {
@@ -75,17 +75,16 @@ export default function TutorBookingsPage() {
           <h1 className="text-3xl font-extrabold tracking-tight text-slate-800">Manage Bookings</h1>
           <p className="text-muted-foreground font-medium text-lg">Track and manage your student tutoring sessions.</p>
         </div>
-        
+
         <div className="flex items-center gap-2 bg-white p-1 rounded-2xl border border-slate-200 shadow-sm">
           {['All', 'Pending', 'Confirmed', 'Completed'].map((f) => (
             <button
               key={f}
               onClick={() => setFilter(f)}
-              className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
-                filter === f 
-                ? 'bg-brand-blue text-white shadow-lg shadow-brand-blue/20' 
-                : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'
-              }`}
+              className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${filter === f
+                  ? 'bg-brand-blue text-white shadow-lg shadow-brand-blue/20'
+                  : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'
+                }`}
             >
               {f}
             </button>
@@ -116,10 +115,10 @@ export default function TutorBookingsPage() {
                 <div className="md:w-64 bg-slate-50 p-8 flex flex-col items-center text-center gap-4 border-r border-slate-100">
                   <div className="relative">
                     <div className="size-20 rounded-2xl border-4 border-white shadow-lg relative z-10 overflow-hidden bg-slate-50">
-                      <img 
-                        src={`https://api.dicebear.com/7.x/notionists/svg?seed=${booking.student?.email || booking.student?.name}`} 
-                        alt={booking.student?.name} 
-                        className="size-full object-cover" 
+                      <img
+                        src={`https://api.dicebear.com/7.x/notionists/svg?seed=${booking.student?.email || booking.student?.name}`}
+                        alt={booking.student?.name}
+                        className="size-full object-cover"
                       />
                     </div>
                     <div className="absolute -bottom-2 -right-2 size-8 bg-white rounded-xl shadow-sm border border-slate-100 flex items-center justify-center z-20">
@@ -144,9 +143,9 @@ export default function TutorBookingsPage() {
                           ID: {booking._id.slice(-6).toUpperCase()}
                         </span>
                       </div>
-                      
+
                       <h3 className="text-2xl font-black text-slate-800">{booking.subject}</h3>
-                      
+
                       <div className="flex flex-wrap items-center gap-6 text-slate-500">
                         <div className="flex items-center gap-2 font-bold text-sm">
                           <Calendar className="size-4 text-brand-blue" />
@@ -170,14 +169,14 @@ export default function TutorBookingsPage() {
                     <div className="flex md:flex-col gap-3">
                       {booking.status === 'Pending' && (
                         <>
-                          <button 
+                          <button
                             onClick={() => handleUpdateStatus(booking._id, 'Confirmed')}
                             className="bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-3 rounded-xl font-black uppercase text-[11px] tracking-widest shadow-lg shadow-emerald-500/20 transition-all hover:scale-105 active:scale-95 flex items-center gap-2"
                           >
                             <CheckCircle className="size-4" />
                             Accept
                           </button>
-                          <button 
+                          <button
                             onClick={() => handleUpdateStatus(booking._id, 'Cancelled')}
                             className="bg-white border-2 border-slate-100 hover:border-rose-100 hover:text-rose-600 text-slate-400 px-6 py-3 rounded-xl font-black uppercase text-[11px] tracking-widest transition-all hover:bg-rose-50 flex items-center gap-2"
                           >
@@ -187,7 +186,7 @@ export default function TutorBookingsPage() {
                         </>
                       )}
                       {booking.status === 'Confirmed' && (
-                        <button 
+                        <button
                           onClick={() => handleUpdateStatus(booking._id, 'Completed')}
                           className="bg-brand-blue hover:bg-brand-blue/90 text-white px-6 py-3 rounded-xl font-black uppercase text-[11px] tracking-widest shadow-lg shadow-brand-blue/20 transition-all hover:scale-105 active:scale-95 flex items-center gap-2"
                         >

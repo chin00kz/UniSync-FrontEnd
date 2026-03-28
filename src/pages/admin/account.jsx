@@ -24,8 +24,8 @@ import {
   ShieldIcon, 
   HistoryIcon, 
   SaveIcon,
-  Loader2Icon,
-  CheckCircle2Icon,
+  Loader2,
+  CheckCircle2,
   ClockIcon,
   CameraIcon,
   BadgeCheckIcon,
@@ -113,7 +113,7 @@ export default function AccountPage({ isSubPage = false }) {
   if (isLoading) {
     return (
       <div className="flex h-screen items-center justify-center">
-        <Loader2Icon className="size-8 animate-spin text-brand-blue" />
+        <Loader2 className="size-8 animate-spin text-brand-blue" />
       </div>
     )
   }
@@ -245,7 +245,7 @@ export default function AccountPage({ isSubPage = false }) {
                     disabled={isSaving}
                   >
                   {isSaving ? (
-                    <Loader2Icon className="size-4 animate-spin" />
+                    <Loader2 className="size-4 animate-spin" />
                   ) : (
                     <>
                       <SaveIcon className="mr-2 size-4" />
@@ -258,7 +258,7 @@ export default function AccountPage({ isSubPage = false }) {
                   <div className={`flex items-center gap-2 animate-in fade-in slide-in-from-right-4 ${
                     message.type === "success" ? "text-emerald-600" : "text-rose-600"
                   }`}>
-                    <CheckCircle2Icon className="size-4" />
+                    <CheckCircle2 className="size-4" />
                     <span className="font-bold text-xs uppercase tracking-tighter">{message.text}</span>
                   </div>
                 )}
@@ -280,7 +280,7 @@ export default function AccountPage({ isSubPage = false }) {
               <div className="flex flex-col gap-1 p-3.5 rounded-xl bg-white border border-slate-100 shadow-sm">
                 <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Auth Level</span>
                 <span className="text-[11px] font-black text-emerald-600 flex items-center gap-1">
-                   Secured <CheckCircle2Icon className="size-3" />
+                   Secured <CheckCircle2 className="size-3" />
                 </span>
               </div>
               <div className="flex flex-col gap-1 p-3.5 rounded-xl bg-white border border-slate-100 shadow-sm">

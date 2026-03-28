@@ -1,17 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { 
-  ClipboardList, 
-  Loader2Icon, 
-  PlusCircle, 
-  Clock, 
+import {
+  ClipboardList,
+  Loader2,
+  PlusCircle,
+  Clock,
   MessageSquare,
-  ChevronRight
+  ChevronRight,
+  Flag
 } from 'lucide-react';
+import ReportModal from '@/components/report-modal';
 
 export default function QuestionHistoryPage() {
   const [questions, setQuestions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [reportTarget, setReportTarget] = useState(null);
   const user = JSON.parse(localStorage.getItem("user") || "{}");
 
   const fetchHistory = async () => {
@@ -37,7 +41,7 @@ export default function QuestionHistoryPage() {
           <h1 className="text-3xl font-extrabold tracking-tight text-slate-800">Your Activity</h1>
           <p className="text-muted-foreground font-medium text-lg">Track all your questions and responses from tutors.</p>
         </div>
-        
+
         <div className="flex items-center gap-4 bg-white/50 p-2 rounded-2xl border border-slate-200">
           <div className="px-5 py-2 text-center border-r border-slate-200">
             <span className="block text-2xl font-black text-brand-blue">{questions.length}</span>
@@ -52,7 +56,7 @@ export default function QuestionHistoryPage() {
 
       {isLoading ? (
         <div className="flex justify-center py-20">
-          <Loader2Icon className="size-10 animate-spin text-brand-blue/40" />
+          <Loader2 className="size-10 animate-spin text-brand-blue/40" />
         </div>
       ) : questions.length === 0 ? (
         <div className="premium-card text-center py-20 border-dashed border-2 flex flex-col items-center gap-6">
@@ -76,9 +80,8 @@ export default function QuestionHistoryPage() {
                 <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
                   <div className="space-y-3 flex-1">
                     <div className="flex items-center flex-wrap gap-2">
-                      <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 shadow-sm ${
-                        q.status === "Resolved" ? "bg-emerald-50 text-emerald-600 border border-emerald-200" : "bg-brand-blue/5 text-brand-blue border border-brand-blue/20"
-                      }`}>
+                      <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 shadow-sm ${q.status === "Resolved" ? "bg-emerald-50 text-emerald-600 border border-emerald-200" : "bg-brand-blue/5 text-brand-blue border border-brand-blue/20"
+                        }`}>
                         {q.status === "Resolved" ? <PlusCircle className="size-3" /> : <Clock className="size-3" />}
                         {q.status}
                       </span>
@@ -91,16 +94,27 @@ export default function QuestionHistoryPage() {
 
                     {q.questionImage && (
                       <div className="mt-4">
-                        <img 
-                          src={q.questionImage} 
-                          alt="Question" 
+                        <img
+                          src={q.questionImage}
+                          alt="Question"
                           className="max-h-64 rounded-2xl border-4 border-slate-50 object-cover shadow-lg hover:scale-[1.01] transition-transform cursor-zoom-in"
                         />
                       </div>
                     )}
                   </div>
+
+                  <button
+                    onClick={() => {
+                      setReportTarget(q);
+                      setIsReportModalOpen(true);
+                    }}
+                    className="p-3 rounded-xl hover:bg-rose-50 text-slate-300 hover:text-rose-500 transition-all border border-transparent hover:border-rose-100 flex items-center gap-2 font-bold text-xs uppercase tracking-widest"
+                  >
+                    <Flag className="size-4" />
+                    Report
+                  </button>
                 </div>
-                
+
                 {q.replyText ? (
                   <div className="p-8 rounded-3xl bg-slate-50/80 border border-slate-100 space-y-6 relative overflow-hidden group/reply transition-all hover:bg-white hover:shadow-xl hover:shadow-slate-100">
                     <div className="flex items-center gap-3 relative z-10">
@@ -113,9 +127,9 @@ export default function QuestionHistoryPage() {
                       <p className="text-lg font-bold text-slate-700 leading-relaxed pl-2 border-l-4 border-brand-blue/20">{q.replyText}</p>
                       {q.replyImage && (
                         <div className="relative inline-block self-start group/img">
-                          <img 
-                            src={q.replyImage} 
-                            alt="Tutor Reply" 
+                          <img
+                            src={q.replyImage}
+                            alt="Tutor Reply"
                             className="max-h-96 rounded-2xl border-4 border-white object-cover shadow-2xl transition-transform cursor-zoom-in"
                           />
                         </div>
@@ -138,6 +152,14 @@ export default function QuestionHistoryPage() {
           ))}
         </div>
       )}
+      <ReportModal
+        isOpen={isReportModalOpen}
+        onClose={() => setIsReportModalOpen(false)}
+        targetId={reportTarget?._id}
+        targetName={reportTarget?.questionText?.substring(0, 30) + "..."}
+        contentType="session"
+        reportedUserId={reportTarget?._tutorId} // Assuming there's a tutor ref
+      />
     </div>
   );
 }

@@ -1,244 +1,253 @@
-import { useState, useEffect } from "react"
-import { AppSidebar } from "@/components/app-sidebar"
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar"
-import { Separator } from "@/components/ui/separator"
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
-import { UserBadge } from "@/components/user-badge"
-import { NotificationsSheet } from "@/components/notifications-sheet"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { 
-  Loader2Icon, 
-  FlagIcon, 
-  CheckCircleIcon, 
-  XCircleIcon,
-  ExternalLinkIcon,
-  ActivityIcon
-} from "lucide-react"
+  ShieldAlert,
+  Loader2,
+  CheckCircle2,
+  Trash2,
+  Slash,
+  Search,
+  Users,
+  MessageSquare,
+  FileText,
+  Clock,
+  X,
+  Calendar
+} from 'lucide-react';
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/app-sidebar";
+import { UserBadge } from "@/components/user-badge";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
-export default function ReportsPage({ isSubPage = false }) {
-  const [reports, setReports] = useState([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [isActionLoading, setIsActionLoading] = useState(false)
-
-  useEffect(() => {
-    fetchReports()
-  }, [])
+export default function AdminReportsPage({ isSubPage = false }) {
+  const [reports, setReports] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [filter, setFilter] = useState('pending'); // 'pending', 'resolved', 'dismissed'
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isActionLoading, setIsActionLoading] = useState(false);
+  const [selectedReport, setSelectedReport] = useState(null);
 
   const fetchReports = async () => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      const token = JSON.parse(localStorage.getItem("user"))?.id;
-      const response = await fetch("http://localhost:5000/api/reports", {
-        headers: {
-          "x-admin-id": token
-        }
-      })
-      const data = await response.json()
-      if (data.success) {
-        setReports(data.data)
-      }
-    } catch (error) {
-      console.error("Failed to fetch reports:", error)
+      const adminId = JSON.parse(localStorage.getItem("user") || "{}").id;
+      const res = await axios.get("http://localhost:5000/api/admin/reports", {
+        headers: { "x-admin-id": adminId }
+      });
+      setReports(res.data.data);
+    } catch (err) {
+      console.error("Fetch reports error:", err);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
-  const handleUpdateStatus = async (id, status) => {
-    setIsActionLoading(true)
+  useEffect(() => {
+    fetchReports();
+  }, []);
+
+  const handleAction = async (reportId, action, banReason = "") => {
+    setIsActionLoading(true);
     try {
-      const response = await fetch(`http://localhost:5000/api/reports/${id}`, {
-        method: "PUT",
-        headers: { 
-          "Content-Type": "application/json",
-          "x-admin-id": JSON.parse(localStorage.getItem("user"))?.id
-        },
-        body: JSON.stringify({ status }),
-      })
-      const data = await response.json()
-      if (data.success) {
-        fetchReports()
-      }
-    } catch (error) {
-      console.error("Failed to update report status:", error)
+      const adminId = JSON.parse(localStorage.getItem("user") || "{}").id;
+      await axios.post(`http://localhost:5000/api/admin/reports/${reportId}/action`, {
+        action,
+        banReason
+      }, {
+        headers: { "x-admin-id": adminId }
+      });
+      setSelectedReport(null);
+      fetchReports();
+    } catch (err) {
+      console.error("Report action error:", err);
+      alert("Action failed. Please try again.");
     } finally {
-      setIsActionLoading(false)
+      setIsActionLoading(false);
     }
-  }
+  };
 
-  const getStatusBadge = (status) => {
+  const filteredReports = reports.filter(r => {
+    const matchesFilter = filter === 'all' || r.status === filter;
+    const matchesSearch =
+      (r.reason || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (r.contentType || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (r.reporter?.name || "").toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesFilter && matchesSearch;
+  });
+
+  const getStatusColor = (status) => {
     switch (status) {
-      case 'pending': return <Badge variant="outline" className="border-orange-500 text-orange-500">Pending</Badge>
-      case 'resolved': return <Badge variant="outline" className="border-emerald-500 text-emerald-500">Resolved</Badge>
-      case 'dismissed': return <Badge variant="secondary">Dismissed</Badge>
-      default: return <Badge variant="outline">{status}</Badge>
+      case 'pending': return 'bg-amber-100 text-amber-700 border-amber-200';
+      case 'resolved': return 'bg-emerald-100 text-emerald-700 border-emerald-200';
+      case 'dismissed': return 'bg-slate-100 text-slate-700 border-slate-200';
+      default: return 'bg-slate-100 text-slate-700';
     }
-  }
+  };
+
+  const getTypeIcon = (type) => {
+    switch (type) {
+      case 'tutor':
+      case 'student': return <Users className="size-4" />;
+      case 'material': return <FileText className="size-4" />;
+      case 'session': return <MessageSquare className="size-4" />;
+      case 'booking': return <Calendar className="size-4" />;
+      default: return <ShieldAlert className="size-4" />;
+    }
+  };
 
   const content = (
-    <div className="flex flex-1 flex-col gap-6 p-6 lg:p-10">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-black tracking-tight uppercase">Moderation Queue</h1>
-        <p className="text-muted-foreground font-medium text-left">Review and resolve flagged content from the community.</p>
+    <div className="flex flex-1 flex-col gap-6 p-6 text-left">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="space-y-1">
+          <h1 className="text-3xl font-black tracking-tight text-slate-800 flex items-center gap-3">
+            <ShieldAlert className="size-8 text-rose-500" />
+            Moderation Center
+          </h1>
+          <p className="text-slate-500 font-medium">Review and manage community reports and flags.</p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          {['pending', 'resolved', 'dismissed', 'all'].map(t => (
+            <button
+              key={t}
+              onClick={() => setFilter(t)}
+              className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all border-2 ${filter === t
+                  ? "bg-slate-900 text-white border-slate-900 shadow-lg shadow-slate-200"
+                  : "bg-white text-slate-500 border-slate-100 hover:border-slate-200"
+                }`}
+            >
+              {t}
+            </button>
+          ))}
+        </div>
       </div>
-      <div className="premium-card overflow-hidden !p-0 text-left border border-border/50 shadow-sm rounded-xl">
-        <Table>
-          <TableHeader className="bg-muted/50">
-            <TableRow>
-              <TableHead className="font-bold text-slate-500 uppercase tracking-widest text-[10px] py-4">Reporter</TableHead>
-              <TableHead className="font-bold text-slate-500 uppercase tracking-widest text-[10px] py-4">Target Content</TableHead>
-              <TableHead className="font-bold text-slate-500 uppercase tracking-widest text-[10px] py-4">Reason</TableHead>
-              <TableHead className="font-bold text-slate-500 uppercase tracking-widest text-[10px] py-4">Status</TableHead>
-              <TableHead className="font-bold text-slate-500 uppercase tracking-widest text-[10px] py-4">Date</TableHead>
-              <TableHead className="text-right font-bold text-slate-500 uppercase tracking-widest text-[10px] py-4 px-6">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {isLoading ? (
-              <TableRow>
-                <TableCell colSpan={6} className="h-24 text-center">
-                  <div className="flex items-center justify-center">
-                    <Loader2Icon className="size-6 animate-spin text-muted-foreground" />
-                    <span className="ml-2 font-bold">Loading reports...</span>
+
+      {isLoading ? (
+        <div className="flex justify-center py-20">
+          <Loader2 className="size-10 animate-spin text-brand-blue/40" />
+        </div>
+      ) : filteredReports.length === 0 ? (
+        <div className="premium-card text-center py-20 border-dashed border-2 flex flex-col items-center gap-4 bg-white/50">
+          <div className="size-16 rounded-full bg-slate-50 flex items-center justify-center text-slate-300">
+            <CheckCircle2 className="size-8" />
+          </div>
+          <div className="space-y-1">
+            <p className="text-xl font-extrabold text-slate-800">No reports found</p>
+            <p className="text-slate-500 font-medium">All caught up! The community is clean.</p>
+          </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-4">
+          {filteredReports.map((report) => (
+            <div
+              key={report._id}
+              className={`premium-card border-l-4 transition-all overflow-hidden ${report.status === 'pending' ? 'border-l-amber-500' : 'border-l-slate-200 opacity-80 hover:opacity-100 shadow-sm'
+                }`}
+            >
+              <div className="flex flex-col lg:flex-row lg:items-center gap-6">
+                <div className="flex-1 space-y-4">
+                  <div className="flex items-center gap-3">
+                    <Badge className={`${getStatusColor(report.status)} font-black text-[10px] uppercase tracking-widest border-2 py-1`}>
+                      {report.status}
+                    </Badge>
+                    <Badge variant="outline" className="font-black text-[10px] uppercase tracking-widest flex items-center gap-1.5 py-1">
+                      {getTypeIcon(report.contentType)}
+                      {report.contentType}
+                    </Badge>
+                    <span className="text-xs text-slate-400 font-bold flex items-center gap-1.5">
+                      <Clock className="size-3" />
+                      {new Date(report.createdAt).toLocaleString()}
+                    </span>
                   </div>
-                </TableCell>
-              </TableRow>
-            ) : reports.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={6} className="h-48 text-center">
-                  <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
-                    <CheckCircleIcon className="size-10 text-emerald-500/20" />
-                    <p className="font-bold text-lg">Inbox zero!</p>
-                    <p className="text-sm">No pending reports to review.</p>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ) : (
-              reports.map((report) => (
-                <TableRow key={report._id} className="hover:bg-slate-50/50 transition-colors">
-                  <TableCell>
-                    <UserBadge 
-                      name={report.reporter?.name || "Unknown"} 
-                      email={report.reporter?.email} 
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline" className="capitalize font-black text-[10px] tracking-widest px-2 py-0.5 border-primary/20 bg-primary/5 text-primary">
-                        {report.contentType}
-                      </Badge>
-                      <Button variant="ghost" size="icon" className="size-7 hover:bg-primary/10 hover:text-primary transition-colors">
-                        <ExternalLinkIcon className="size-3.5" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                  <TableCell className="max-w-[200px] truncate font-medium text-slate-600 italic">"{report.reason}"</TableCell>
-                  <TableCell>{getStatusBadge(report.status)}</TableCell>
-                  <TableCell className="text-xs font-bold text-muted-foreground">
-                    {new Date(report.createdAt).toLocaleDateString()}
-                  </TableCell>
-                  <TableCell className="text-right px-6">
-                    {report.status === 'pending' && (
-                      <div className="flex justify-end gap-2">
-                        <Button 
-                          size="sm" 
-                          variant="outline" 
-                          className="h-8 font-black uppercase tracking-widest text-[9px] text-emerald-600 border-emerald-200 hover:bg-emerald-50 hover:border-emerald-300"
-                          onClick={() => handleUpdateStatus(report._id, 'resolved')}
-                        >
-                          <CheckCircleIcon className="mr-1 size-3" />
-                          Resolve
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          variant="ghost" 
-                          className="h-8 font-black uppercase tracking-widest text-[9px] text-muted-foreground hover:bg-slate-100"
-                          onClick={() => handleUpdateStatus(report._id, 'dismissed')}
-                        >
-                          <XCircleIcon className="mr-1 size-3" />
-                          Dismiss
-                        </Button>
+
+                  <div className="space-y-2">
+                    <h3 className="text-xl font-black text-slate-800">{report.reason}</h3>
+                    <div className="flex items-center gap-4 text-sm font-bold text-slate-500">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] uppercase tracking-tighter text-slate-400 font-black">Reporter:</span>
+                        <UserBadge name={report.reporter?.name} email={report.reporter?.sliitId} size="sm" />
                       </div>
-                    )}
-                    {report.status !== 'pending' && (
-                      <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-50 flex items-center justify-end gap-1">
-                        <ActivityIcon className="size-3" />
-                        Handled
-                      </span>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
+                      {report.reportedUser && (
+                        <>
+                          <div className="h-4 w-px bg-slate-200"></div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] uppercase tracking-tighter text-slate-400 font-black">Reported:</span>
+                            <UserBadge name={report.reportedUser?.name} email={report.reportedUser?.sliitId} variant="secondary" size="sm" />
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {report.status === 'pending' && (
+                  <div className="flex items-center gap-2 lg:border-l lg:pl-6 border-slate-100 flex-wrap">
+                    <Button
+                      variant="outline"
+                      className="text-slate-500 hover:text-slate-800 font-black uppercase text-[10px] tracking-widest h-11 px-6 rounded-xl border border-slate-100 transition-all hover:bg-slate-50"
+                      onClick={() => handleAction(report._id, 'discard')}
+                    >
+                      <Trash2 className="size-4 mr-2" />
+                      Discard
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="text-amber-500 hover:bg-amber-50 font-black uppercase text-[10px] tracking-widest h-11 px-6 rounded-xl border border-amber-100 transition-all"
+                      onClick={() => handleAction(report._id, 'resolve')}
+                    >
+                      <CheckCircle2 className="size-4 mr-2" />
+                      Resolve
+                    </Button>
+                    <Button
+                      className="bg-rose-500 hover:bg-rose-600 text-white font-black uppercase text-[10px] tracking-widest h-11 px-6 rounded-xl shadow-lg shadow-rose-500/20 transition-all hover:scale-105"
+                      onClick={() => {
+                        if (window.confirm(`Are you sure you want to BAN ${report.reportedUser?.name}?`)) {
+                          handleAction(report._id, 'ban');
+                        }
+                      }}
+                    >
+                      <Slash className="size-4 mr-2" />
+                      Ban User
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 
-  if (isSubPage) return (
-    <div className="flex flex-1 flex-col overflow-hidden">
-      <div className="flex items-center justify-between px-6 py-4 border-b bg-white shrink-0">
-        <div />
-        <div className="flex items-center gap-4">
-          <NotificationsSheet />
-        </div>
-      </div>
-      <div className="flex-1 overflow-auto">
-        {content}
-      </div>
-    </div>
-  );
+  if (isSubPage) return content;
 
   return (
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center justify-between gap-2 border-b px-6 bg-white/50 backdrop-blur-sm">
-          <div className="flex items-center gap-2">
+        <header className="flex h-16 shrink-0 items-center justify-between gap-2 border-b px-6 bg-white/50 backdrop-blur-sm sticky top-0 z-50">
+          <div className="flex items-center gap-2 text-left">
             <SidebarTrigger className="-ml-1" />
-            <Separator orientation="vertical" className="mr-2 h-4" />
-            <Breadcrumb>
-              <BreadcrumbList>
-                <BreadcrumbItem>
-                  <BreadcrumbLink href="/dashboard" className="font-bold">UniSync</BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator />
-                <BreadcrumbItem>
-                  <BreadcrumbPage className="font-black text-brand-blue uppercase tracking-widest text-[11px]">Moderation Queue</BreadcrumbPage>
-                </BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb>
+            <div className="h-4 w-px bg-slate-200 mx-2"></div>
+            <span className="text-sm font-black text-rose-600 uppercase tracking-widest">Moderation Center</span>
           </div>
-          <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground bg-muted/50 px-4 py-2 rounded-full border border-primary/5 shadow-inner">
-            <div className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            Live Monitoring
+
+          <div className="relative w-full max-w-sm group">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground group-focus-within:text-rose-500 transition-colors" />
+            <input
+              placeholder="Search reports by reason or type..."
+              className="pl-10 h-10 w-full rounded-xl border-none bg-slate-100/50 focus:bg-white focus:ring-4 focus:ring-rose-500/5 transition-all outline-none text-sm font-bold"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
           </div>
         </header>
-        <div className="flex-1 overflow-auto bg-slate-50/50">
+
+        <div className="flex-1 overflow-auto bg-slate-50/30">
           {content}
         </div>
       </SidebarInset>
     </SidebarProvider>
-  )
+  );
 }

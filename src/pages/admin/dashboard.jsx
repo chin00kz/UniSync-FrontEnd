@@ -16,7 +16,7 @@ import {
 import { NotificationsSheet } from "@/components/notifications-sheet"
 
 import { useState, useEffect } from "react"
-import { UsersIcon, ShieldAlertIcon, FileTextIcon, ActivityIcon, ArrowRightIcon, Loader2Icon } from "lucide-react"
+import { UsersIcon, ShieldAlertIcon, FileTextIcon, ActivityIcon, ArrowRightIcon, Loader2 } from "lucide-react"
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
 import * as XLSX from "xlsx"
 import { Button } from "@/components/ui/button"
@@ -29,7 +29,7 @@ export default function DashboardPage({ isSubPage = false }) {
     bannedUsers: 0,
     pendingReports: 0
   })
-  
+
   // Mock data for the activity chart
   const activityData = [
     { date: "Mon", actions: 12 },
@@ -50,14 +50,21 @@ export default function DashboardPage({ isSubPage = false }) {
   const fetchStats = async () => {
     try {
       const token = JSON.parse(localStorage.getItem("user"))?.id;
-      const response = await fetch("http://localhost:5000/api/users/stats", {
+      const response = await fetch("http://localhost:5000/api/admin/stats", {
         headers: {
           "x-admin-id": token
         }
       })
-      const data = await response.json()
-      if (data.success) {
-        setStats(data.data)
+      const result = await response.json()
+      if (result.success) {
+        // Map the new structured data from adminController
+        setStats({
+          totalUsers: result.data.counts.total,
+          totalAdmins: result.data.counts.admins,
+          bannedUsers: result.data.counts.banned,
+          pendingReports: result.data.reports.pending,
+          recentActivity: result.data.recentActivity || []
+        })
       }
     } catch (error) {
       console.error("Failed to fetch stats:", error)
@@ -71,13 +78,13 @@ export default function DashboardPage({ isSubPage = false }) {
     try {
       // Fetch users data
       const token = JSON.parse(localStorage.getItem("user"))?.id;
-      const response = await fetch("http://localhost:5000/api/users", {
+      const response = await fetch("http://localhost:5000/api/admin/users", {
         headers: {
           "x-admin-id": token
         }
       })
       const data = await response.json()
-      
+
       if (data.success) {
         // Format the data for Excel
         const exportData = data.data.map(user => ({
@@ -94,7 +101,7 @@ export default function DashboardPage({ isSubPage = false }) {
         const worksheet = XLSX.utils.json_to_sheet(exportData)
         const workbook = XLSX.utils.book_new()
         XLSX.utils.book_append_sheet(workbook, worksheet, "UniSync Users Report")
-        
+
         // Auto-sizing columns (simple heuristic)
         const colWidths = [
           { wch: 25 }, // Name
@@ -109,7 +116,7 @@ export default function DashboardPage({ isSubPage = false }) {
 
         // Generate date string for filename
         const dateStr = new Date().toISOString().split('T')[0]
-        
+
         // Download the file
         XLSX.writeFile(workbook, `UniSync_System_Report_${dateStr}.xlsx`)
       } else {
@@ -131,7 +138,7 @@ export default function DashboardPage({ isSubPage = false }) {
           <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">{title}</p>
           <div className="text-3xl font-bold tracking-tight">
             {isLoading ? (
-              <Loader2Icon className="size-6 animate-spin text-muted-foreground/20" />
+              <Loader2 className="size-6 animate-spin text-muted-foreground/20" />
             ) : (
               value
             )}
@@ -167,127 +174,127 @@ export default function DashboardPage({ isSubPage = false }) {
             </p>
           </div>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          <StatCard 
-            title="Total Users" 
-            value={stats.totalUsers} 
-            icon={UsersIcon} 
-            description="Registered students & staff" 
-            color="bg-blue-500"
-          />
-          <StatCard 
-            title="Active Admins" 
-            value={stats.totalAdmins} 
-            icon={ShieldAlertIcon} 
-            description="System administrators" 
-            color="bg-purple-500"
-          />
-          <StatCard 
-            title="Pending Reports" 
-            value={stats.pendingReports} 
-            icon={FileTextIcon} 
-            description="Flagged content awaiting review" 
-            color="bg-orange-500"
-          />
-          <StatCard 
-            title="Banned Users" 
-            value={stats.bannedUsers} 
-            icon={ActivityIcon} 
-            description="Accounts currently restricted" 
-            color="bg-red-500"
-          />
-        </div>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            <StatCard
+              title="Total Users"
+              value={stats.totalUsers}
+              icon={UsersIcon}
+              description="Registered students & staff"
+              color="bg-blue-500"
+            />
+            <StatCard
+              title="Active Admins"
+              value={stats.totalAdmins}
+              icon={ShieldAlertIcon}
+              description="System administrators"
+              color="bg-purple-500"
+            />
+            <StatCard
+              title="Pending Reports"
+              value={stats.pendingReports}
+              icon={FileTextIcon}
+              description="Flagged content awaiting review"
+              color="bg-orange-500"
+            />
+            <StatCard
+              title="Banned Users"
+              value={stats.bannedUsers}
+              icon={ActivityIcon}
+              description="Accounts currently restricted"
+              color="bg-red-500"
+            />
+          </div>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
-          <Card className="lg:col-span-4 border-none shadow-lg">
-            <CardHeader>
-              <CardTitle>Moderation Activity</CardTitle>
-              <CardDescription>Activity overview from the last 24 hours.</CardDescription>
-            </CardHeader>
-            <CardContent className="h-[300px] text-muted-foreground rounded-lg m-6 mt-0 p-0">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={activityData} margin={{ top: 20, right: 20, left: -20, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="colorActions" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#2563eb" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="#2563eb" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <XAxis 
-                    dataKey="date" 
-                    stroke="#888888" 
-                    fontSize={12} 
-                    tickLine={false} 
-                    axisLine={false} 
-                  />
-                  <YAxis 
-                    stroke="#888888" 
-                    fontSize={12} 
-                    tickLine={false} 
-                    axisLine={false} 
-                    tickFormatter={(value) => `${value}`} 
-                  />
-                  <Tooltip 
-                    contentStyle={{ borderRadius: "8px", border: "none", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}
-                    labelStyle={{ color: "#888888", marginBottom: "4px" }}
-                  />
-                  <Area 
-                    type="monotone" 
-                    dataKey="actions" 
-                    stroke="#2563eb" 
-                    strokeWidth={3}
-                    fillOpacity={1} 
-                    fill="url(#colorActions)" 
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-          
-          <div className="lg:col-span-3 premium-card space-y-6">
-            <div>
-              <h3 className="text-xl font-bold tracking-tight">Quick Actions</h3>
-              <p className="text-sm text-muted-foreground">Common management tasks.</p>
-            </div>
-            <div className="space-y-3">
-              <Button variant="outline" className="w-full justify-between group h-12 border-primary/10 hover:border-primary/30" asChild>
-                <a href="/dashboard/reports" className="flex items-center justify-between w-full">
-                  Review Pending Reports
-                  <ArrowRightIcon className="size-4 transition-transform group-hover:translate-x-1" />
-                </a>
-              </Button>
-              <Button variant="outline" className="w-full justify-between group h-12 border-primary/10 hover:border-primary/30" asChild>
-                <a href="/dashboard/users" className="flex items-center justify-between w-full">
-                  Manage User Roles
-                  <ArrowRightIcon className="size-4 transition-transform group-hover:translate-x-1" />
-                </a>
-              </Button>
-              <Button variant="outline" className="w-full justify-between group h-12 border-primary/10 hover:border-primary/30" asChild>
-                <a href="/dashboard/bans" className="flex items-center justify-between w-full">
-                  View Banned Accounts
-                  <ArrowRightIcon className="size-4 transition-transform group-hover:translate-x-1" />
-                </a>
-              </Button>
-              <div className="pt-4">
-                <Button 
-                  className="w-full h-11 brand-gradient border-none hover:opacity-90 transition-opacity"
-                  onClick={handleGenerateReport}
-                  disabled={isGeneratingReport}
-                >
-                  {isGeneratingReport ? (
-                    <>
-                      <Loader2Icon className="mr-2 size-4 animate-spin text-white" />
-                      Generating Report...
-                    </>
-                  ) : (
-                    "Generate System Report"
-                  )}
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
+            <Card className="lg:col-span-4 border-none shadow-lg">
+              <CardHeader>
+                <CardTitle>Moderation Activity</CardTitle>
+                <CardDescription>Activity overview from the last 24 hours.</CardDescription>
+              </CardHeader>
+              <CardContent className="h-[300px] text-muted-foreground rounded-lg m-6 mt-0 p-0">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={activityData} margin={{ top: 20, right: 20, left: -20, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="colorActions" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#2563eb" stopOpacity={0.3} />
+                        <stop offset="95%" stopColor="#2563eb" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <XAxis
+                      dataKey="date"
+                      stroke="#888888"
+                      fontSize={12}
+                      tickLine={false}
+                      axisLine={false}
+                    />
+                    <YAxis
+                      stroke="#888888"
+                      fontSize={12}
+                      tickLine={false}
+                      axisLine={false}
+                      tickFormatter={(value) => `${value}`}
+                    />
+                    <Tooltip
+                      contentStyle={{ borderRadius: "8px", border: "none", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}
+                      labelStyle={{ color: "#888888", marginBottom: "4px" }}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="actions"
+                      stroke="#2563eb"
+                      strokeWidth={3}
+                      fillOpacity={1}
+                      fill="url(#colorActions)"
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            <div className="lg:col-span-3 premium-card space-y-6">
+              <div>
+                <h3 className="text-xl font-bold tracking-tight">Quick Actions</h3>
+                <p className="text-sm text-muted-foreground">Common management tasks.</p>
+              </div>
+              <div className="space-y-3">
+                <Button variant="outline" className="w-full justify-between group h-12 border-primary/10 hover:border-primary/30" asChild>
+                  <a href="/dashboard/reports" className="flex items-center justify-between w-full">
+                    Review Pending Reports
+                    <ArrowRightIcon className="size-4 transition-transform group-hover:translate-x-1" />
+                  </a>
                 </Button>
+                <Button variant="outline" className="w-full justify-between group h-12 border-primary/10 hover:border-primary/30" asChild>
+                  <a href="/dashboard/users" className="flex items-center justify-between w-full">
+                    Manage User Roles
+                    <ArrowRightIcon className="size-4 transition-transform group-hover:translate-x-1" />
+                  </a>
+                </Button>
+                <Button variant="outline" className="w-full justify-between group h-12 border-primary/10 hover:border-primary/30" asChild>
+                  <a href="/dashboard/bans" className="flex items-center justify-between w-full">
+                    View Banned Accounts
+                    <ArrowRightIcon className="size-4 transition-transform group-hover:translate-x-1" />
+                  </a>
+                </Button>
+                <div className="pt-4">
+                  <Button
+                    className="w-full h-11 brand-gradient border-none hover:opacity-90 transition-opacity"
+                    onClick={handleGenerateReport}
+                    disabled={isGeneratingReport}
+                  >
+                    {isGeneratingReport ? (
+                      <>
+                        <Loader2 className="mr-2 size-4 animate-spin text-white" />
+                        Generating Report...
+                      </>
+                    ) : (
+                      "Generate System Report"
+                    )}
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
       </main>
     </div>
   );
@@ -326,32 +333,32 @@ export default function DashboardPage({ isSubPage = false }) {
             </div>
 
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-              <StatCard 
-                title="Total Users" 
-                value={stats.totalUsers} 
-                icon={UsersIcon} 
-                description="Registered students & staff" 
+              <StatCard
+                title="Total Users"
+                value={stats.totalUsers}
+                icon={UsersIcon}
+                description="Registered students & staff"
                 color="bg-blue-500"
               />
-              <StatCard 
-                title="Active Admins" 
-                value={stats.totalAdmins} 
-                icon={ShieldAlertIcon} 
-                description="System administrators" 
+              <StatCard
+                title="Active Admins"
+                value={stats.totalAdmins}
+                icon={ShieldAlertIcon}
+                description="System administrators"
                 color="bg-purple-500"
               />
-              <StatCard 
-                title="Pending Reports" 
-                value={stats.pendingReports} 
-                icon={FileTextIcon} 
-                description="Flagged content awaiting review" 
+              <StatCard
+                title="Pending Reports"
+                value={stats.pendingReports}
+                icon={FileTextIcon}
+                description="Flagged content awaiting review"
                 color="bg-orange-500"
               />
-              <StatCard 
-                title="Banned Users" 
-                value={stats.bannedUsers} 
-                icon={ActivityIcon} 
-                description="Accounts currently restricted" 
+              <StatCard
+                title="Banned Users"
+                value={stats.bannedUsers}
+                icon={ActivityIcon}
+                description="Accounts currently restricted"
                 color="bg-red-500"
               />
             </div>
@@ -371,37 +378,37 @@ export default function DashboardPage({ isSubPage = false }) {
                           <stop offset="95%" stopColor="#2563eb" stopOpacity={0} />
                         </linearGradient>
                       </defs>
-                      <XAxis 
-                        dataKey="date" 
-                        stroke="#888888" 
-                        fontSize={12} 
-                        tickLine={false} 
-                        axisLine={false} 
+                      <XAxis
+                        dataKey="date"
+                        stroke="#888888"
+                        fontSize={12}
+                        tickLine={false}
+                        axisLine={false}
                       />
-                      <YAxis 
-                        stroke="#888888" 
-                        fontSize={12} 
-                        tickLine={false} 
-                        axisLine={false} 
-                        tickFormatter={(value) => `${value}`} 
+                      <YAxis
+                        stroke="#888888"
+                        fontSize={12}
+                        tickLine={false}
+                        axisLine={false}
+                        tickFormatter={(value) => `${value}`}
                       />
-                      <Tooltip 
+                      <Tooltip
                         contentStyle={{ borderRadius: "8px", border: "none", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}
                         labelStyle={{ color: "#888888", marginBottom: "4px" }}
                       />
-                      <Area 
-                        type="monotone" 
-                        dataKey="actions" 
-                        stroke="#2563eb" 
+                      <Area
+                        type="monotone"
+                        dataKey="actions"
+                        stroke="#2563eb"
                         strokeWidth={3}
-                        fillOpacity={1} 
-                        fill="url(#colorActions)" 
+                        fillOpacity={1}
+                        fill="url(#colorActions)"
                       />
                     </AreaChart>
                   </ResponsiveContainer>
                 </CardContent>
               </Card>
-              
+
               <div className="lg:col-span-3 premium-card space-y-6">
                 <div>
                   <h3 className="text-xl font-bold tracking-tight">Quick Actions</h3>
@@ -427,14 +434,14 @@ export default function DashboardPage({ isSubPage = false }) {
                     </a>
                   </Button>
                   <div className="pt-4">
-                    <Button 
+                    <Button
                       className="w-full h-11 brand-gradient border-none hover:opacity-90 transition-opacity"
                       onClick={handleGenerateReport}
                       disabled={isGeneratingReport}
                     >
                       {isGeneratingReport ? (
                         <>
-                          <Loader2Icon className="mr-2 size-4 animate-spin text-white" />
+                          <Loader2 className="mr-2 size-4 animate-spin text-white" />
                           Generating Report...
                         </>
                       ) : (

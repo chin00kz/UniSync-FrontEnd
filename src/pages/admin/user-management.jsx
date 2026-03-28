@@ -46,7 +46,7 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { 
-  Loader2Icon, 
+  Loader2, 
   SearchIcon, 
   UserCogIcon, 
   BanIcon, 
@@ -240,7 +240,7 @@ export default function UserManagementPage({ isSubPage = false }) {
               <TableRow>
                 <TableCell colSpan={6} className="h-24 text-center">
                   <div className="flex items-center justify-center">
-                    <Loader2Icon className="size-6 animate-spin text-muted-foreground" />
+                    <Loader2 className="size-6 animate-spin text-muted-foreground" />
                     <span className="ml-2">Loading users...</span>
                   </div>
                 </TableCell>
@@ -379,7 +379,7 @@ export default function UserManagementPage({ isSubPage = false }) {
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsRoleDialogOpen(false)} className="font-bold">Cancel</Button>
             <Button onClick={handleUpdateRole} disabled={isActionLoading} className="font-bold">
-              {isActionLoading && <Loader2Icon className="mr-2 size-4 animate-spin" />}
+              {isActionLoading && <Loader2 className="mr-2 size-4 animate-spin" />}
               Confirm Role Update
             </Button>
           </DialogFooter>
@@ -417,7 +417,7 @@ export default function UserManagementPage({ isSubPage = false }) {
               disabled={isActionLoading}
               className="font-bold"
             >
-              {isActionLoading && <Loader2Icon className="mr-2 size-4 animate-spin" />}
+              {isActionLoading && <Loader2 className="mr-2 size-4 animate-spin" />}
               {selectedUser?.isBanned ? "Lift Ban" : "Confirm Ban"}
             </Button>
           </DialogFooter>

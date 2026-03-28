@@ -1,25 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { 
-  Users, 
-  Star, 
-  Search, 
-  Filter, 
-  Loader2Icon,
+import {
+  Users,
+  Star,
+  Search,
+  Filter,
+  Loader2,
   ArrowRight,
   Calendar,
   Clock,
   MessageSquare,
   X,
-  CheckCircle2Icon,
-  Sparkles
+  CheckCircle2,
+  Sparkles,
+  Flag
 } from 'lucide-react';
+import ReportModal from '@/components/report-modal';
 
 export default function PeerTutoringPage() {
   const [tutors, setTutors] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  
+
   // Booking Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTutor, setSelectedTutor] = useState(null);
@@ -31,9 +33,13 @@ export default function PeerTutoringPage() {
     message: ""
   });
 
+  // Reporting State
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [reportTarget, setReportTarget] = useState(null);
+
   const fetchTutors = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/users/tutors");
+      const res = await axios.get("http://localhost:5000/api/tutor/list");
       setTutors(res.data.data);
     } catch (err) {
       console.error("Tutor fetch error:", err);
@@ -58,12 +64,12 @@ export default function PeerTutoringPage() {
     try {
       const user = JSON.parse(localStorage.getItem("user") || "{}");
       const userId = user.id || user._id; // Fallback to _id if id is missing
-      
+
       if (!userId) {
         throw new Error("User ID missing from session. Please relogin.");
       }
 
-      const response = await axios.post("http://localhost:5000/api/bookings", {
+      const response = await axios.post("http://localhost:5000/api/student/bookings", {
         tutorId: selectedTutor._id,
         subject: selectedTutor.subject || "General Mentorship",
         date: bookingData.date,
@@ -72,7 +78,7 @@ export default function PeerTutoringPage() {
       }, {
         headers: { "x-user-id": userId }
       });
-      
+
       setBookingSuccess(true);
       setTimeout(() => {
         setIsModalOpen(false);
@@ -88,7 +94,7 @@ export default function PeerTutoringPage() {
     }
   };
 
-  const filteredTutors = tutors.filter(t => 
+  const filteredTutors = tutors.filter(t =>
     t.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     (t.subject && t.subject.toLowerCase().includes(searchQuery.toLowerCase()))
   );
@@ -102,12 +108,12 @@ export default function PeerTutoringPage() {
           <h1 className="text-3xl font-extrabold tracking-tight text-slate-800">Peer Tutoring</h1>
           <p className="text-muted-foreground font-medium text-lg">Connect with expert tutors to excel in your studies.</p>
         </div>
-        
+
         <div className="relative group w-full md:w-80">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-400 group-focus-within:text-brand-blue transition-colors" />
-          <input 
-            type="text" 
-            placeholder="Search by name or subject..." 
+          <input
+            type="text"
+            placeholder="Search by name or subject..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:border-brand-blue focus:ring-4 focus:ring-brand-blue/10 transition-all outline-none font-medium bg-white"
@@ -117,7 +123,7 @@ export default function PeerTutoringPage() {
 
       {isLoading ? (
         <div className="flex justify-center py-20">
-          <Loader2Icon className="size-10 animate-spin text-brand-blue/40" />
+          <Loader2 className="size-10 animate-spin text-brand-blue/40" />
         </div>
       ) : filteredTutors.length === 0 ? (
         <div className="premium-card text-center py-20 border-dashed border-2 flex flex-col items-center gap-4">
@@ -136,36 +142,46 @@ export default function PeerTutoringPage() {
               <div className="relative">
                 <div className="absolute inset-0 bg-brand-blue/20 rounded-full blur-xl group-hover:scale-110 transition-transform duration-500"></div>
                 <div className="size-24 rounded-full border-4 border-white shadow-xl relative z-10 p-0.5 group-hover:rotate-3 transition-transform overflow-hidden bg-slate-50">
-                  <img 
-                    src={`https://api.dicebear.com/7.x/notionists/svg?seed=${tutor.email || tutor.name}`} 
-                    alt={tutor.name} 
-                    className="size-full object-cover" 
+                  <img
+                    src={`https://api.dicebear.com/7.x/notionists/svg?seed=${tutor.email || tutor.name}`}
+                    alt={tutor.name}
+                    className="size-full object-cover"
                   />
                 </div>
                 <div className="absolute bottom-1 right-1 size-5 bg-emerald-500 rounded-full border-4 border-white z-20 shadow-sm animate-pulse"></div>
               </div>
-              
+
               <div className="space-y-1">
                 <h4 className="font-extrabold text-2xl text-slate-800 group-hover:text-brand-blue transition-colors">{tutor.name}</h4>
                 <p className="text-sm font-bold text-brand-blue uppercase tracking-widest">{tutor.subject || "Expert Tutor"}</p>
               </div>
-              
+
               <div className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-amber-50 text-amber-600 border border-amber-100 shadow-sm">
                 <Star className="size-4 fill-amber-500 text-amber-500" />
                 <span className="text-sm font-black">{tutor.rating || "5.0"}</span>
                 <span className="text-xs text-amber-600/60 font-medium ml-1">(24 Reviews)</span>
               </div>
-              
+
               <div className="w-full h-px bg-slate-100 mt-2"></div>
-              
+
               <div className="flex items-center justify-between w-full pt-2">
                 <div className="flex flex-col items-start px-2">
                   <span className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">Rate</span>
                   <span className="text-xl font-black text-slate-800 tracking-tight">{tutor.price || "$15/hr"}</span>
                 </div>
-                <button 
+                <button
+                  onClick={() => {
+                    setReportTarget(tutor);
+                    setIsReportModalOpen(true);
+                  }}
+                  className="bg-rose-50 hover:bg-rose-100 text-rose-500 p-3 rounded-xl transition-all"
+                  title="Report Tutor"
+                >
+                  <Flag className="size-5" />
+                </button>
+                <button
                   onClick={() => handleOpenBooking(tutor)}
-                  className="bg-brand-blue hover:bg-brand-blue/90 text-white px-8 py-3 rounded-xl font-black uppercase text-sm tracking-wider shadow-lg shadow-brand-blue/20 transition-all hover:scale-105 active:scale-95 group-hover:translate-x-1"
+                  className="flex-1 bg-brand-blue hover:bg-brand-blue/90 text-white px-8 py-3 rounded-xl font-black uppercase text-sm tracking-wider shadow-lg shadow-brand-blue/20 transition-all hover:scale-105 active:scale-95 group-hover:translate-x-1"
                 >
                   Book Now
                 </button>
@@ -175,6 +191,15 @@ export default function PeerTutoringPage() {
         </div>
       )}
 
+      <ReportModal
+        isOpen={isReportModalOpen}
+        onClose={() => setIsReportModalOpen(false)}
+        targetId={reportTarget?._id || reportTarget?.id}
+        targetName={reportTarget?.name}
+        contentType="tutor"
+        reportedUserId={reportTarget?._id || reportTarget?.id}
+      />
+
       {/* Booking Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
@@ -182,7 +207,7 @@ export default function PeerTutoringPage() {
             {bookingSuccess ? (
               <div className="p-12 text-center space-y-6 flex flex-col items-center">
                 <div className="size-24 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 animate-bounce">
-                  <CheckCircle2Icon className="size-12" />
+                  <CheckCircle2 className="size-12" />
                 </div>
                 <div className="space-y-2">
                   <h2 className="text-3xl font-black text-slate-800">Booking Confirmed!</h2>
@@ -196,7 +221,7 @@ export default function PeerTutoringPage() {
               <>
                 {/* Modal Header */}
                 <div className="bg-brand-gradient p-8 text-white relative">
-                  <button 
+                  <button
                     onClick={() => setIsModalOpen(false)}
                     className="absolute top-6 right-6 p-2 rounded-full bg-white/20 hover:bg-white/30 transition-colors"
                   >
@@ -204,8 +229,8 @@ export default function PeerTutoringPage() {
                   </button>
                   <div className="flex items-center gap-6">
                     <div className="size-20 rounded-2xl border-4 border-white/20 shadow-xl overflow-hidden bg-white/10 shrink-0">
-                      <img 
-                        src={`https://api.dicebear.com/7.x/notionists/svg?seed=${selectedTutor?.email || selectedTutor?.name}`} 
+                      <img
+                        src={`https://api.dicebear.com/7.x/notionists/svg?seed=${selectedTutor?.email || selectedTutor?.name}`}
                         alt={selectedTutor?.name}
                         className="size-full object-cover"
                       />
@@ -228,11 +253,11 @@ export default function PeerTutoringPage() {
                       <Label text="Select Date" />
                       <div className="relative group">
                         <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-slate-400 group-focus-within:text-brand-blue transition-colors" />
-                        <input 
-                          type="date" 
+                        <input
+                          type="date"
                           required
                           value={bookingData.date}
-                          onChange={(e) => setBookingData({...bookingData, date: e.target.value})}
+                          onChange={(e) => setBookingData({ ...bookingData, date: e.target.value })}
                           className="w-full h-14 pl-12 pr-4 rounded-2xl border-2 border-slate-100 focus:border-brand-blue focus:ring-8 focus:ring-brand-blue/5 outline-none transition-all font-bold text-slate-700"
                         />
                       </div>
@@ -241,10 +266,10 @@ export default function PeerTutoringPage() {
                       <Label text="Time Slot" />
                       <div className="relative group">
                         <Clock className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-slate-400 group-focus-within:text-brand-blue transition-colors" />
-                        <select 
+                        <select
                           required
                           value={bookingData.timeSlot}
-                          onChange={(e) => setBookingData({...bookingData, timeSlot: e.target.value})}
+                          onChange={(e) => setBookingData({ ...bookingData, timeSlot: e.target.value })}
                           className="w-full h-14 pl-12 pr-4 rounded-2xl border-2 border-slate-100 focus:border-brand-blue focus:ring-8 focus:ring-brand-blue/5 outline-none transition-all font-bold text-slate-700 appearance-none bg-white"
                         >
                           {timeSlots.map(slot => (
@@ -259,10 +284,10 @@ export default function PeerTutoringPage() {
                     <Label text="Specific Topic (Optional)" />
                     <div className="relative group">
                       <MessageSquare className="absolute left-4 top-4 size-5 text-slate-400 group-focus-within:text-brand-blue transition-colors" />
-                      <textarea 
+                      <textarea
                         placeholder="What do you need help with?"
                         value={bookingData.message}
-                        onChange={(e) => setBookingData({...bookingData, message: e.target.value})}
+                        onChange={(e) => setBookingData({ ...bookingData, message: e.target.value })}
                         className="w-full h-32 pl-12 pr-4 py-4 rounded-2xl border-2 border-slate-100 focus:border-brand-blue focus:ring-8 focus:ring-brand-blue/5 outline-none transition-all font-bold text-slate-700 resize-none"
                       />
                     </div>
@@ -273,14 +298,14 @@ export default function PeerTutoringPage() {
                       <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Price</span>
                       <span className="text-2xl font-black text-slate-800 tracking-tight">{selectedTutor?.price || "$15/hr"}</span>
                     </div>
-                    <button 
+                    <button
                       type="submit"
                       disabled={isSubmitting}
                       className="flex-1 h-14 rounded-2xl bg-brand-gradient border-0 text-white font-black uppercase tracking-widest text-sm shadow-xl shadow-brand-blue/20 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 disabled:scale-100"
                     >
                       {isSubmitting ? (
                         <span className="flex items-center justify-center gap-2">
-                          <Loader2Icon className="size-5 animate-spin" />
+                          <Loader2 className="size-5 animate-spin" />
                           Processing...
                         </span>
                       ) : (

@@ -11,10 +11,10 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { 
-  MessageSquare, 
-  CheckCircle2, 
-  Clock, 
+import {
+  MessageSquare,
+  CheckCircle2,
+  Clock,
   MailCheck,
   ArrowRight,
   Calendar,
@@ -29,7 +29,7 @@ const TutorDashboard = ({ questions, onAction }) => {
     const fetchBookings = async () => {
       try {
         const user = JSON.parse(localStorage.getItem('user') || '{}');
-        const res = await axios.get("http://localhost:5000/api/bookings/tutor", {
+        const res = await axios.get("http://localhost:5000/api/tutor/bookings", {
           headers: { "x-user-id": user.id || user._id }
         });
         setBookings(res.data.data.filter(b => b.status === 'Pending' || b.status === 'Confirmed'));
@@ -43,30 +43,30 @@ const TutorDashboard = ({ questions, onAction }) => {
   }, []);
 
   const stats = [
-    { 
-      label: "Total Requests", 
-      value: questions.length, 
+    {
+      label: "Total Requests",
+      value: questions.length,
       icon: MessageSquare,
       color: "text-blue-600",
       bgColor: "bg-blue-50"
     },
-    { 
-      label: "Active Sessions", 
-      value: bookings.length, 
+    {
+      label: "Active Sessions",
+      value: bookings.length,
       icon: Calendar,
       color: "text-emerald-600",
       bgColor: "bg-emerald-50"
     },
-    { 
-      label: "Waiting", 
-      value: questions.filter(q => q.status === 'Not Started').length, 
+    {
+      label: "Waiting",
+      value: questions.filter(q => q.status === 'Not Started').length,
       icon: Clock,
       color: "text-amber-600",
       bgColor: "bg-amber-50"
     },
-    { 
-      label: "Replied", 
-      value: questions.filter(q => q.status === 'Replied').length, 
+    {
+      label: "Replied",
+      value: questions.filter(q => q.status === 'Replied').length,
       icon: MailCheck,
       color: "text-purple-600",
       bgColor: "bg-purple-50"
@@ -79,9 +79,9 @@ const TutorDashboard = ({ questions, onAction }) => {
       'Replied': { variant: 'secondary', className: 'bg-blue-100 text-blue-700 hover:bg-blue-200' },
       'Not Started': { variant: 'outline', className: 'border-amber-200 text-amber-700 bg-amber-50' }
     };
-    
+
     const config = variants[status] || variants['Not Started'];
-    
+
     return (
       <Badge variant={config.variant} className={config.className}>
         {status ? status.toUpperCase() : 'NOT STARTED'}
@@ -90,7 +90,7 @@ const TutorDashboard = ({ questions, onAction }) => {
   };
 
   const getActionText = (status) => {
-    switch(status) {
+    switch (status) {
       case 'Not Started':
         return { text: 'Review Request', icon: Clock, variant: 'default' };
       case 'Replied':
@@ -145,7 +145,7 @@ const TutorDashboard = ({ questions, onAction }) => {
               </div>
               <Button variant="ghost" className="text-brand-blue font-black uppercase text-[10px] tracking-widest">View All</Button>
             </div>
-            
+
             <div className="p-0">
               <Table>
                 <TableHeader className="bg-slate-50/50">
@@ -164,7 +164,7 @@ const TutorDashboard = ({ questions, onAction }) => {
                         <TableCell className="font-bold text-slate-700 py-5 pl-8 text-left">{q.studentName}</TableCell>
                         <TableCell className="text-center">{getStatusBadge(q.status)}</TableCell>
                         <TableCell className="text-right pr-8">
-                          <Button 
+                          <Button
                             variant="ghost"
                             size="sm"
                             className="font-black uppercase text-[10px] tracking-widest text-brand-blue hover:bg-brand-blue/5 gap-2"
@@ -202,7 +202,7 @@ const TutorDashboard = ({ questions, onAction }) => {
                 </div>
                 <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30 font-bold uppercase tracking-widest text-[9px]">Live Data</Badge>
               </div>
-              
+
               <div>
                 <h3 className="text-2xl font-black leading-tight text-white">Upcoming Sessions</h3>
                 <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">Next 24 Hours</p>
@@ -210,13 +210,13 @@ const TutorDashboard = ({ questions, onAction }) => {
 
               <div className="space-y-4">
                 {isLoadingBookings ? (
-                   <div className="flex items-center gap-3 animate-pulse">
-                     <div className="size-10 rounded-full bg-white/10"></div>
-                     <div className="space-y-2">
-                       <div className="h-3 w-24 bg-white/10 rounded"></div>
-                       <div className="h-2 w-16 bg-white/10 rounded"></div>
-                     </div>
-                   </div>
+                  <div className="flex items-center gap-3 animate-pulse">
+                    <div className="size-10 rounded-full bg-white/10"></div>
+                    <div className="space-y-2">
+                      <div className="h-3 w-24 bg-white/10 rounded"></div>
+                      <div className="h-2 w-16 bg-white/10 rounded"></div>
+                    </div>
+                  </div>
                 ) : bookings.length === 0 ? (
                   <div className="py-6 border border-white/10 rounded-2xl border-dashed flex flex-col items-center gap-2">
                     <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em]">No sessions scheduled</p>
@@ -225,8 +225,8 @@ const TutorDashboard = ({ questions, onAction }) => {
                   bookings.slice(0, 3).map((b) => (
                     <div key={b._id} className="flex items-center gap-4 group cursor-pointer">
                       <div className="size-10 rounded-xl border-2 border-white/10 group-hover:scale-110 transition-transform overflow-hidden bg-slate-800">
-                        <img 
-                          src={`https://api.dicebear.com/7.x/notionists/svg?seed=${b.student?.email || b.student?.name}`} 
+                        <img
+                          src={`https://api.dicebear.com/7.x/notionists/svg?seed=${b.student?.email || b.student?.name}`}
                           alt={b.student?.name}
                           className="size-full object-cover"
                         />
@@ -241,8 +241,8 @@ const TutorDashboard = ({ questions, onAction }) => {
                 )}
               </div>
 
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="w-full h-12 rounded-xl bg-white/5 border-white/10 text-white font-black uppercase text-[10px] tracking-widest hover:bg-white/20 mt-2 border-0"
                 asChild
               >

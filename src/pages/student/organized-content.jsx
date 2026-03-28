@@ -1,28 +1,45 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   FileText, 
   ArrowRight, 
-  Download 
+  Download,
+  Flag
 } from 'lucide-react';
 import { mockOrganizedContent } from '@/lib/mockData';
+import ReportModal from '@/components/report-modal';
 
 export default function OrganizedContentPage() {
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [reportTarget, setReportTarget] = useState(null);
+
   return (
     <div className="space-y-8">
-      <div className="flex flex-col gap-1">
+      <div className="flex flex-col gap-1 text-left">
         <h1 className="text-3xl font-extrabold tracking-tight text-slate-800">Organized Content</h1>
         <p className="text-muted-foreground font-medium text-lg">Access all your study materials and lecture notes in one place.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {mockOrganizedContent.map((item) => (
-          <div key={item.id} className="premium-card hover:translate-y-[-4px] transition-all border-slate-200/60 p-6 flex flex-col gap-4 group">
+          <div key={item.id} className="premium-card hover:translate-y-[-4px] transition-all border-slate-200/60 p-6 flex flex-col gap-4 group text-left">
             <div className="flex items-center gap-4">
               <div className="size-14 rounded-2xl bg-brand-blue/10 flex items-center justify-center text-brand-blue group-hover:bg-brand-blue group-hover:text-white transition-colors duration-500">
                 <FileText className="size-7" />
               </div>
               <div className="flex-1">
-                <h4 className="font-bold text-xl text-slate-800 group-hover:text-brand-blue transition-colors">{item.title}</h4>
+                <div className="flex items-center justify-between">
+                  <h4 className="font-bold text-xl text-slate-800 group-hover:text-brand-blue transition-colors">{item.title}</h4>
+                  <button 
+                    onClick={() => {
+                      setReportTarget(item);
+                      setIsReportModalOpen(true);
+                    }}
+                    className="p-2 rounded-lg hover:bg-rose-50 text-slate-300 hover:text-rose-500 transition-colors"
+                    title="Report Content"
+                  >
+                    <Flag className="size-4" />
+                  </button>
+                </div>
                 <p className="text-sm text-slate-500 font-bold uppercase tracking-widest mt-0.5">{item.subject}</p>
               </div>
             </div>
@@ -45,6 +62,14 @@ export default function OrganizedContentPage() {
         ))}
       </div>
       
+      <ReportModal 
+        isOpen={isReportModalOpen}
+        onClose={() => setIsReportModalOpen(false)}
+        targetId={reportTarget?.id}
+        targetName={reportTarget?.title}
+        contentType="material"
+      />
+
       {/* Empty State / Suggestions */}
       {mockOrganizedContent.length > 0 && (
         <div className="bg-slate-50 rounded-2xl p-8 border border-dashed border-slate-200 text-center">

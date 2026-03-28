@@ -15,7 +15,7 @@ import {
   InfoIcon, 
   ShieldAlertIcon, 
   UserPlusIcon, 
-  CheckCircle2Icon 
+  CheckCircle2 
 } from "lucide-react"
 
 export function NotificationsSheet({ trigger }) {
@@ -55,7 +55,7 @@ export function NotificationsSheet({ trigger }) {
       description: "Your administrator privileges have been verified.",
       time: "Yesterday",
       type: "system",
-      icon: CheckCircle2Icon,
+      icon: CheckCircle2,
       color: "text-emerald-600 bg-emerald-50"
     }
   ]

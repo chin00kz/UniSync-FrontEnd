@@ -33,11 +33,11 @@ export default function StudentDashboard({ user }) {
       const userId = user?.id || JSON.parse(localStorage.getItem('user') || '{}').id;
       
       // Fetch Questions/Sessions stats
-      const sessionRes = await axios.get("http://localhost:5000/api/sessions")
-      const myQuestions = sessionRes.data.filter(q => q.studentName === user?.name)
+      const sessionRes = await axios.get(`http://localhost:5000/api/student/sessions?name=${user?.name}`)
+      const myQuestions = sessionRes.data.data
       
       // Fetch Latest Booking
-      const bookingRes = await axios.get("http://localhost:5000/api/bookings/me", {
+      const bookingRes = await axios.get("http://localhost:5000/api/student/bookings", {
         headers: { "x-user-id": userId }
       })
       

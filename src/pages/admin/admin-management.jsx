@@ -44,7 +44,7 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { PlusIcon, Loader2Icon, Trash2Icon } from "lucide-react"
+import { PlusIcon, Loader2, Trash2Icon } from "lucide-react"
 
 export default function AdminManagementPage({ isSubPage = false }) {
   const userData = JSON.parse(localStorage.getItem("user") || "{}")
@@ -178,7 +178,7 @@ export default function AdminManagementPage({ isSubPage = false }) {
               <TableRow>
                 <TableCell colSpan={5} className="h-24 text-center">
                   <div className="flex items-center justify-center">
-                    <Loader2Icon className="size-6 animate-spin text-muted-foreground" />
+                    <Loader2 className="size-6 animate-spin text-muted-foreground" />
                     <span className="ml-2 font-bold">Loading admins...</span>
                   </div>
                 </TableCell>
@@ -352,7 +352,7 @@ export default function AdminManagementPage({ isSubPage = false }) {
                 </div>
                 <DialogFooter>
                   <Button type="submit" disabled={isAdding} className="font-black uppercase tracking-widest text-[11px] h-12 w-full">
-                    {isAdding && <Loader2Icon className="mr-2 size-4 animate-spin" />}
+                    {isAdding && <Loader2 className="mr-2 size-4 animate-spin" />}
                     Save Admin
                   </Button>
                 </DialogFooter>

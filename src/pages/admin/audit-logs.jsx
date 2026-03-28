@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { 
-  Loader2Icon, 
+  Loader2, 
   HistoryIcon, 
   InfoIcon
 } from "lucide-react"
@@ -81,7 +81,7 @@ export default function AuditLogsPage({ isSubPage = false }) {
               <TableRow>
                 <TableCell colSpan={5} className="h-24 text-center">
                   <div className="flex items-center justify-center">
-                    <Loader2Icon className="size-6 animate-spin text-muted-foreground" />
+                    <Loader2 className="size-6 animate-spin text-muted-foreground" />
                     <span className="ml-2 font-bold">Loading logs...</span>
                   </div>
                 </TableCell>

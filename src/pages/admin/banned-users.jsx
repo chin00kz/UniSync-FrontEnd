@@ -27,7 +27,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { 
-  Loader2Icon, 
+  Loader2, 
   BanIcon, 
   UnlockIcon,
   SearchIcon
@@ -116,7 +116,7 @@ export default function BannedUsersPage({ isSubPage = false }) {
               <TableRow>
                 <TableCell colSpan={5} className="h-24 text-center">
                   <div className="flex items-center justify-center">
-                    <Loader2Icon className="size-6 animate-spin text-muted-foreground" />
+                    <Loader2 className="size-6 animate-spin text-muted-foreground" />
                     <span className="ml-2 font-bold">Loading banned users...</span>
                   </div>
                 </TableCell>
@@ -153,7 +153,7 @@ export default function BannedUsersPage({ isSubPage = false }) {
                       onClick={() => handleUnbanUser(user)}
                       disabled={isActionLoading}
                     >
-                      {isActionLoading ? <Loader2Icon className="size-4 animate-spin" /> : <UnlockIcon className="mr-2 size-3.5" />}
+                      {isActionLoading ? <Loader2 className="size-4 animate-spin" /> : <UnlockIcon className="mr-2 size-3.5" />}
                       Lift Ban
                     </Button>
                   </TableCell>
