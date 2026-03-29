@@ -13,7 +13,8 @@ import {
 import { useNavigate } from 'react-router-dom';
 
 function StudentPost({ onPostSuccess }) {
-  const [name, setName] = useState('');
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const [name, setName] = useState(user?.name || '');
   const [question, setQuestion] = useState('');
   const [image, setImage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -88,11 +89,9 @@ function StudentPost({ onPostSuccess }) {
                   </label>
                   <input 
                     type="text" 
-                    placeholder="e.g. John Doe" 
                     value={name} 
-                    onChange={(e) => setName(e.target.value)} 
-                    required 
-                    className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-brand-blue focus:ring-4 focus:ring-brand-blue/10 transition-all outline-none font-medium text-slate-700 bg-slate-50/30"
+                    readOnly 
+                    className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-100 font-medium text-slate-500 outline-none cursor-not-allowed"
                   />
                 </div>
 
