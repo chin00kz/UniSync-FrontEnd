@@ -25,9 +25,8 @@ import BannedUsersPage from "./banned-users"
 import AccountPage from "./account"
 import SettingsPage from "./settings"
 
-export default function AdminWorkspace({ initialPage = "dashboard" }) {
+export default function AdminWorkspace({ initialPage = "dashboard", user }) {
   const [currentPage, setCurrentPage] = useState(initialPage)
-  const user = JSON.parse(localStorage.getItem("user") || "null")
 
   useEffect(() => {
     setCurrentPage(initialPage)
@@ -123,14 +122,14 @@ export default function AdminWorkspace({ initialPage = "dashboard" }) {
         </header>
         <main className="flex-1 overflow-hidden bg-background">
           <div className="h-full">
-            {currentPage === "dashboard" && <DashboardPage isSubPage={true} />}
-            {currentPage === "admins" && <AdminManagementPage isSubPage={true} />}
-            {currentPage === "users" && <UserManagementPage isSubPage={true} />}
-            {currentPage === "reports" && <ReportsPage isSubPage={true} />}
-            {currentPage === "audit-logs" && <AuditLogsPage isSubPage={true} />}
-            {currentPage === "bans" && <BannedUsersPage isSubPage={true} />}
-            {currentPage === "account" && <AccountPage isSubPage={true} />}
-            {currentPage === "settings" && <SettingsPage isSubPage={true} />}
+            {currentPage === "dashboard" && <DashboardPage isSubPage={true} user={user} />}
+            {currentPage === "admins" && <AdminManagementPage isSubPage={true} user={user} />}
+            {currentPage === "users" && <UserManagementPage isSubPage={true} user={user} />}
+            {currentPage === "reports" && <ReportsPage isSubPage={true} user={user} />}
+            {currentPage === "audit-logs" && <AuditLogsPage isSubPage={true} user={user} />}
+            {currentPage === "bans" && <BannedUsersPage isSubPage={true} user={user} />}
+            {currentPage === "account" && <AccountPage isSubPage={true} user={user} />}
+            {currentPage === "settings" && <SettingsPage isSubPage={true} user={user} />}
           </div>
         </main>
       </SidebarInset>

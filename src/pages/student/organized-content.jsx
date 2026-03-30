@@ -8,7 +8,7 @@ import {
 import { mockOrganizedContent } from '@/lib/mockData';
 import ReportModal from '@/components/report-modal';
 
-export default function OrganizedContentPage() {
+export default function OrganizedContentPage({ user }) {
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [reportTarget, setReportTarget] = useState(null);
 

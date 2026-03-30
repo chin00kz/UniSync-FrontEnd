@@ -9,13 +9,11 @@ import SessionReview from "@/pages/tutor/reviews"
 import TutorBookingsPage from "@/pages/tutor/bookings"
 import AccountPage from "@/pages/admin/account"
 
-export default function TutorWorkspace({ initialPage = "dashboard" }) {
+export default function TutorWorkspace({ initialPage = "dashboard", user }) {
   const [currentPage, setCurrentPage] = useState(initialPage)
   const [questions, setQuestions] = useState([])
   const [selectedId, setSelectedId] = useState(null)
   
-  const user = JSON.parse(localStorage.getItem("user") || "null")
-
   const fetchSessions = async () => {
     try {
       const res = await axios.get("http://localhost:5000/api/sessions")
@@ -99,10 +97,10 @@ export default function TutorWorkspace({ initialPage = "dashboard" }) {
         </header>
         <main className="flex-1 overflow-auto p-6 lg:p-10 bg-background">
           <div className="mx-auto max-w-7xl">
-            {currentPage === "dashboard" && <TutorDashboard questions={questions} onAction={handleSelectQuestion} />}
-            {currentPage === "bookings" && <TutorBookingsPage />}
-            {currentPage === "review" && <SessionReview questions={questions} onUpdate={handleUpdate} initialSelectedId={selectedId} />}
-            {currentPage === "account" && <AccountPage isSubPage={true} />}
+            {currentPage === "dashboard" && <TutorDashboard questions={questions} onAction={handleSelectQuestion} user={user} />}
+            {currentPage === "bookings" && <TutorBookingsPage user={user} />}
+            {currentPage === "review" && <SessionReview questions={questions} onUpdate={handleUpdate} initialSelectedId={selectedId} user={user} />}
+            {currentPage === "account" && <AccountPage isSubPage={true} user={user} />}
           </div>
         </main>
       </SidebarInset>

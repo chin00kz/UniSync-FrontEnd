@@ -46,8 +46,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { PlusIcon, Loader2, Trash2Icon } from "lucide-react"
 
-export default function AdminManagementPage({ isSubPage = false }) {
-  const userData = JSON.parse(localStorage.getItem("user") || "{}")
+export default function AdminManagementPage({ isSubPage = false, user }) {
+  const userData = user || JSON.parse(localStorage.getItem("user") || "{}")
   const [admins, setAdmins] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [isAdding, setIsAdding] = useState(false)

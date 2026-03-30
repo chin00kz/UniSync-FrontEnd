@@ -17,7 +17,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import * as XLSX from "xlsx"
 
-export default function SettingsPage({ isSubPage = false }) {
+export default function BannedUsersPage({ isSubPage = false, user }) {
   const [searchTerm, setSearchTerm] = useState("")
   const [isMaintenanceMode, setIsMaintenanceMode] = useState(false)
   const [isTogglingMaintenance, setIsTogglingMaintenance] = useState(false)
@@ -28,8 +28,10 @@ export default function SettingsPage({ isSubPage = false }) {
 
   // Fetch current settings on mount
   useEffect(() => {
-    fetchSettings()
-  }, [])
+    if (user?.id || user?._id) {
+      fetchSettings()
+    }
+  }, [user?.id, user?._id])
 
   const fetchSettings = async () => {
     try {

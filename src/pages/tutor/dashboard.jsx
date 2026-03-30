@@ -21,16 +21,15 @@ import {
   Users
 } from 'lucide-react';
 
-const TutorDashboard = ({ questions, onAction }) => {
+const TutorDashboard = ({ questions, onAction, user }) => {
   const [bookings, setBookings] = useState([]);
   const [isLoadingBookings, setIsLoadingBookings] = useState(true);
 
   useEffect(() => {
     const fetchBookings = async () => {
       try {
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
         const res = await axios.get("http://localhost:5000/api/tutor/bookings", {
-          headers: { "x-user-id": user.id || user._id }
+          headers: { "x-user-id": user?.id || user?._id }
         });
         setBookings(res.data.data.filter(b => b.status === 'Pending' || b.status === 'Confirmed'));
       } catch (err) {
@@ -39,8 +38,10 @@ const TutorDashboard = ({ questions, onAction }) => {
         setIsLoadingBookings(false);
       }
     };
-    void fetchBookings();
-  }, []);
+    if (user?.id || user?._id) {
+      void fetchBookings();
+    }
+  }, [user?.id, user?._id]);
 
   const stats = [
     {

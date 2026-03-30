@@ -13,8 +13,14 @@ import "./App.css"
 function App() {
   const [isMaintenanceMode, setIsMaintenanceMode] = useState(false);
   const [isLoadingSettings, setIsLoadingSettings] = useState(true);
+  const [user, setUser] = useState(() => JSON.parse(localStorage.getItem("user") || "null"));
 
+  // Apply theme as soon as possible (optimistically)
   useEffect(() => {
+    const savedUser = JSON.parse(localStorage.getItem("user") || "null");
+    setUser(savedUser);
+
+    // Fetch live system settings
     const fetchSettings = async () => {
       try {
         const response = await fetch("http://localhost:5000/api/settings");
@@ -23,6 +29,7 @@ function App() {
           if (result.data.maintenance_mode === true) {
             setIsMaintenanceMode(true);
           }
+          // Live theme update
           if (result.data.system_theme === "dark") {
             document.documentElement.classList.add("dark");
           } else {
@@ -38,6 +45,15 @@ function App() {
     fetchSettings();
   }, []);
 
+  // Listen for storage changes to sync user across tabs/sessions
+  useEffect(() => {
+    const handleStorageChange = () => {
+      setUser(JSON.parse(localStorage.getItem("user") || "null"));
+    };
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
+
   if (isLoadingSettings) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-background">
@@ -47,7 +63,6 @@ function App() {
   }
 
   // Determine if the current user is an admin
-  const user = JSON.parse(localStorage.getItem("user"));
   const isAdmin = user && ['admin', 'superadmin', 'moderator'].includes(user.role);
 
   // If maintenance mode is ON, and user is NOT an admin, intercept
@@ -68,27 +83,27 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         
         {/* Admin Dashboard Routes */}
-        <Route path="/dashboard" element={<ProtectedRoute><AdminWorkspace initialPage="dashboard" /></ProtectedRoute>} />
-        <Route path="/dashboard/admins" element={<ProtectedRoute><AdminWorkspace initialPage="admins" /></ProtectedRoute>} />
-        <Route path="/dashboard/users" element={<ProtectedRoute><AdminWorkspace initialPage="users" /></ProtectedRoute>} />
-        <Route path="/dashboard/reports" element={<ProtectedRoute><AdminWorkspace initialPage="reports" /></ProtectedRoute>} />
-        <Route path="/dashboard/audit-logs" element={<ProtectedRoute><AdminWorkspace initialPage="audit-logs" /></ProtectedRoute>} />
-        <Route path="/dashboard/bans" element={<ProtectedRoute><AdminWorkspace initialPage="bans" /></ProtectedRoute>} />
-        <Route path="/dashboard/account" element={<ProtectedRoute><AdminWorkspace initialPage="account" /></ProtectedRoute>} />
-        <Route path="/dashboard/settings" element={<ProtectedRoute><AdminWorkspace initialPage="settings" /></ProtectedRoute>} />
+        <Route path="/dashboard" element={<ProtectedRoute><AdminWorkspace initialPage="dashboard" user={user} /></ProtectedRoute>} />
+        <Route path="/dashboard/admins" element={<ProtectedRoute><AdminWorkspace initialPage="admins" user={user} /></ProtectedRoute>} />
+        <Route path="/dashboard/users" element={<ProtectedRoute><AdminWorkspace initialPage="users" user={user} /></ProtectedRoute>} />
+        <Route path="/dashboard/reports" element={<ProtectedRoute><AdminWorkspace initialPage="reports" user={user} /></ProtectedRoute>} />
+        <Route path="/dashboard/audit-logs" element={<ProtectedRoute><AdminWorkspace initialPage="audit-logs" user={user} /></ProtectedRoute>} />
+        <Route path="/dashboard/bans" element={<ProtectedRoute><AdminWorkspace initialPage="bans" user={user} /></ProtectedRoute>} />
+        <Route path="/dashboard/account" element={<ProtectedRoute><AdminWorkspace initialPage="account" user={user} /></ProtectedRoute>} />
+        <Route path="/dashboard/settings" element={<ProtectedRoute><AdminWorkspace initialPage="settings" user={user} /></ProtectedRoute>} />
 
-        <Route path="/tutor" element={<ProtectedRoute><TutorWorkspace /></ProtectedRoute>} />
-        <Route path="/tutor/dashboard" element={<ProtectedRoute><TutorWorkspace initialPage="dashboard" /></ProtectedRoute>} />
-        <Route path="/tutor/bookings" element={<ProtectedRoute><TutorWorkspace initialPage="bookings" /></ProtectedRoute>} />
-        <Route path="/tutor/sessionreview" element={<ProtectedRoute><TutorWorkspace initialPage="review" /></ProtectedRoute>} />
-        <Route path="/tutor/account" element={<ProtectedRoute><TutorWorkspace initialPage="account" /></ProtectedRoute>} />
-        <Route path="/student" element={<ProtectedRoute><StudentWorkspace /></ProtectedRoute>} />
-        <Route path="/student/dashboard" element={<ProtectedRoute><StudentWorkspace initialPage="dashboard" /></ProtectedRoute>} />
-        <Route path="/student/materials" element={<ProtectedRoute><StudentWorkspace initialPage="materials" /></ProtectedRoute>} />
-        <Route path="/student/tutors" element={<ProtectedRoute><StudentWorkspace initialPage="tutors" /></ProtectedRoute>} />
-        <Route path="/student/post" element={<ProtectedRoute><StudentWorkspace initialPage="post" /></ProtectedRoute>} />
-        <Route path="/student/history" element={<ProtectedRoute><StudentWorkspace initialPage="history" /></ProtectedRoute>} />
-        <Route path="/student/account" element={<ProtectedRoute><StudentWorkspace initialPage="account" /></ProtectedRoute>} />
+        <Route path="/tutor" element={<ProtectedRoute><TutorWorkspace user={user} /></ProtectedRoute>} />
+        <Route path="/tutor/dashboard" element={<ProtectedRoute><TutorWorkspace initialPage="dashboard" user={user} /></ProtectedRoute>} />
+        <Route path="/tutor/bookings" element={<ProtectedRoute><TutorWorkspace initialPage="bookings" user={user} /></ProtectedRoute>} />
+        <Route path="/tutor/sessionreview" element={<ProtectedRoute><TutorWorkspace initialPage="review" user={user} /></ProtectedRoute>} />
+        <Route path="/tutor/account" element={<ProtectedRoute><TutorWorkspace initialPage="account" user={user} /></ProtectedRoute>} />
+        <Route path="/student" element={<ProtectedRoute><StudentWorkspace user={user} /></ProtectedRoute>} />
+        <Route path="/student/dashboard" element={<ProtectedRoute><StudentWorkspace initialPage="dashboard" user={user} /></ProtectedRoute>} />
+        <Route path="/student/materials" element={<ProtectedRoute><StudentWorkspace initialPage="materials" user={user} /></ProtectedRoute>} />
+        <Route path="/student/tutors" element={<ProtectedRoute><StudentWorkspace initialPage="tutors" user={user} /></ProtectedRoute>} />
+        <Route path="/student/post" element={<ProtectedRoute><StudentWorkspace initialPage="post" user={user} /></ProtectedRoute>} />
+        <Route path="/student/history" element={<ProtectedRoute><StudentWorkspace initialPage="history" user={user} /></ProtectedRoute>} />
+        <Route path="/student/account" element={<ProtectedRoute><StudentWorkspace initialPage="account" user={user} /></ProtectedRoute>} />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </Router>

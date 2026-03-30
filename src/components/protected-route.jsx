@@ -5,6 +5,9 @@ import { Loader2 } from "lucide-react"
 export default function ProtectedRoute({ children }) {
   const [isVerifying, setIsVerifying] = useState(true)
   const navigate = useNavigate()
+  
+  // Directly read to ensure we have the most current value on every re-render
+  // This is safe because ProtectedRoute re-renders on route changes
   const user = JSON.parse(localStorage.getItem("user") || "null")
 
   useEffect(() => {
@@ -20,19 +23,25 @@ export default function ProtectedRoute({ children }) {
         })
         const data = await response.json()
 
-        // If user is banned or not found, clear session and kick them out
         if (!data.success || data.data.isBanned) {
           localStorage.removeItem("user")
+          // Dispatch event so App.jsx knows to update its user state
+          window.dispatchEvent(new Event("storage"))
           navigate("/login", { replace: true })
         } else {
-          // Sync fresh data (like role changes) to local storage
           const freshUser = {
             id: data.data._id,
             role: data.data.role,
             name: data.data.name,
             email: data.data.email
           }
-          localStorage.setItem("user", JSON.stringify(freshUser))
+          const currentUserStr = localStorage.getItem("user")
+          const freshUserStr = JSON.stringify(freshUser)
+          
+          if (currentUserStr !== freshUserStr) {
+            localStorage.setItem("user", freshUserStr)
+            window.dispatchEvent(new Event("storage"))
+          }
         }
       } catch (error) {
         console.error("Session verification failed:", error)
@@ -42,7 +51,7 @@ export default function ProtectedRoute({ children }) {
     }
 
     verifySession()
-  }, [user?.id, navigate])
+  }, [user?.id]) // navigation removed from deps to prevent loops
 
   if (!user || !user.id) {
     return <Navigate to="/login" replace />

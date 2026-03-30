@@ -16,16 +16,15 @@ import {
   UserCheck
 } from 'lucide-react';
 
-export default function TutorBookingsPage() {
+export default function TutorBookingsPage({ user }) {
   const [bookings, setBookings] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState('All');
 
   const fetchBookings = async () => {
     try {
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
       const res = await axios.get("http://localhost:5000/api/tutor/bookings", {
-        headers: { "x-user-id": user.id || user._id }
+        headers: { "x-user-id": user?.id || user?._id }
       });
       setBookings(res.data.data);
     } catch (err) {
@@ -36,15 +35,16 @@ export default function TutorBookingsPage() {
   };
 
   useEffect(() => {
-    void fetchBookings();
-  }, []);
+    if (user?.id || user?._id) {
+      void fetchBookings();
+    }
+  }, [user?.id, user?._id]);
 
   const handleUpdateStatus = async (bookingId, newStatus) => {
     try {
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
       await axios.patch(`http://localhost:5000/api/tutor/bookings/${bookingId}`,
         { status: newStatus },
-        { headers: { "x-user-id": user.id || user._id } }
+        { headers: { "x-user-id": user?.id || user?._id } }
       );
       // Refresh bookings
       void fetchBookings();

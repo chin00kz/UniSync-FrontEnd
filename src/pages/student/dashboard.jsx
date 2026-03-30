@@ -57,8 +57,10 @@ export default function StudentDashboard({ user }) {
   }
 
   useEffect(() => {
-    void fetchData()
-  }, [user?.name])
+    if (user?.id || user?.name) {
+      void fetchData()
+    }
+  }, [user?.id, user?.name])
 
   const quickLinks = [
     {

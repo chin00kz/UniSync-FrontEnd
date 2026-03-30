@@ -63,8 +63,8 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Switch } from "@/components/ui/switch"
 
-export default function UserManagementPage({ isSubPage = false }) {
-  const currentUser = useMemo(() => JSON.parse(localStorage.getItem("user") || "{}"), [])
+export default function UserManagementPage({ isSubPage = false, user }) {
+  const currentUser = user || JSON.parse(localStorage.getItem("user") || "{}")
   const isAdmin = ['admin', 'superadmin', 'moderator'].includes(currentUser?.role)
 
   const [users, setUsers] = useState([])

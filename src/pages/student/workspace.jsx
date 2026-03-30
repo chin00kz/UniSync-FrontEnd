@@ -10,9 +10,8 @@ import OrganizedContentPage from "@/pages/student/organized-content"
 import PeerTutoringPage from "@/pages/student/peer-tutoring"
 import QuestionHistoryPage from "@/pages/student/question-history"
 
-export default function StudentWorkspace({ initialPage = "dashboard" }) {
+export default function StudentWorkspace({ initialPage = "dashboard", user }) {
   const [currentPage, setCurrentPage] = useState(initialPage)
-  const user = JSON.parse(localStorage.getItem("user") || "null")
 
   useEffect(() => {
     setCurrentPage(initialPage)
@@ -81,11 +80,11 @@ export default function StudentWorkspace({ initialPage = "dashboard" }) {
         <main className="flex-1 overflow-auto p-6 lg:p-10 bg-background">
           <div className="mx-auto max-w-7xl">
             {currentPage === "dashboard" && <StudentDashboard user={user} />}
-            {currentPage === "materials" && <OrganizedContentPage />}
-            {currentPage === "tutors" && <PeerTutoringPage />}
-            {currentPage === "post" && <StudentPost onPostSuccess={() => { setCurrentPage("dashboard") }} />}
-            {currentPage === "history" && <QuestionHistoryPage />}
-            {currentPage === "account" && <AccountPage isSubPage={true} />}
+            {currentPage === "materials" && <OrganizedContentPage user={user} />}
+            {currentPage === "tutors" && <PeerTutoringPage user={user} />}
+            {currentPage === "post" && <StudentPost onPostSuccess={() => { setCurrentPage("dashboard") }} user={user} />}
+            {currentPage === "history" && <QuestionHistoryPage user={user} />}
+            {currentPage === "account" && <AccountPage isSubPage={true} user={user} />}
           </div>
         </main>
       </SidebarInset>

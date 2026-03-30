@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import ReportModal from '@/components/report-modal';
 
-export default function PeerTutoringPage() {
+export default function PeerTutoringPage({ user }) {
   const [tutors, setTutors] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -62,8 +62,7 @@ export default function PeerTutoringPage() {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const user = JSON.parse(localStorage.getItem("user") || "{}");
-      const userId = user.id || user._id; // Fallback to _id if id is missing
+      const userId = user?.id || user?._id;
 
       if (!userId) {
         throw new Error("User ID missing from session. Please relogin.");

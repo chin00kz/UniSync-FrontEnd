@@ -22,7 +22,7 @@ import * as XLSX from "xlsx"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 
-export default function DashboardPage({ isSubPage = false }) {
+export default function DashboardPage({ isSubPage = false, user }) {
   const [stats, setStats] = useState({
     totalUsers: 0,
     totalAdmins: 0,
@@ -46,12 +46,14 @@ export default function DashboardPage({ isSubPage = false }) {
   const [isTogglingMaintenance, setIsTogglingMaintenance] = useState(false)
 
   useEffect(() => {
-    fetchStats()
-  }, [])
+    if (user?.id) {
+      fetchStats()
+    }
+  }, [user?.id])
 
   const fetchStats = async () => {
     try {
-      const token = JSON.parse(localStorage.getItem("user"))?.id;
+      const token = user?.id || JSON.parse(localStorage.getItem("user"))?.id;
       const response = await fetch("http://localhost:5000/api/admin/stats", {
         headers: {
           "x-admin-id": token

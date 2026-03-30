@@ -20,7 +20,7 @@ import { UserBadge } from "@/components/user-badge";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
-export default function AdminReportsPage({ isSubPage = false }) {
+export default function AdminReportsPage({ isSubPage = false, user }) {
   const [reports, setReports] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState('pending'); // 'pending', 'resolved', 'dismissed'
@@ -31,7 +31,7 @@ export default function AdminReportsPage({ isSubPage = false }) {
   const fetchReports = async () => {
     setIsLoading(true);
     try {
-      const adminId = JSON.parse(localStorage.getItem("user") || "{}").id;
+      const adminId = user?.id || user?._id || JSON.parse(localStorage.getItem("user") || "{}").id;
       const res = await axios.get("http://localhost:5000/api/admin/reports", {
         headers: { "x-admin-id": adminId }
       });
@@ -44,8 +44,10 @@ export default function AdminReportsPage({ isSubPage = false }) {
   };
 
   useEffect(() => {
-    fetchReports();
-  }, []);
+    if (user?.id || user?._id) {
+      fetchReports();
+    }
+  }, [user?.id, user?._id]);
 
   const handleAction = async (reportId, action, banReason = "") => {
     setIsActionLoading(true);

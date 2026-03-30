@@ -31,13 +31,15 @@ import {
   InfoIcon
 } from "lucide-react"
 
-export default function AuditLogsPage({ isSubPage = false }) {
+export default function AuditLogsPage({ isSubPage = false, user }) {
   const [logs, setLogs] = useState([])
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    fetchLogs()
-  }, [])
+    if (user?.id || user?._id) {
+      fetchLogs()
+    }
+  }, [user?.id, user?._id])
 
   const fetchLogs = async () => {
     setIsLoading(true)

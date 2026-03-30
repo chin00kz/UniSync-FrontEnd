@@ -12,8 +12,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-function StudentPost({ onPostSuccess }) {
-  const user = JSON.parse(localStorage.getItem("user") || "{}");
+function StudentPost({ onPostSuccess, user }) {
   const [name, setName] = useState(user?.name || '');
   const [question, setQuestion] = useState('');
   const [image, setImage] = useState("");
@@ -36,6 +35,7 @@ function StudentPost({ onPostSuccess }) {
     setLoading(true);
     try {
       await axios.post('http://localhost:5000/api/sessions', {
+        studentId: user?.id || user?._id,
         studentName: name,
         questionText: question,
         questionImage: image
@@ -192,4 +192,3 @@ function StudentPost({ onPostSuccess }) {
 }
 
 export default StudentPost;
-

@@ -11,17 +11,21 @@ import {
 } from 'lucide-react';
 import ReportModal from '@/components/report-modal';
 
-export default function QuestionHistoryPage() {
+export default function QuestionHistoryPage({ user }) {
   const [questions, setQuestions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [reportTarget, setReportTarget] = useState(null);
-  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  // Removed JSON.parse here, using prop instead
 
   const fetchHistory = async () => {
     try {
       const res = await axios.get("http://localhost:5000/api/sessions");
-      const filtered = res.data.filter(q => q.studentName === user?.name);
+      const currentUserId = user?.id || user?._id;
+      const filtered = res.data.filter(q => 
+        (q.studentId === currentUserId) || 
+        (q.studentName?.trim() === user?.name?.trim())
+      );
       setQuestions(filtered.reverse());
     } catch (err) {
       console.error("History fetch error:", err);
@@ -48,7 +52,9 @@ export default function QuestionHistoryPage() {
             <span className="text-[10px] font-black text-muted-foreground uppercase tracking-tighter">Total Questions</span>
           </div>
           <div className="px-5 py-2 text-center">
-            <span className="block text-2xl font-black text-emerald-600 dark:text-emerald-400">{questions.filter(q => q.status === 'Resolved').length}</span>
+            <span className="block text-2xl font-black text-emerald-600 dark:text-emerald-400">
+              {questions.filter(q => q.status === 'Completed' || q.status === 'Resolved').length}
+            </span>
             <span className="text-[10px] font-black text-muted-foreground uppercase tracking-tighter">Resolved</span>
           </div>
         </div>
@@ -80,9 +86,12 @@ export default function QuestionHistoryPage() {
                 <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
                   <div className="space-y-3 flex-1">
                     <div className="flex items-center flex-wrap gap-2">
-                      <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 shadow-sm ${q.status === "Resolved" ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200" : "bg-brand-blue/5 text-brand-blue border border-brand-blue/20"
+                      <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 shadow-sm ${
+                        (q.status === 'Completed' || q.status === 'Resolved') 
+                        ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200" 
+                        : (q.status === 'Replied' ? "bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-200" : "bg-brand-blue/5 text-brand-blue border border-brand-blue/20")
                         }`}>
-                        {q.status === "Resolved" ? <PlusCircle className="size-3" /> : <Clock className="size-3" />}
+                        {(q.status === 'Completed' || q.status === 'Resolved') ? <PlusCircle className="size-3" /> : <Clock className="size-3" />}
                         {q.status}
                       </span>
                       <span className="text-xs text-muted-foreground font-bold flex items-center gap-1.5">
