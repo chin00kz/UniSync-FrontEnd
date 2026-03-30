@@ -210,10 +210,10 @@ export default function UserManagementPage({ isSubPage = false }) {
     switch (role) {
       case 'superadmin': return <Badge variant="outline" className="bg-red-500/10 text-red-600 border-red-500/20 font-medium">Super Admin</Badge>
       case 'admin': return <Badge variant="outline" className="bg-fuchsia-500/10 text-fuchsia-600 border-fuchsia-500/20 font-medium">Admin</Badge>
-      case 'moderator': return <Badge variant="outline" className="bg-blue-500/10 text-blue-600 border-blue-500/20 font-medium">Moderator</Badge>
-      case 'student': return <Badge variant="outline" className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 font-medium">Student</Badge>
-      case 'staff': return <Badge variant="outline" className="bg-amber-500/10 text-amber-600 border-amber-500/20 font-medium">Staff</Badge>
-      default: return <Badge variant="outline" className="bg-slate-500/10 text-slate-600 border-slate-500/20 font-medium">User</Badge>
+      case 'moderator': return <Badge variant="outline" className="bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20 font-medium">Moderator</Badge>
+      case 'student': return <Badge variant="outline" className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 font-medium">Student</Badge>
+      case 'staff': return <Badge variant="outline" className="bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20 font-medium">Staff</Badge>
+      default: return <Badge variant="outline" className="bg-slate-500/10 text-muted-foreground border-slate-500/20 font-medium">User</Badge>
     }
   }
 
@@ -272,7 +272,7 @@ export default function UserManagementPage({ isSubPage = false }) {
                       />
                       <span className={cn(
                         "text-xs font-bold uppercase tracking-tight transition-colors",
-                        user.isBanned ? "text-rose-600" : "text-emerald-600"
+                        user.isBanned ? "text-rose-600 dark:text-rose-400" : "text-emerald-600 dark:text-emerald-400"
                       )}>
                         {user.isBanned ? "Banned" : "Active"}
                       </span>
@@ -299,7 +299,7 @@ export default function UserManagementPage({ isSubPage = false }) {
                             </DropdownMenuItem>
                           )}
                           {user.role === 'admin' && (
-                            <DropdownMenuItem onClick={() => handleQuickRoleToggle(user)} className="text-amber-600 font-medium">
+                            <DropdownMenuItem onClick={() => handleQuickRoleToggle(user)} className="text-amber-600 dark:text-amber-400 font-medium">
                               <UserCogIcon className="mr-2 size-4" />
                               Demote to User
                             </DropdownMenuItem>
@@ -320,7 +320,7 @@ export default function UserManagementPage({ isSubPage = false }) {
                                 <>
                                   <DropdownMenuSeparator />
                                   <DropdownMenuItem 
-                                    className={user.isBanned ? "text-emerald-600" : "text-destructive"}
+                                    className={user.isBanned ? "text-emerald-600 dark:text-emerald-400" : "text-destructive"}
                                     onClick={() => {
                                       setSelectedUser(user)
                                       setIsBanDialogOpen(true)
@@ -428,7 +428,7 @@ export default function UserManagementPage({ isSubPage = false }) {
 
   if (isSubPage) return (
     <div className="flex flex-1 flex-col overflow-hidden">
-      <div className="flex items-center justify-between px-6 py-4 border-b bg-white shrink-0">
+      <div className="flex items-center justify-between px-6 py-4 border-b bg-card shrink-0">
         <div />
         <div className="flex items-center gap-4">
           <NotificationsSheet />
@@ -483,7 +483,7 @@ export default function UserManagementPage({ isSubPage = false }) {
             </div>
           </div>
         </header>
-        <div className="flex-1 overflow-auto bg-slate-50/50">
+        <div className="flex-1 overflow-auto bg-background">
           {content}
         </div>
       </SidebarInset>

@@ -6,9 +6,62 @@ import AdminWorkspace from "./pages/admin/workspace"
 import StudentWorkspace from "./pages/student/workspace"
 import TutorWorkspace from "./pages/tutor/workspace"
 import ProtectedRoute from "./components/protected-route"
+import MaintenancePage from "./pages/maintenance"
+import { Loader2 } from "lucide-react"
 import "./App.css"
 
 function App() {
+  const [isMaintenanceMode, setIsMaintenanceMode] = useState(false);
+  const [isLoadingSettings, setIsLoadingSettings] = useState(true);
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/api/settings");
+        const result = await response.json();
+        if (result.success && result.data) {
+          if (result.data.maintenance_mode === true) {
+            setIsMaintenanceMode(true);
+          }
+          if (result.data.system_theme === "dark") {
+            document.documentElement.classList.add("dark");
+          } else {
+            document.documentElement.classList.remove("dark");
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch settings:", error);
+      } finally {
+        setIsLoadingSettings(false);
+      }
+    };
+    fetchSettings();
+  }, []);
+
+  if (isLoadingSettings) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-background">
+        <Loader2 className="size-10 animate-spin text-brand-blue" />
+      </div>
+    );
+  }
+
+  // Determine if the current user is an admin
+  const user = JSON.parse(localStorage.getItem("user"));
+  const isAdmin = user && ['admin', 'superadmin', 'moderator'].includes(user.role);
+
+  // If maintenance mode is ON, and user is NOT an admin, intercept
+  if (isMaintenanceMode && !isAdmin) {
+    return (
+      <Router>
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="*" element={<MaintenancePage />} />
+        </Routes>
+      </Router>
+    );
+  }
+
   return (
     <Router>
       <Routes>
@@ -22,6 +75,7 @@ function App() {
         <Route path="/dashboard/audit-logs" element={<ProtectedRoute><AdminWorkspace initialPage="audit-logs" /></ProtectedRoute>} />
         <Route path="/dashboard/bans" element={<ProtectedRoute><AdminWorkspace initialPage="bans" /></ProtectedRoute>} />
         <Route path="/dashboard/account" element={<ProtectedRoute><AdminWorkspace initialPage="account" /></ProtectedRoute>} />
+        <Route path="/dashboard/settings" element={<ProtectedRoute><AdminWorkspace initialPage="settings" /></ProtectedRoute>} />
 
         <Route path="/tutor" element={<ProtectedRoute><TutorWorkspace /></ProtectedRoute>} />
         <Route path="/tutor/dashboard" element={<ProtectedRoute><TutorWorkspace initialPage="dashboard" /></ProtectedRoute>} />

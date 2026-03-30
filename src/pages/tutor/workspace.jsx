@@ -97,7 +97,7 @@ export default function TutorWorkspace({ initialPage = "dashboard" }) {
             </span>
           </div>
         </header>
-        <main className="flex-1 overflow-auto p-6 lg:p-10 bg-[#f4f7fe]">
+        <main className="flex-1 overflow-auto p-6 lg:p-10 bg-background">
           <div className="mx-auto max-w-7xl">
             {currentPage === "dashboard" && <TutorDashboard questions={questions} onAction={handleSelectQuestion} />}
             {currentPage === "bookings" && <TutorBookingsPage />}

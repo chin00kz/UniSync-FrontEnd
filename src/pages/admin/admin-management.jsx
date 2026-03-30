@@ -191,7 +191,7 @@ export default function AdminManagementPage({ isSubPage = false }) {
               </TableRow>
             ) : (
               admins.map((admin) => (
-                <TableRow key={admin._id} className="hover:bg-slate-50/50">
+                <TableRow key={admin._id} className="hover:bg-muted/50">
                   <TableCell>
                     <UserBadge 
                       name={admin.name} 
@@ -201,7 +201,7 @@ export default function AdminManagementPage({ isSubPage = false }) {
                   </TableCell>
                   <TableCell className="font-mono text-sm font-bold">{admin.sliitId}</TableCell>
                   <TableCell className="font-bold">{admin.phone || "N/A"}</TableCell>
-                  <TableCell className="font-bold text-slate-500">{new Date(admin.createdAt).toLocaleDateString()}</TableCell>
+                  <TableCell className="font-bold text-muted-foreground">{new Date(admin.createdAt).toLocaleDateString()}</TableCell>
                   <TableCell className="text-right">
                     {(userData?.role === 'superadmin' && admin._id !== (userData.id || userData._id)) && (
                       <Button 
@@ -247,7 +247,7 @@ export default function AdminManagementPage({ isSubPage = false }) {
 
   if (isSubPage) return (
     <div className="flex flex-1 flex-col overflow-hidden">
-      <div className="flex items-center justify-between px-6 py-4 border-b bg-white shrink-0">
+      <div className="flex items-center justify-between px-6 py-4 border-b bg-card shrink-0">
         <div />
         <div className="flex items-center gap-4">
           <NotificationsSheet />
@@ -371,7 +371,7 @@ export default function AdminManagementPage({ isSubPage = false }) {
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center justify-between gap-2 border-b px-6 bg-white/50 backdrop-blur-sm">
+        <header className="flex h-16 shrink-0 items-center justify-between gap-2 border-b px-6 bg-background/80 backdrop-blur-sm">
           <div className="flex items-center gap-2">
             <SidebarTrigger className="-ml-1" />
             <Separator orientation="vertical" className="mr-2 h-4" />
@@ -403,21 +403,21 @@ export default function AdminManagementPage({ isSubPage = false }) {
                 <form onSubmit={handleAddAdmin}>
                   <DialogHeader>
                     <DialogTitle className="text-xl font-black">Add New User</DialogTitle>
-                    <DialogDescription className="font-medium text-slate-500">
+                    <DialogDescription className="font-medium text-muted-foreground">
                       Create a new user account for system administration.
                     </DialogDescription>
                   </DialogHeader>
                   <div className="grid gap-4 py-6 text-left">
                     <div className="space-y-2">
-                      <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Full Name</Label>
+                      <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Full Name</Label>
                       <Input value={newAdmin.name} onChange={(e) => setNewAdmin({...newAdmin, name: e.target.value})} className="h-11 font-bold" required />
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Email Address</Label>
+                      <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Email Address</Label>
                       <Input type="email" value={newAdmin.email} onChange={(e) => setNewAdmin({...newAdmin, email: e.target.value})} className="h-11 font-bold" required />
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Initial Password</Label>
+                      <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Initial Password</Label>
                       <Input type="password" value={newAdmin.password} onChange={(e) => setNewAdmin({...newAdmin, password: e.target.value})} className="h-11 font-bold" required />
                     </div>
                   </div>
@@ -431,7 +431,7 @@ export default function AdminManagementPage({ isSubPage = false }) {
             </Dialog>
           </div>
         </header>
-        <div className="flex-1 overflow-auto bg-slate-50/50">
+        <div className="flex-1 overflow-auto bg-background">
           {content}
         </div>
       </SidebarInset>

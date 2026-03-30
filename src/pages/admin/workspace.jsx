@@ -9,7 +9,8 @@ import {
   UsersIcon,
   FileTextIcon,
   ActivityIcon,
-  HistoryIcon
+  HistoryIcon,
+  SettingsIcon
 } from "lucide-react"
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { Separator } from "@/components/ui/separator"
@@ -22,6 +23,7 @@ import ReportsPage from "./reports"
 import AuditLogsPage from "./audit-logs"
 import BannedUsersPage from "./banned-users"
 import AccountPage from "./account"
+import SettingsPage from "./settings"
 
 export default function AdminWorkspace({ initialPage = "dashboard" }) {
   const [currentPage, setCurrentPage] = useState(initialPage)
@@ -79,6 +81,11 @@ export default function AdminWorkspace({ initialPage = "dashboard" }) {
       ],
     },
     {
+      title: "Administration",
+      url: "/dashboard/settings",
+      icon: <SettingsIcon className="size-4" />,
+    },
+    {
       title: "Account",
       url: "/dashboard/account",
       icon: <UserIcon className="size-4" />,
@@ -94,6 +101,7 @@ export default function AdminWorkspace({ initialPage = "dashboard" }) {
       case "audit-logs": return "System Audit Logs";
       case "bans": return "Banned Accounts";
       case "account": return "Account Settings";
+      case "settings": return "Administration";
       default: return "Admin Portal";
     }
   }
@@ -113,7 +121,7 @@ export default function AdminWorkspace({ initialPage = "dashboard" }) {
             </span>
           </div>
         </header>
-        <main className="flex-1 overflow-hidden bg-white/50">
+        <main className="flex-1 overflow-hidden bg-background">
           <div className="h-full">
             {currentPage === "dashboard" && <DashboardPage isSubPage={true} />}
             {currentPage === "admins" && <AdminManagementPage isSubPage={true} />}
@@ -122,6 +130,7 @@ export default function AdminWorkspace({ initialPage = "dashboard" }) {
             {currentPage === "audit-logs" && <AuditLogsPage isSubPage={true} />}
             {currentPage === "bans" && <BannedUsersPage isSubPage={true} />}
             {currentPage === "account" && <AccountPage isSubPage={true} />}
+            {currentPage === "settings" && <SettingsPage isSubPage={true} />}
           </div>
         </main>
       </SidebarInset>

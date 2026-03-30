@@ -65,24 +65,24 @@ export default function StudentDashboard({ user }) {
       title: "Study Materials",
       desc: "Access notes & resources",
       icon: BookOpen,
-      color: "text-blue-600",
-      bgColor: "bg-blue-50",
+      color: "text-blue-600 dark:text-blue-400",
+      bgColor: "bg-blue-50 dark:bg-blue-500/10",
       link: "/student/materials"
     },
     {
       title: "Peer Tutoring",
       desc: "Find and book tutors",
       icon: Users,
-      color: "text-amber-600",
-      bgColor: "bg-amber-50",
+      color: "text-amber-600 dark:text-amber-400",
+      bgColor: "bg-amber-50 dark:bg-amber-500/10",
       link: "/student/tutors"
     },
     {
       title: "My History",
       desc: "Track your questions",
       icon: ClipboardList,
-      color: "text-emerald-600",
-      bgColor: "bg-emerald-50",
+      color: "text-emerald-600 dark:text-emerald-400",
+      bgColor: "bg-emerald-50 dark:bg-emerald-500/10",
       link: "/student/history"
     }
   ]
@@ -127,33 +127,33 @@ export default function StudentDashboard({ user }) {
           {/* Upcoming Session Highlight */}
           {latestBooking && (
             <section className="animate-in fade-in slide-in-from-bottom-4">
-              <div className="premium-card p-6 bg-emerald-50 border-emerald-100 flex items-center justify-between group cursor-pointer hover:border-emerald-200 transition-all">
+              <div className="premium-card p-6 bg-emerald-50 dark:bg-emerald-500/10 border-emerald-100 flex items-center justify-between group cursor-pointer hover:border-emerald-200 transition-all">
                 <div className="flex items-center gap-6">
-                  <div className="size-14 rounded-2xl bg-white border border-emerald-100 flex items-center justify-center text-emerald-500 shadow-sm group-hover:scale-110 transition-transform">
+                  <div className="size-14 rounded-2xl bg-card border border-border flex items-center justify-center text-emerald-500 dark:text-emerald-400 shadow-sm group-hover:scale-110 transition-transform">
                     <Calendar className="size-7" />
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest bg-emerald-100 px-2 py-0.5 rounded-full">Upcoming Session</span>
-                      <span className="text-xs font-bold text-slate-400 capitalize">{latestBooking.status}</span>
+                      <span className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest bg-emerald-100 px-2 py-0.5 rounded-full">Upcoming Session</span>
+                      <span className="text-xs font-bold text-muted-foreground capitalize">{latestBooking.status}</span>
                     </div>
-                    <h4 className="text-xl font-black text-slate-800 mt-1">
+                    <h4 className="text-xl font-black text-foreground mt-1">
                       {latestBooking.subject} with {latestBooking.tutor?.name}
                     </h4>
-                    <div className="flex items-center gap-4 mt-1 text-sm font-bold text-slate-500">
+                    <div className="flex items-center gap-4 mt-1 text-sm font-bold text-muted-foreground">
                       <span className="flex items-center gap-1.5"><Calendar className="size-4" /> {new Date(latestBooking.date).toLocaleDateString()}</span>
                       <span className="flex items-center gap-1.5"><Clock className="size-4" /> {latestBooking.timeSlot}</span>
                     </div>
                   </div>
                 </div>
-                <ArrowRight className="size-6 text-emerald-300 group-hover:text-emerald-500 group-hover:translate-x-1 transition-all" />
+                <ArrowRight className="size-6 text-emerald-300 group-hover:text-emerald-500 dark:text-emerald-400 group-hover:translate-x-1 transition-all" />
               </div>
             </section>
           )}
 
           {/* Quick Access Grid */}
           <section>
-            <h3 className="text-xl font-black text-slate-800 mb-6 flex items-center gap-2 text-left">
+            <h3 className="text-xl font-black text-foreground mb-6 flex items-center gap-2 text-left">
               <TrendingUp className="size-5 text-brand-blue" />
               Quick Access
             </h3>
@@ -168,10 +168,10 @@ export default function StudentDashboard({ user }) {
                     <item.icon className="size-6" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-slate-800">{item.title}</h4>
-                    <p className="text-xs text-slate-500 font-medium">{item.desc}</p>
+                    <h4 className="font-bold text-foreground">{item.title}</h4>
+                    <p className="text-xs text-muted-foreground font-medium">{item.desc}</p>
                   </div>
-                  <ChevronRight className="size-4 text-slate-300 group-hover:text-brand-blue group-hover:translate-x-1 transition-all ml-auto" />
+                  <ChevronRight className="size-4 text-muted-foreground/80 group-hover:text-brand-blue group-hover:translate-x-1 transition-all ml-auto" />
                 </a>
               ))}
             </div>
@@ -180,7 +180,7 @@ export default function StudentDashboard({ user }) {
           {/* Activity Feed / Notifications */}
           <section>
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-black text-slate-800 flex items-center gap-2 text-left">
+              <h3 className="text-xl font-black text-foreground flex items-center gap-2 text-left">
                 <Bell className="size-5 text-brand-blue" />
                 Latest Updates
               </h3>
@@ -188,20 +188,20 @@ export default function StudentDashboard({ user }) {
             </div>
             <div className="space-y-4 text-left">
               {mockNotifications.map((notif) => (
-                <div key={notif.id} className="premium-card p-5 flex items-start gap-4 hover:bg-slate-50 transition-colors cursor-pointer border-slate-100">
+                <div key={notif.id} className="premium-card p-5 flex items-start gap-4 hover:bg-muted/50 transition-colors cursor-pointer border-border">
                   <div className={`size-10 rounded-full flex items-center justify-center shrink-0 ${
-                    notif.type === 'material' ? 'bg-blue-50 text-blue-500' : 
-                    notif.type === 'session' ? 'bg-emerald-50 text-emerald-500' : 'bg-amber-50 text-amber-500'
+                    notif.type === 'material' ? 'bg-blue-50 dark:bg-blue-500/10 text-blue-500 dark:text-blue-400' : 
+                    notif.type === 'session' ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-500 dark:text-emerald-400' : 'bg-amber-50 dark:bg-amber-500/10 text-amber-500 dark:text-amber-400'
                   }`}>
                     {notif.type === 'material' ? <BookOpen className="size-5" /> : 
                      notif.type === 'session' ? <Users className="size-5" /> : <Sparkles className="size-5" />}
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center justify-between">
-                      <h4 className="font-bold text-slate-800 text-sm">{notif.title}</h4>
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{notif.time}</span>
+                      <h4 className="font-bold text-foreground text-sm">{notif.title}</h4>
+                      <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-tighter">{notif.time}</span>
                     </div>
-                    <p className="text-sm text-slate-600 mt-1 leading-relaxed">{notif.content}</p>
+                    <p className="text-sm text-muted-foreground mt-1 leading-relaxed">{notif.content}</p>
                   </div>
                   {notif.isNew && <div className="size-2 bg-brand-blue rounded-full mt-2 shadow-sm shadow-brand-blue/50"></div>}
                 </div>
@@ -213,16 +213,16 @@ export default function StudentDashboard({ user }) {
         {/* Right Column: Sidebar info */}
         <div className="space-y-8 text-left">
           {/* Study Tip Card */}
-          <div className="bg-slate-900 rounded-3xl p-8 text-white relative overflow-hidden shadow-xl shadow-slate-200">
+          <div className="bg-card rounded-3xl p-8 text-card-foreground relative overflow-hidden shadow-xl border border-border">
             <div className="relative z-10 space-y-4">
-              <div className="size-10 rounded-2xl bg-white/10 flex items-center justify-center text-brand-pink">
+              <div className="size-10 rounded-2xl bg-muted flex items-center justify-center text-brand-pink">
                 <Sparkles className="size-5" />
               </div>
               <h4 className="text-xl font-black leading-tight">Pro Tip: Use Active Recall</h4>
-              <p className="text-sm text-slate-400 leading-relaxed font-medium">
+              <p className="text-sm text-muted-foreground leading-relaxed font-medium">
                 Testing yourself on a topic rather than re-reading it can increase retention by up to 50%! Try our practice quizzes in the Materials section.
               </p>
-              <button className="w-full py-3 rounded-xl bg-white text-slate-900 font-black uppercase text-xs tracking-widest hover:bg-slate-100 transition-colors">
+              <button className="w-full py-3 rounded-xl bg-brand-blue text-white font-black uppercase text-xs tracking-widest hover:bg-brand-blue/90 transition-colors">
                 Explore More Tips
               </button>
             </div>
@@ -232,11 +232,11 @@ export default function StudentDashboard({ user }) {
           
           {/* Support / Quick Help */}
           <div className="premium-card p-8 border-brand-blue/10 bg-brand-blue/5 border-dashed border-2">
-            <h4 className="font-bold text-slate-800 flex items-center gap-2">
+            <h4 className="font-bold text-foreground flex items-center gap-2">
               <MessageSquare className="size-4 text-brand-blue" />
               Need Quick Help?
             </h4>
-            <p className="text-sm text-slate-500 font-medium mt-2 mb-4 leading-relaxed">
+            <p className="text-sm text-muted-foreground font-medium mt-2 mb-4 leading-relaxed">
               Don't stay stuck! Our peer tutors are online and ready to help you with any subject.
             </p>
             <a 

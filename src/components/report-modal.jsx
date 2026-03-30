@@ -66,15 +66,15 @@ export default function ReportModal({
 
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
-      <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-lg overflow-hidden relative animate-in zoom-in-95 duration-300 border border-slate-100">
+      <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-lg overflow-hidden relative animate-in zoom-in-95 duration-300 border border-border">
         {isSuccess ? (
           <div className="p-12 text-center space-y-6 flex flex-col items-center">
-            <div className="size-20 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 animate-bounce">
+            <div className="size-20 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 dark:text-emerald-400 animate-bounce">
               <CheckCircle2 className="size-10" />
             </div>
             <div className="space-y-2">
-              <h2 className="text-2xl font-black text-slate-800">Report Submitted</h2>
-              <p className="text-slate-500 font-medium">Thank you for helping keep UniSync safe. Our admins will review this shortly.</p>
+              <h2 className="text-2xl font-black text-foreground">Report Submitted</h2>
+              <p className="text-muted-foreground font-medium">Thank you for helping keep UniSync safe. Our admins will review this shortly.</p>
             </div>
           </div>
         ) : (
@@ -99,7 +99,7 @@ export default function ReportModal({
 
             <form onSubmit={handleSubmit} className="p-8 space-y-6 text-left">
               <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Reason for report</label>
+                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Reason for report</label>
                 <div className="grid grid-cols-2 gap-2">
                   {reasons.map(r => (
                     <button
@@ -107,8 +107,8 @@ export default function ReportModal({
                       type="button"
                       onClick={() => setReason(r)}
                       className={`py-2 px-3 rounded-xl text-xs font-bold border-2 transition-all ${reason === r
-                          ? "border-rose-500 bg-rose-50 text-rose-600 shadow-sm"
-                          : "border-slate-50 bg-slate-50 text-slate-500 hover:border-slate-100 hover:text-slate-600"
+                          ? "border-rose-500 bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 shadow-sm"
+                          : "border-slate-50 bg-muted/50 text-muted-foreground hover:border-border hover:text-muted-foreground"
                         }`}
                     >
                       {r}
@@ -118,9 +118,9 @@ export default function ReportModal({
               </div>
 
               <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Additional Details</label>
+                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Additional Details</label>
                 <div className="relative group">
-                  <MessageSquare className="absolute left-4 top-4 size-4 text-slate-400 group-focus-within:text-rose-500 transition-colors" />
+                  <MessageSquare className="absolute left-4 top-4 size-4 text-muted-foreground group-focus-within:text-rose-500 dark:text-rose-400 transition-colors" />
                   <textarea
                     required
                     placeholder="Please provide more context..."
@@ -135,7 +135,7 @@ export default function ReportModal({
                 <button
                   type="submit"
                   disabled={isSubmitting || !reason}
-                  className="w-full h-14 rounded-2xl bg-rose-500 hover:bg-rose-600 disabled:bg-slate-200 disabled:text-slate-400 text-white font-black uppercase tracking-widest text-sm shadow-xl shadow-rose-500/20 hover:scale-[1.01] active:scale-95 transition-all flex items-center justify-center gap-2"
+                  className="w-full h-14 rounded-2xl bg-rose-500 hover:bg-rose-600 disabled:bg-slate-200 disabled:text-muted-foreground text-white font-black uppercase tracking-widest text-sm shadow-xl shadow-rose-500/20 hover:scale-[1.01] active:scale-95 transition-all flex items-center justify-center gap-2"
                 >
                   {isSubmitting ? (
                     <Loader2 className="size-5 animate-spin" />

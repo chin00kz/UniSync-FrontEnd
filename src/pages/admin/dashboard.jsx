@@ -42,6 +42,8 @@ export default function DashboardPage({ isSubPage = false }) {
   ]
   const [isLoading, setIsLoading] = useState(true)
   const [isGeneratingReport, setIsGeneratingReport] = useState(false)
+  const [isMaintenanceMode, setIsMaintenanceMode] = useState(false)
+  const [isTogglingMaintenance, setIsTogglingMaintenance] = useState(false)
 
   useEffect(() => {
     fetchStats()
@@ -66,10 +68,42 @@ export default function DashboardPage({ isSubPage = false }) {
           recentActivity: result.data.recentActivity || []
         })
       }
+      
+      // Fetch maintenance status
+      const settingsRes = await fetch("http://localhost:5000/api/settings/maintenance_mode");
+      const settingsData = await settingsRes.json();
+      if (settingsData.success && settingsData.data === true) {
+        setIsMaintenanceMode(true);
+      }
     } catch (error) {
       console.error("Failed to fetch stats:", error)
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const handleToggleMaintenance = async () => {
+    setIsTogglingMaintenance(true)
+    try {
+      const token = JSON.parse(localStorage.getItem("user"))?.id;
+      const response = await fetch("http://localhost:5000/api/settings/maintenance_mode", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "x-admin-id": token
+        },
+        body: JSON.stringify({ value: !isMaintenanceMode })
+      });
+      const data = await response.json();
+      if (data.success) {
+        setIsMaintenanceMode(!isMaintenanceMode);
+      } else {
+        alert("Failed to toggle maintenance mode.");
+      }
+    } catch (error) {
+      console.error("Error toggling maintenance:", error);
+    } finally {
+      setIsTogglingMaintenance(false)
     }
   }
 
@@ -157,13 +191,13 @@ export default function DashboardPage({ isSubPage = false }) {
 
   if (isSubPage) return (
     <div className="flex flex-1 flex-col overflow-hidden">
-      <div className="flex items-center justify-between px-6 py-4 border-b bg-white shrink-0">
+      <div className="flex items-center justify-between px-6 py-4 border-b bg-card shrink-0">
         <div />
         <div className="flex items-center gap-4">
           <NotificationsSheet />
         </div>
       </div>
-      <main className="flex-1 overflow-auto p-6 lg:p-10 bg-slate-50/50">
+      <main className="flex-1 overflow-auto p-6 lg:p-10 bg-background">
         <div className="mx-auto max-w-7xl space-y-8">
           <div className="flex flex-col gap-1">
             <h1 className="text-2xl font-black tracking-tight uppercase bg-clip-text text-transparent bg-gradient-to-r from-brand-blue to-brand-pink">
@@ -275,7 +309,19 @@ export default function DashboardPage({ isSubPage = false }) {
                     <ArrowRightIcon className="size-4 transition-transform group-hover:translate-x-1" />
                   </a>
                 </Button>
-                <div className="pt-4">
+                <div className="pt-4 space-y-3">
+                    <Button
+                      className={`w-full h-11 border-none hover:opacity-90 transition-opacity ${isMaintenanceMode ? "bg-red-500 hover:bg-red-600 text-white" : "bg-slate-800 dark:bg-slate-700 hover:bg-slate-900 dark:hover:bg-slate-600 text-white"}`}
+                      onClick={handleToggleMaintenance}
+                    disabled={isTogglingMaintenance}
+                  >
+                    {isTogglingMaintenance ? (
+                      <Loader2 className="mr-2 size-4 animate-spin text-white" />
+                    ) : (
+                      <ShieldAlertIcon className="mr-2 size-4" />
+                    )}
+                    {isMaintenanceMode ? "Turn Off Maintenance Mode" : "Enable Maintenance Mode"}
+                  </Button>
                   <Button
                     className="w-full h-11 brand-gradient border-none hover:opacity-90 transition-opacity"
                     onClick={handleGenerateReport}
@@ -433,7 +479,19 @@ export default function DashboardPage({ isSubPage = false }) {
                       <ArrowRightIcon className="size-4 transition-transform group-hover:translate-x-1" />
                     </a>
                   </Button>
-                  <div className="pt-4">
+                  <div className="pt-4 space-y-3">
+                    <Button
+                      className={`w-full h-11 border-none hover:opacity-90 transition-opacity ${isMaintenanceMode ? "bg-red-500 hover:bg-red-600 text-white" : "bg-slate-800 dark:bg-slate-700 hover:bg-slate-900 dark:hover:bg-slate-600 text-white"}`}
+                      onClick={handleToggleMaintenance}
+                      disabled={isTogglingMaintenance}
+                    >
+                      {isTogglingMaintenance ? (
+                        <Loader2 className="mr-2 size-4 animate-spin text-white" />
+                      ) : (
+                        <ShieldAlertIcon className="mr-2 size-4" />
+                      )}
+                      {isMaintenanceMode ? "Turn Off Maintenance Mode" : "Enable Maintenance Mode"}
+                    </Button>
                     <Button
                       className="w-full h-11 brand-gradient border-none hover:opacity-90 transition-opacity"
                       onClick={handleGenerateReport}

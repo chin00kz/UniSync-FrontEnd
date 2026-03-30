@@ -149,7 +149,7 @@ export default function BannedUsersPage({ isSubPage = false }) {
                     <Button 
                       variant="outline" 
                       size="sm" 
-                      className="h-9 font-black uppercase tracking-widest text-[9px] text-emerald-600 border-emerald-200 hover:bg-emerald-50 hover:border-emerald-300 shadow-sm"
+                      className="h-9 font-black uppercase tracking-widest text-[9px] text-emerald-600 dark:text-emerald-400 border-emerald-200 hover:bg-emerald-50 dark:bg-emerald-500/10 hover:border-emerald-300 shadow-sm"
                       onClick={() => handleUnbanUser(user)}
                       disabled={isActionLoading}
                     >
@@ -204,7 +204,7 @@ export default function BannedUsersPage({ isSubPage = false }) {
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>
-                  <BreadcrumbPage className="font-black text-rose-600 uppercase tracking-widest text-[11px]">Banned Users</BreadcrumbPage>
+                  <BreadcrumbPage className="font-black text-rose-600 dark:text-rose-400 uppercase tracking-widest text-[11px]">Banned Users</BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>

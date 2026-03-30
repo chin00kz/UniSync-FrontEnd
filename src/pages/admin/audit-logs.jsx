@@ -106,8 +106,8 @@ export default function AuditLogsPage({ isSubPage = false }) {
                       {log.action}
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-sm font-mono font-bold text-slate-500">{log.targetId}</TableCell>
-                  <TableCell className="max-w-[300px] text-xs font-medium text-slate-600 truncate">
+                  <TableCell className="text-sm font-mono font-bold text-muted-foreground">{log.targetId}</TableCell>
+                  <TableCell className="max-w-[300px] text-xs font-medium text-muted-foreground truncate">
                     {log.details ? JSON.stringify(log.details) : "N/A"}
                   </TableCell>
                   <TableCell className="text-xs font-bold text-muted-foreground italic">

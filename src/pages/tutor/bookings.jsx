@@ -60,11 +60,11 @@ export default function TutorBookingsPage() {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'Pending': return 'bg-amber-50 text-amber-600 border-amber-100';
-      case 'Confirmed': return 'bg-emerald-50 text-emerald-600 border-emerald-100';
-      case 'Cancelled': return 'bg-rose-50 text-rose-600 border-rose-100';
-      case 'Completed': return 'bg-blue-50 text-blue-600 border-blue-100';
-      default: return 'bg-slate-50 text-slate-600 border-slate-100';
+      case 'Pending': return 'bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-100';
+      case 'Confirmed': return 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-100';
+      case 'Cancelled': return 'bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-100';
+      case 'Completed': return 'bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-100';
+      default: return 'bg-muted/50 text-muted-foreground border-border';
     }
   };
 
@@ -72,18 +72,18 @@ export default function TutorBookingsPage() {
     <div className="space-y-8 pb-10">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div className="flex flex-col gap-1">
-          <h1 className="text-3xl font-extrabold tracking-tight text-slate-800">Manage Bookings</h1>
+          <h1 className="text-3xl font-extrabold tracking-tight text-foreground">Manage Bookings</h1>
           <p className="text-muted-foreground font-medium text-lg">Track and manage your student tutoring sessions.</p>
         </div>
 
-        <div className="flex items-center gap-2 bg-white p-1 rounded-2xl border border-slate-200 shadow-sm">
+        <div className="flex items-center gap-2 bg-muted p-1 rounded-2xl border border-border shadow-sm">
           {['All', 'Pending', 'Confirmed', 'Completed'].map((f) => (
             <button
               key={f}
               onClick={() => setFilter(f)}
               className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${filter === f
                   ? 'bg-brand-blue text-white shadow-lg shadow-brand-blue/20'
-                  : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'
+                  : 'text-muted-foreground hover:text-muted-foreground hover:bg-muted/50'
                 }`}
             >
               {f}
@@ -98,36 +98,36 @@ export default function TutorBookingsPage() {
         </div>
       ) : filteredBookings.length === 0 ? (
         <div className="premium-card text-center py-20 border-dashed border-2 flex flex-col items-center gap-4">
-          <div className="size-16 rounded-full bg-slate-50 flex items-center justify-center text-slate-300">
+          <div className="size-16 rounded-full bg-muted/50 flex items-center justify-center text-muted-foreground/80">
             <Calendar className="size-8" />
           </div>
           <div className="space-y-1">
-            <p className="text-xl font-extrabold text-slate-800">No Bookings Found</p>
-            <p className="text-slate-500 font-medium">You don't have any bookings matching this filter.</p>
+            <p className="text-xl font-extrabold text-foreground">No Bookings Found</p>
+            <p className="text-muted-foreground font-medium">You don't have any bookings matching this filter.</p>
           </div>
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-6">
           {filteredBookings.map((booking) => (
-            <div key={booking._id} className="premium-card p-0 overflow-hidden border-slate-200/60 group hover:border-brand-blue/30 transition-all hover:translate-x-1">
+            <div key={booking._id} className="premium-card p-0 overflow-hidden border-border/60 group hover:border-brand-blue/30 transition-all hover:translate-x-1">
               <div className="flex flex-col md:flex-row">
                 {/* Student Info Sidebar */}
-                <div className="md:w-64 bg-slate-50 p-8 flex flex-col items-center text-center gap-4 border-r border-slate-100">
+                <div className="md:w-64 bg-muted/50 p-8 flex flex-col items-center text-center gap-4 border-r border-border">
                   <div className="relative">
-                    <div className="size-20 rounded-2xl border-4 border-white shadow-lg relative z-10 overflow-hidden bg-slate-50">
+                    <div className="size-20 rounded-2xl border-4 border-card shadow-lg relative z-10 overflow-hidden bg-muted/50">
                       <img
                         src={`https://api.dicebear.com/7.x/notionists/svg?seed=${booking.student?.email || booking.student?.name}`}
                         alt={booking.student?.name}
                         className="size-full object-cover"
                       />
                     </div>
-                    <div className="absolute -bottom-2 -right-2 size-8 bg-white rounded-xl shadow-sm border border-slate-100 flex items-center justify-center z-20">
+                    <div className="absolute -bottom-2 -right-2 size-8 bg-card rounded-xl shadow-sm border border-border flex items-center justify-center z-20">
                       <UserCheck className="size-4 text-brand-blue" />
                     </div>
                   </div>
                   <div>
-                    <h4 className="font-extrabold text-slate-800">{booking.student?.name}</h4>
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{booking.student?.sliitId}</p>
+                    <h4 className="font-extrabold text-foreground">{booking.student?.name}</h4>
+                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{booking.student?.sliitId}</p>
                   </div>
                 </div>
 
@@ -139,14 +139,14 @@ export default function TutorBookingsPage() {
                         <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-[0.2em] border ${getStatusColor(booking.status)}`}>
                           {booking.status}
                         </span>
-                        <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">
+                        <span className="text-[10px] font-black text-muted-foreground/80 uppercase tracking-widest">
                           ID: {booking._id.slice(-6).toUpperCase()}
                         </span>
                       </div>
 
-                      <h3 className="text-2xl font-black text-slate-800">{booking.subject}</h3>
+                      <h3 className="text-2xl font-black text-foreground">{booking.subject}</h3>
 
-                      <div className="flex flex-wrap items-center gap-6 text-slate-500">
+                      <div className="flex flex-wrap items-center gap-6 text-muted-foreground">
                         <div className="flex items-center gap-2 font-bold text-sm">
                           <Calendar className="size-4 text-brand-blue" />
                           {new Date(booking.date).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
@@ -158,8 +158,8 @@ export default function TutorBookingsPage() {
                       </div>
 
                       {booking.message && (
-                        <div className="bg-slate-50 rounded-2xl p-4 flex gap-3 items-start border border-slate-100 italic text-slate-500 font-medium text-sm">
-                          <MessageSquare className="size-4 shrink-0 mt-0.5 text-slate-300" />
+                        <div className="bg-muted/50 rounded-2xl p-4 flex gap-3 items-start border border-border italic text-muted-foreground font-medium text-sm">
+                          <MessageSquare className="size-4 shrink-0 mt-0.5 text-muted-foreground/80" />
                           "{booking.message}"
                         </div>
                       )}
@@ -178,7 +178,7 @@ export default function TutorBookingsPage() {
                           </button>
                           <button
                             onClick={() => handleUpdateStatus(booking._id, 'Cancelled')}
-                            className="bg-white border-2 border-slate-100 hover:border-rose-100 hover:text-rose-600 text-slate-400 px-6 py-3 rounded-xl font-black uppercase text-[11px] tracking-widest transition-all hover:bg-rose-50 flex items-center gap-2"
+                            className="bg-card border-2 border-border hover:border-rose-100 hover:text-rose-600 dark:text-rose-400 text-muted-foreground px-6 py-3 rounded-xl font-black uppercase text-[11px] tracking-widest transition-all hover:bg-rose-50 dark:bg-rose-500/10 flex items-center gap-2"
                           >
                             <X className="size-4" />
                             Reject
@@ -195,7 +195,7 @@ export default function TutorBookingsPage() {
                         </button>
                       )}
                       {(booking.status === 'Completed' || booking.status === 'Cancelled') && (
-                        <div className="text-[10px] font-black text-slate-300 uppercase tracking-widest italic border border-slate-100 px-4 py-2 rounded-xl">
+                        <div className="text-[10px] font-black text-muted-foreground/80 uppercase tracking-widest italic border border-border px-4 py-2 rounded-xl">
                           Session {booking.status}
                         </div>
                       )}

@@ -73,16 +73,16 @@ function SessionReview({ questions, onUpdate, initialSelectedId }) {
       
       {/* Header Stats */}
       <div className="mb-8 text-left">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">Session Reviews</h1>
-        <p className="text-gray-500">Review and respond to student questions</p>
+        <h1 className="text-2xl font-bold text-foreground mb-2">Session Reviews</h1>
+        <p className="text-muted-foreground">Review and respond to student questions</p>
         <div className="flex gap-3 mt-4">
-          <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 px-3 py-1">
+          <Badge variant="outline" className="bg-amber-50 dark:bg-amber-500/10 text-amber-700 border-amber-200 px-3 py-1">
             Pending: {pendingCount}
           </Badge>
-          <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 px-3 py-1">
+          <Badge variant="outline" className="bg-blue-50 dark:bg-blue-500/10 text-blue-700 border-blue-200 px-3 py-1">
             Replied: {repliedCount}
           </Badge>
-          <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 px-3 py-1">
+          <Badge variant="outline" className="bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 border-emerald-200 px-3 py-1">
             Completed: {completedCount}
           </Badge>
         </div>
@@ -95,7 +95,7 @@ function SessionReview({ questions, onUpdate, initialSelectedId }) {
           <Card className="border-0 shadow-sm text-left">
             <CardHeader className="pb-3">
               <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                <Inbox className="h-5 w-5 text-gray-500" />
+                <Inbox className="h-5 w-5 text-muted-foreground" />
                 Student Sessions
               </CardTitle>
             </CardHeader>
@@ -107,12 +107,12 @@ function SessionReview({ questions, onUpdate, initialSelectedId }) {
                     <div
                       key={q._id}
                       onClick={() => { setActiveId(q._id); setReply(q.replyText || ''); }}
-                      className={`p-4 cursor-pointer transition-all hover:bg-gray-50 ${
-                        activeId === q._id ? 'bg-blue-50 border-l-4 border-l-blue-500' : ''
+                      className={`p-4 cursor-pointer transition-all hover:bg-background ${
+                        activeId === q._id ? 'bg-blue-50 dark:bg-blue-500/10 border-l-4 border-l-blue-500' : ''
                       }`}
                     >
                       <div className="flex items-start gap-3">
-                        <Avatar className="h-10 w-10 border border-slate-200 shadow-sm">
+                        <Avatar className="h-10 w-10 border border-border shadow-sm">
                           <AvatarImage src={`https://api.dicebear.com/7.x/notionists/svg?seed=${q.studentName}`} alt={q.studentName} />
                           <AvatarFallback className="bg-gray-200 text-gray-700">
                             {getInitials(q.studentName)}
@@ -120,24 +120,24 @@ function SessionReview({ questions, onUpdate, initialSelectedId }) {
                         </Avatar>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between mb-1">
-                            <p className="font-semibold text-gray-900 truncate">
+                            <p className="font-semibold text-foreground truncate">
                               {q.studentName}
                             </p>
                             <Badge className={`${statusStyle.bg} ${statusStyle.text} border-0 text-xs`}>
                               {q.status || 'Not Started'}
                             </Badge>
                           </div>
-                          <p className="text-sm text-gray-500 truncate">
+                          <p className="text-sm text-muted-foreground truncate">
                             {q.questionText?.substring(0, 60)}...
                           </p>
                           <div className="flex items-center gap-2 mt-2">
-                            <Clock className="h-3 w-3 text-gray-400" />
-                            <span className="text-xs text-gray-400">
+                            <Clock className="h-3 w-3 text-muted-foreground" />
+                            <span className="text-xs text-muted-foreground">
                               {q.createdAt ? new Date(q.createdAt).toLocaleDateString() : 'No date'}
                             </span>
                           </div>
                         </div>
-                        <ChevronRight className={`h-4 w-4 text-gray-400 transition-transform ${
+                        <ChevronRight className={`h-4 w-4 text-muted-foreground transition-transform ${
                           activeId === q._id ? 'translate-x-1' : ''
                         }`} />
                       </div>
@@ -182,17 +182,17 @@ function SessionReview({ questions, onUpdate, initialSelectedId }) {
               <CardContent className="p-6 space-y-6">
                 
                 {/* QUESTION SECTION */}
-                <div className="rounded-xl border border-gray-200 bg-white overflow-hidden shadow-sm">
-                  <div className="bg-linear-to-r from-blue-50 to-indigo-50 px-5 py-3 border-b border-gray-200">
+                <div className="rounded-xl border border-border bg-white overflow-hidden shadow-sm">
+                  <div className="bg-linear-to-r from-blue-50 to-indigo-50 px-5 py-3 border-b border-border">
                     <div className="flex items-center gap-2">
                       <div className="p-1.5 bg-blue-100 rounded-lg">
-                        <User className="h-4 w-4 text-blue-600" />
+                        <User className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                       </div>
-                      <span className="font-semibold text-gray-800">Student's Question</span>
+                      <span className="font-semibold text-foreground">Student's Question</span>
                     </div>
                   </div>
                   <div className="p-5">
-                    <p className="text-gray-800 leading-relaxed">{current.questionText}</p>
+                    <p className="text-foreground leading-relaxed">{current.questionText}</p>
                     {current.questionImage && (
                       <div className="mt-4">
                         <img 
@@ -206,13 +206,13 @@ function SessionReview({ questions, onUpdate, initialSelectedId }) {
                 </div>
 
                 {/* REPLY SECTION */}
-                <div className="rounded-xl border border-gray-200 bg-white overflow-hidden shadow-sm">
-                  <div className="bg-linear-to-r from-gray-50 to-gray-100 px-5 py-3 border-b border-gray-200">
+                <div className="rounded-xl border border-border bg-white overflow-hidden shadow-sm">
+                  <div className="bg-linear-to-r from-gray-50 to-gray-100 px-5 py-3 border-b border-border">
                     <div className="flex items-center gap-2">
                       <div className="p-1.5 bg-gray-200 rounded-lg">
-                        <Reply className="h-4 w-4 text-gray-600" />
+                        <Reply className="h-4 w-4 text-muted-foreground" />
                       </div>
-                      <span className="font-semibold text-gray-800">Your Reply</span>
+                      <span className="font-semibold text-foreground">Your Reply</span>
                     </div>
                   </div>
                   <div className="p-5 space-y-4">
@@ -226,17 +226,17 @@ function SessionReview({ questions, onUpdate, initialSelectedId }) {
                     <div 
                       onDragOver={(e) => e.preventDefault()} 
                       onDrop={(e) => { e.preventDefault(); processFile(e.dataTransfer.files[0]); }} 
-                      className="border-2 border-dashed border-gray-300 rounded-lg p-5 text-center hover:border-blue-500 hover:bg-blue-50/30 transition-all duration-200 bg-gray-50"
+                      className="border-2 border-dashed border-gray-300 rounded-lg p-5 text-center hover:border-blue-500 hover:bg-blue-50 dark:bg-blue-500/10/30 transition-all duration-200 bg-background"
                     >
                       {!replyImage ? (
                         <>
                           <div className="flex justify-center mb-2">
                             <div className="p-2 bg-gray-100 rounded-full">
-                              <ImageIcon className="h-5 w-5 text-gray-500" />
+                              <ImageIcon className="h-5 w-5 text-muted-foreground" />
                             </div>
                           </div>
-                          <p className="text-sm text-gray-600 mb-1">Drag & drop an image here</p>
-                          <p className="text-xs text-gray-400 mb-3">or</p>
+                          <p className="text-sm text-muted-foreground mb-1">Drag & drop an image here</p>
+                          <p className="text-xs text-muted-foreground mb-3">or</p>
                           <div className="relative inline-block">
                             <input 
                               type="file" 
@@ -260,8 +260,8 @@ function SessionReview({ questions, onUpdate, initialSelectedId }) {
                               className="w-14 h-14 rounded-lg object-cover border border-blue-200 shadow-sm" 
                             />
                             <div className="text-left">
-                              <p className="text-sm font-medium text-gray-800">Image attached</p>
-                              <p className="text-xs text-gray-500">Ready to send</p>
+                              <p className="text-sm font-medium text-foreground">Image attached</p>
+                              <p className="text-xs text-muted-foreground">Ready to send</p>
                             </div>
                           </div>
                           <Button 
@@ -291,7 +291,7 @@ function SessionReview({ questions, onUpdate, initialSelectedId }) {
                     <Button 
                       onClick={() => submitUpdate('Not Started')} 
                       variant="outline"
-                      className="border-amber-500 text-amber-600 hover:bg-amber-50"
+                      className="border-amber-500 text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:bg-amber-500/10"
                     >
                       <RotateCcw className="h-4 w-4 mr-2" />
                       Reset
@@ -311,10 +311,10 @@ function SessionReview({ questions, onUpdate, initialSelectedId }) {
             <Card className="border-0 shadow-sm h-full flex items-center justify-center min-h-100">
               <CardContent className="text-center py-16">
                 <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <MessageSquare className="h-10 w-10 text-gray-400" />
+                  <MessageSquare className="h-10 w-10 text-muted-foreground" />
                 </div>
-                <p className="text-gray-500 font-medium">No session selected</p>
-                <p className="text-sm text-gray-400 mt-1">Click on a student session to start reviewing</p>
+                <p className="text-muted-foreground font-medium">No session selected</p>
+                <p className="text-sm text-muted-foreground mt-1">Click on a student session to start reviewing</p>
               </CardContent>
             </Card>
           )}

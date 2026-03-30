@@ -55,9 +55,9 @@ function StudentPost({ onPostSuccess }) {
         {/* Back Button */}
         <button 
           onClick={() => navigate(-1)} 
-          className="flex items-center gap-2 text-slate-500 font-bold hover:text-brand-blue mb-4 transition-colors group"
+          className="flex items-center gap-2 text-muted-foreground font-bold hover:text-brand-blue mb-4 transition-colors group"
         >
-          <div className="size-8 rounded-full bg-white border border-slate-100 flex items-center justify-center group-hover:bg-brand-blue/5">
+          <div className="size-8 rounded-full bg-card border border-border flex items-center justify-center group-hover:bg-brand-blue/5">
             <ArrowLeft className="size-4" />
           </div>
           Back
@@ -77,13 +77,13 @@ function StudentPost({ onPostSuccess }) {
             <div className="absolute right-[-10px] top-[-10px] size-24 bg-white/10 rounded-full blur-2xl"></div>
           </div>
 
-          <form onSubmit={handleSubmit} className="bg-white">
+          <form onSubmit={handleSubmit} className="bg-card">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
               
               {/* Left Column: Details */}
-              <div className="p-8 space-y-5 border-r border-slate-100">
+              <div className="p-8 space-y-5 border-r border-border">
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-slate-800 flex items-center gap-2">
+                  <label className="text-sm font-bold text-foreground flex items-center gap-2">
                     <User className="size-4 text-brand-blue" />
                     Student Full Name
                   </label>
@@ -91,12 +91,12 @@ function StudentPost({ onPostSuccess }) {
                     type="text" 
                     value={name} 
                     readOnly 
-                    className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-100 font-medium text-slate-500 outline-none cursor-not-allowed"
+                    className="w-full px-4 py-3 rounded-xl border border-border bg-muted font-medium text-muted-foreground outline-none cursor-not-allowed"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-slate-800 flex items-center gap-2">
+                  <label className="text-sm font-bold text-foreground flex items-center gap-2">
                     <MessageSquare className="size-4 text-brand-blue" />
                     Your Question
                   </label>
@@ -105,23 +105,23 @@ function StudentPost({ onPostSuccess }) {
                     value={question} 
                     onChange={(e) => setQuestion(e.target.value)} 
                     required 
-                    className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-brand-blue focus:ring-4 focus:ring-brand-blue/10 transition-all outline-none font-medium text-slate-700 min-h-[160px] resize-none bg-slate-50/30"
+                    className="w-full px-4 py-3 rounded-xl border border-border focus:border-brand-blue focus:ring-4 focus:ring-brand-blue/10 transition-all outline-none font-medium text-foreground min-h-[160px] resize-none bg-muted/30"
                   />
                 </div>
               </div>
 
               {/* Right Column: Attachment & Action */}
-              <div className="p-8 flex flex-col justify-between bg-slate-50/40">
+              <div className="p-8 flex flex-col justify-between bg-muted/40">
                 <div className="space-y-4">
-                  <label className="text-sm font-bold text-slate-800 flex items-center gap-2">
+                  <label className="text-sm font-bold text-foreground flex items-center gap-2">
                     <ImageIcon className="size-4 text-brand-blue" />
                     Attachment (Optional)
                   </label>
                   <div 
                     onDragOver={(e) => e.preventDefault()} 
                     onDrop={(e) => { e.preventDefault(); processFile(e.dataTransfer.files[0]); }} 
-                    className={`relative border-2 border-dashed rounded-2xl p-6 transition-all flex flex-col items-center justify-center gap-4 min-h-[180px] bg-white ${
-                      image ? 'border-emerald-200 shadow-sm shadow-emerald-100' : 'border-slate-200 hover:border-brand-blue/30'
+                    className={`relative border-2 border-dashed rounded-2xl p-6 transition-all flex flex-col items-center justify-center gap-4 min-h-[180px] bg-card ${
+                      image ? 'border-emerald-200 shadow-sm shadow-emerald-100' : 'border-border hover:border-brand-blue/30'
                     }`}
                   >
                     {!image ? (
@@ -130,8 +130,8 @@ function StudentPost({ onPostSuccess }) {
                           <Upload className="size-6" />
                         </div>
                         <div className="text-center">
-                          <p className="text-sm font-bold text-slate-700">Drop files or <label htmlFor="file-upload" className="text-brand-blue cursor-pointer hover:underline">browse</label></p>
-                          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-1">Image files up to 2MB</p>
+                          <p className="text-sm font-bold text-foreground">Drop files or <label htmlFor="file-upload" className="text-brand-blue cursor-pointer hover:underline">browse</label></p>
+                          <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider mt-1">Image files up to 2MB</p>
                         </div>
                       </>
                     ) : (
@@ -150,7 +150,7 @@ function StudentPost({ onPostSuccess }) {
                             <XCircle className="size-4" />
                           </button>
                         </div>
-                        <p className="text-xs font-bold text-emerald-600 flex items-center gap-1">
+                        <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
                           <CheckCircle className="size-4" /> Image Ready
                         </p>
                       </div>

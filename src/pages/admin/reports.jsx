@@ -80,7 +80,7 @@ export default function AdminReportsPage({ isSubPage = false }) {
     switch (status) {
       case 'pending': return 'bg-amber-100 text-amber-700 border-amber-200';
       case 'resolved': return 'bg-emerald-100 text-emerald-700 border-emerald-200';
-      case 'dismissed': return 'bg-slate-100 text-slate-700 border-slate-200';
+      case 'dismissed': return 'bg-slate-100 text-slate-700 border-border';
       default: return 'bg-slate-100 text-slate-700';
     }
   };
@@ -100,11 +100,11 @@ export default function AdminReportsPage({ isSubPage = false }) {
     <div className="flex flex-1 flex-col gap-6 p-6 text-left">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
-          <h1 className="text-3xl font-black tracking-tight text-slate-800 flex items-center gap-3">
-            <ShieldAlert className="size-8 text-rose-500" />
+          <h1 className="text-3xl font-black tracking-tight text-foreground flex items-center gap-3">
+            <ShieldAlert className="size-8 text-rose-500 dark:text-rose-400" />
             Moderation Center
           </h1>
-          <p className="text-slate-500 font-medium">Review and manage community reports and flags.</p>
+          <p className="text-muted-foreground font-medium">Review and manage community reports and flags.</p>
         </div>
 
         <div className="flex items-center gap-2">
@@ -113,8 +113,8 @@ export default function AdminReportsPage({ isSubPage = false }) {
               key={t}
               onClick={() => setFilter(t)}
               className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all border-2 ${filter === t
-                  ? "bg-slate-900 text-white border-slate-900 shadow-lg shadow-slate-200"
-                  : "bg-white text-slate-500 border-slate-100 hover:border-slate-200"
+                  ? "bg-foreground text-background border-foreground shadow-lg shadow-border"
+                  : "bg-card text-muted-foreground border-border hover:border-muted-foreground/30"
                 }`}
             >
               {t}
@@ -128,13 +128,13 @@ export default function AdminReportsPage({ isSubPage = false }) {
           <Loader2 className="size-10 animate-spin text-brand-blue/40" />
         </div>
       ) : filteredReports.length === 0 ? (
-        <div className="premium-card text-center py-20 border-dashed border-2 flex flex-col items-center gap-4 bg-white/50">
-          <div className="size-16 rounded-full bg-slate-50 flex items-center justify-center text-slate-300">
+        <div className="premium-card text-center py-20 border-dashed border-2 flex flex-col items-center gap-4 bg-card/50">
+          <div className="size-16 rounded-full bg-muted flex items-center justify-center text-muted-foreground/50">
             <CheckCircle2 className="size-8" />
           </div>
           <div className="space-y-1">
-            <p className="text-xl font-extrabold text-slate-800">No reports found</p>
-            <p className="text-slate-500 font-medium">All caught up! The community is clean.</p>
+            <p className="text-xl font-extrabold text-foreground">No reports found</p>
+            <p className="text-muted-foreground font-medium">All caught up! The community is clean.</p>
           </div>
         </div>
       ) : (
@@ -142,7 +142,7 @@ export default function AdminReportsPage({ isSubPage = false }) {
           {filteredReports.map((report) => (
             <div
               key={report._id}
-              className={`premium-card border-l-4 transition-all overflow-hidden ${report.status === 'pending' ? 'border-l-amber-500' : 'border-l-slate-200 opacity-80 hover:opacity-100 shadow-sm'
+              className={`premium-card border-l-4 transition-all overflow-hidden ${report.status === 'pending' ? 'border-l-amber-500' : 'border-l-border opacity-80 hover:opacity-100 shadow-sm'
                 }`}
             >
               <div className="flex flex-col lg:flex-row lg:items-center gap-6">
@@ -155,24 +155,24 @@ export default function AdminReportsPage({ isSubPage = false }) {
                       {getTypeIcon(report.contentType)}
                       {report.contentType}
                     </Badge>
-                    <span className="text-xs text-slate-400 font-bold flex items-center gap-1.5">
+                    <span className="text-xs text-muted-foreground font-bold flex items-center gap-1.5">
                       <Clock className="size-3" />
                       {new Date(report.createdAt).toLocaleString()}
                     </span>
                   </div>
 
                   <div className="space-y-2">
-                    <h3 className="text-xl font-black text-slate-800">{report.reason}</h3>
-                    <div className="flex items-center gap-4 text-sm font-bold text-slate-500">
+                    <h3 className="text-xl font-black text-foreground">{report.reason}</h3>
+                    <div className="flex items-center gap-4 text-sm font-bold text-muted-foreground">
                       <div className="flex items-center gap-2">
-                        <span className="text-[10px] uppercase tracking-tighter text-slate-400 font-black">Reporter:</span>
+                        <span className="text-[10px] uppercase tracking-tighter text-muted-foreground font-black">Reporter:</span>
                         <UserBadge name={report.reporter?.name} email={report.reporter?.sliitId} size="sm" />
                       </div>
                       {report.reportedUser && (
                         <>
                           <div className="h-4 w-px bg-slate-200"></div>
                           <div className="flex items-center gap-2">
-                            <span className="text-[10px] uppercase tracking-tighter text-slate-400 font-black">Reported:</span>
+                            <span className="text-[10px] uppercase tracking-tighter text-muted-foreground font-black">Reported:</span>
                             <UserBadge name={report.reportedUser?.name} email={report.reportedUser?.sliitId} variant="secondary" size="sm" />
                           </div>
                         </>
@@ -182,10 +182,10 @@ export default function AdminReportsPage({ isSubPage = false }) {
                 </div>
 
                 {report.status === 'pending' && (
-                  <div className="flex items-center gap-2 lg:border-l lg:pl-6 border-slate-100 flex-wrap">
+                  <div className="flex items-center gap-2 lg:border-l lg:pl-6 border-border flex-wrap">
                     <Button
                       variant="outline"
-                      className="text-slate-500 hover:text-slate-800 font-black uppercase text-[10px] tracking-widest h-11 px-6 rounded-xl border border-slate-100 transition-all hover:bg-slate-50"
+                      className="text-muted-foreground hover:text-foreground font-black uppercase text-[10px] tracking-widest h-11 px-6 rounded-xl border border-border transition-all hover:bg-muted"
                       onClick={() => handleAction(report._id, 'discard')}
                     >
                       <Trash2 className="size-4 mr-2" />
@@ -193,7 +193,7 @@ export default function AdminReportsPage({ isSubPage = false }) {
                     </Button>
                     <Button
                       variant="outline"
-                      className="text-amber-500 hover:bg-amber-50 font-black uppercase text-[10px] tracking-widest h-11 px-6 rounded-xl border border-amber-100 transition-all"
+                      className="text-amber-500 dark:text-amber-400 hover:bg-amber-50 dark:bg-amber-500/10 font-black uppercase text-[10px] tracking-widest h-11 px-6 rounded-xl border border-amber-100 transition-all"
                       onClick={() => handleAction(report._id, 'resolve')}
                     >
                       <CheckCircle2 className="size-4 mr-2" />
@@ -226,25 +226,25 @@ export default function AdminReportsPage({ isSubPage = false }) {
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center justify-between gap-2 border-b px-6 bg-white/50 backdrop-blur-sm sticky top-0 z-50">
+        <header className="flex h-16 shrink-0 items-center justify-between gap-2 border-b px-6 bg-background/80 backdrop-blur-sm sticky top-0 z-50">
           <div className="flex items-center gap-2 text-left">
             <SidebarTrigger className="-ml-1" />
             <div className="h-4 w-px bg-slate-200 mx-2"></div>
-            <span className="text-sm font-black text-rose-600 uppercase tracking-widest">Moderation Center</span>
+            <span className="text-sm font-black text-rose-600 dark:text-rose-400 uppercase tracking-widest">Moderation Center</span>
           </div>
 
           <div className="relative w-full max-w-sm group">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground group-focus-within:text-rose-500 transition-colors" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground group-focus-within:text-rose-500 dark:text-rose-400 transition-colors" />
             <input
               placeholder="Search reports by reason or type..."
-              className="pl-10 h-10 w-full rounded-xl border-none bg-slate-100/50 focus:bg-white focus:ring-4 focus:ring-rose-500/5 transition-all outline-none text-sm font-bold"
+              className="pl-10 h-10 w-full rounded-xl border-none bg-muted/50 focus:bg-background focus:ring-4 focus:ring-rose-500/5 transition-all outline-none text-sm font-bold"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
         </header>
 
-        <div className="flex-1 overflow-auto bg-slate-50/30">
+        <div className="flex-1 overflow-auto bg-background">
           {content}
         </div>
       </SidebarInset>
