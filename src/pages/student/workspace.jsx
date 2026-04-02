@@ -9,6 +9,8 @@ import AccountPage from "@/pages/admin/account"
 import OrganizedContentPage from "@/pages/student/organized-content"
 import PeerTutoringPage from "@/pages/student/peer-tutoring"
 import QuestionHistoryPage from "@/pages/student/question-history"
+import SessionLobby from "@/pages/student/SessionLobby"
+import LiveLobby from "@/pages/student/LiveLobby"
 
 export default function StudentWorkspace({ initialPage = "dashboard", user }) {
   const [currentPage, setCurrentPage] = useState(initialPage)
@@ -34,6 +36,11 @@ export default function StudentWorkspace({ initialPage = "dashboard", user }) {
       icon: <UsersIcon className="size-4" />,
     },
     {
+      title: "Session Lobby",
+      url: "/student/session-lobby",
+      icon: <UsersIcon className="size-4" />,
+    },
+    {
       title: "Ask a Question",
       url: "/student/post",
       icon: <PlusCircle className="size-4" />,
@@ -48,6 +55,7 @@ export default function StudentWorkspace({ initialPage = "dashboard", user }) {
       url: "/student/account",
       icon: <UserIcon className="size-4" />,
     },
+
   ]
 
   const getPageTitle = () => {
@@ -55,6 +63,8 @@ export default function StudentWorkspace({ initialPage = "dashboard", user }) {
       case "dashboard": return "Dashboard Overview";
       case "materials": return "Study Materials";
       case "tutors": return "Peer Tutoring";
+      case "session-lobby": return "Session Lobby";
+      case "live-lobby": return "Live Lobby";
       case "post": return "Ask a Question";
       case "history": return "Question History";
       case "account": return "Account Settings";
@@ -82,6 +92,8 @@ export default function StudentWorkspace({ initialPage = "dashboard", user }) {
             {currentPage === "dashboard" && <StudentDashboard user={user} />}
             {currentPage === "materials" && <OrganizedContentPage user={user} />}
             {currentPage === "tutors" && <PeerTutoringPage user={user} />}
+            {currentPage === "session-lobby" && <SessionLobby user={user} />}
+            {currentPage === "live-lobby" && <LiveLobby user={user} />}
             {currentPage === "post" && <StudentPost onPostSuccess={() => { setCurrentPage("dashboard") }} user={user} />}
             {currentPage === "history" && <QuestionHistoryPage user={user} />}
             {currentPage === "account" && <AccountPage isSubPage={true} user={user} />}

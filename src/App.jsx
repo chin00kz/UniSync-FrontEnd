@@ -81,7 +81,7 @@ function App() {
     <Router>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
-        
+
         {/* Admin Dashboard Routes */}
         <Route path="/dashboard" element={<ProtectedRoute><AdminWorkspace initialPage="dashboard" user={user} /></ProtectedRoute>} />
         <Route path="/dashboard/admins" element={<ProtectedRoute><AdminWorkspace initialPage="admins" user={user} /></ProtectedRoute>} />
@@ -101,9 +101,12 @@ function App() {
         <Route path="/student/dashboard" element={<ProtectedRoute><StudentWorkspace initialPage="dashboard" user={user} /></ProtectedRoute>} />
         <Route path="/student/materials" element={<ProtectedRoute><StudentWorkspace initialPage="materials" user={user} /></ProtectedRoute>} />
         <Route path="/student/tutors" element={<ProtectedRoute><StudentWorkspace initialPage="tutors" user={user} /></ProtectedRoute>} />
+        <Route path="/student/session-lobby" element={<ProtectedRoute><StudentWorkspace initialPage="session-lobby" user={user} /></ProtectedRoute>} />
+        <Route path="/student/live-lobby" element={<ProtectedRoute><StudentWorkspace initialPage="live-lobby" user={user} /></ProtectedRoute>} />
         <Route path="/student/post" element={<ProtectedRoute><StudentWorkspace initialPage="post" user={user} /></ProtectedRoute>} />
         <Route path="/student/history" element={<ProtectedRoute><StudentWorkspace initialPage="history" user={user} /></ProtectedRoute>} />
         <Route path="/student/account" element={<ProtectedRoute><StudentWorkspace initialPage="account" user={user} /></ProtectedRoute>} />
+
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </Router>
