@@ -73,6 +73,7 @@ export default function YearView({
   currentUser,
   subjects,
   onRemoveNote,
+  onUploadClick,
   onDismissReport,
   onNavigateToAddSubject
 }) {
