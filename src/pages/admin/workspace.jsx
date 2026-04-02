@@ -1,16 +1,17 @@
 import { useState, useEffect } from "react"
-import { 
-  PieChartIcon, 
-  Settings2Icon, 
-  TerminalIcon, 
-  BotIcon, 
+import {
+  PieChartIcon,
+  Settings2Icon,
+  TerminalIcon,
+  BotIcon,
   UserIcon,
   ShieldAlertIcon,
   UsersIcon,
   FileTextIcon,
   ActivityIcon,
   HistoryIcon,
-  SettingsIcon
+  SettingsIcon,
+  BookOpenIcon
 } from "lucide-react"
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { Separator } from "@/components/ui/separator"
@@ -24,8 +25,23 @@ import AuditLogsPage from "./audit-logs"
 import BannedUsersPage from "./banned-users"
 import AccountPage from "./account"
 import SettingsPage from "./settings"
+import AddSubject from "./AddSubject"
+import NotesPage from "../student/NotesPage"
+import SessionsPage from "../student/SessionLobby"
 
-export default function AdminWorkspace({ initialPage = "dashboard", user }) {
+export default function AdminWorkspace({ 
+  initialPage = "dashboard", 
+  user,
+  notes,
+  subjects,
+  onAddNote,
+  onDeleteNote,
+  onRateNote,
+  onReportNote,
+  onRemoveNote,
+  onDismissReport,
+  onAddSubject
+}) {
   const [currentPage, setCurrentPage] = useState(initialPage)
 
   useEffect(() => {
@@ -37,6 +53,21 @@ export default function AdminWorkspace({ initialPage = "dashboard", user }) {
       title: "Overview",
       url: "/dashboard",
       icon: <PieChartIcon className="size-4" />,
+    },
+    {
+      title: "Content Management",
+      url: "#",
+      icon: <BookOpenIcon className="size-4" />,
+      items: [
+        {
+          title: "Notes",
+          url: "/dashboard/notes",
+        },
+        {
+          title: "Sessions",
+          url: "/dashboard/sessions",
+        },
+      ],
     },
     {
       title: "User Control",
@@ -95,6 +126,9 @@ export default function AdminWorkspace({ initialPage = "dashboard", user }) {
     switch (currentPage) {
       case "dashboard": return "Global Dashboard";
       case "admins": return "Admin Management";
+      case "notes": return "Notes Management";
+      case "add-subject": return "Add Subject";
+      case "sessions": return "Sessions Management";
       case "users": return "User Management";
       case "reports": return "Moderation Reports";
       case "audit-logs": return "System Audit Logs";
@@ -124,6 +158,24 @@ export default function AdminWorkspace({ initialPage = "dashboard", user }) {
           <div className="h-full">
             {currentPage === "dashboard" && <DashboardPage isSubPage={true} user={user} />}
             {currentPage === "admins" && <AdminManagementPage isSubPage={true} user={user} />}
+            {currentPage === "add-subject" && <AddSubject isSubPage={true} user={user} subjects={subjects} onAddSubject={onAddSubject} />}
+            {currentPage === "notes" && (
+              <NotesPage 
+                isSubPage={true} 
+                user={user} 
+                notes={notes} 
+                subjects={subjects} 
+                onAddNote={onAddNote}
+                onDeleteNote={onDeleteNote}
+                onRateNote={onRateNote}
+                onReportNote={onReportNote}
+                onRemoveNote={onRemoveNote}
+                onDismissReport={onDismissReport}
+                onAddSubject={onAddSubject}
+                onNavigateToAddSubject={() => setCurrentPage('add-subject')}
+              />
+            )}
+            {currentPage === "sessions" && <SessionsPage isSubPage={true} user={user} />}
             {currentPage === "users" && <UserManagementPage isSubPage={true} user={user} />}
             {currentPage === "reports" && <ReportsPage isSubPage={true} user={user} />}
             {currentPage === "audit-logs" && <AuditLogsPage isSubPage={true} user={user} />}

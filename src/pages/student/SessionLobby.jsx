@@ -2,18 +2,23 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './SessionLobby.css';
 
-function SessionLobby() {
+function SessionLobby({ user, isSubPage = false }) {
   const navigate = useNavigate();
-  const [currentUserObj, setCurrentUserObj] = useState(null);
+  const [currentUserObj, setCurrentUserObj] = useState(user || null);
 
   useEffect(() => {
-    const userStr = localStorage.getItem('currentUser');
+    if (user) {
+      setCurrentUserObj(user);
+      return;
+    }
+
+    const userStr = localStorage.getItem('user');
     if (!userStr) {
       navigate('/login');
     } else {
       setCurrentUserObj(JSON.parse(userStr));
     }
-  }, [navigate]);
+  }, [navigate, user]);
 
   // Existing Logic States
   const [lobbies, setLobbies] = useState([
@@ -162,74 +167,78 @@ function SessionLobby() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('currentUser');
+    localStorage.removeItem('user');
     navigate('/login');
   };
 
   if (!currentUserObj) return null; // Avoid render errors before redirect happens
 
   const currentUser = currentUserObj.name;
-  const isAdmin = currentUserObj.role === 'admin';
+  const isAdmin = currentUserObj && ['admin', 'superadmin', 'moderator'].includes(currentUserObj.role);
 
   return (
-    <div className="dashboard-layout">
+    <div className={`dashboard-layout ${isSubPage ? 'subpage-layout' : ''}`}>
 
       {/* SIDEBAR */}
-      <aside className="sidebar-container">
-        <div className="sidebar-header">
-          <div className="sidebar-logo-icon">U</div>
-          <div className="sidebar-logo-text">
-            <span className="brand">UniSync</span>
-            <span className="portal">LOBBY PORTAL</span>
-          </div>
-        </div>
-
-        <nav className="sidebar-nav">
-          <div className="nav-section">
-            <div className="nav-section-title">Platform</div>
-            <a className="sidebar-link active">
-              <span className="nav-icon">⏱</span> Dashboard
-            </a>
-            <a className="sidebar-link">
-              <span className="nav-icon">⚇</span> {isAdmin ? 'User Management' : 'My Friends'}
-            </a>
-            {isAdmin && (
-              <>
-                <a className="sidebar-link">
-                  <span className="nav-icon">►</span> Moderation
-                </a>
-                <a className="sidebar-link">
-                  <span className="nav-icon">⊡</span> System Logs
-                </a>
-              </>
-            )}
-          </div>
-          <div className="nav-section">
-            <div className="nav-section-title">Projects</div>
-            <a className="sidebar-link">
-              <span className="nav-icon">...</span> More
-            </a>
-          </div>
-        </nav>
-
-        <div className="sidebar-footer" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '10px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', width: '100%', gap: '12px' }}>
-            <div className="user-avatar">{currentUserObj.initials}</div>
-            <div className="user-info">
-              <span className="user-name">{currentUserObj.name}</span>
-              <span className="user-email">{currentUserObj.role === 'admin' ? 'Admin Access' : currentUserObj.email}</span>
+      {!isSubPage && (
+        <aside className="sidebar-container">
+          <div className="sidebar-header">
+            <div className="sidebar-logo-icon">U</div>
+            <div className="sidebar-logo-text">
+              <span className="brand">UniSync</span>
+              <span className="portal">LOBBY PORTAL</span>
             </div>
           </div>
-          <button onClick={handleLogout} className="btn-secondary" style={{ width: '100%', padding: '6px', fontSize: '0.8rem', border: 'none', background: '#ffe4e6', color: '#e11d48' }}>Log Out</button>
-        </div>
-      </aside>
+
+          <nav className="sidebar-nav">
+            <div className="nav-section">
+              <div className="nav-section-title">Platform</div>
+              <a className="sidebar-link active">
+                <span className="nav-icon">⏱</span> Dashboard
+              </a>
+              <a className="sidebar-link">
+                <span className="nav-icon">⚇</span> {isAdmin ? 'User Management' : 'My Friends'}
+              </a>
+              {isAdmin && (
+                <>
+                  <a className="sidebar-link">
+                    <span className="nav-icon">►</span> Moderation
+                  </a>
+                  <a className="sidebar-link">
+                    <span className="nav-icon">⊡</span> System Logs
+                  </a>
+                </>
+              )}
+            </div>
+            <div className="nav-section">
+              <div className="nav-section-title">Projects</div>
+              <a className="sidebar-link">
+                <span className="nav-icon">...</span> More
+              </a>
+            </div>
+          </nav>
+
+          <div className="sidebar-footer" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '10px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', width: '100%', gap: '12px' }}>
+              <div className="user-avatar">{currentUserObj.initials || currentUserObj.name?.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2)}</div>
+              <div className="user-info">
+                <span className="user-name">{currentUserObj.name}</span>
+                <span className="user-email">{currentUserObj.role === 'admin' ? 'Admin Access' : currentUserObj.email}</span>
+              </div>
+            </div>
+            <button onClick={handleLogout} className="btn-secondary" style={{ width: '100%', padding: '6px', fontSize: '0.8rem', border: 'none', background: '#ffe4e6', color: '#e11d48' }}>Log Out</button>
+          </div>
+        </aside>
+      )}
 
       {/* MAIN CONTENT DIV */}
-      <main className="main-wrapper">
-        <div className="top-breadcrumb">
-          <span className="breadcrumb-icon">◫</span>
-          UniSync &gt; <span className="current">{isAdmin ? 'Admin Dashboard' : 'Student Portal'}</span>
-        </div>
+      <main className="main-wrapper" style={isSubPage ? { padding: 0 } : {}}>
+        {!isSubPage && (
+          <div className="top-breadcrumb">
+            <span className="breadcrumb-icon">◫</span>
+            UniSync &gt; <span className="current">{isAdmin ? 'Admin Dashboard' : 'Student Portal'}</span>
+          </div>
+        )}
 
         <div className="page-content">
           <div className="gradient-banner"></div>

@@ -39,6 +39,23 @@ const data = {
       isActive: true,
     },
     {
+      title: "Content Management",
+      url: "#",
+      icon: (
+        <BookOpenIcon className="size-4" />
+      ),
+      items: [
+        {
+          title: "Notes",
+          url: "/dashboard/notes",
+        },
+        {
+          title: "Sessions",
+          url: "/dashboard/sessions",
+        },
+      ],
+    },
+    {
       title: "User Management",
       url: "#",
       icon: (

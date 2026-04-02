@@ -11,8 +11,18 @@ import PeerTutoringPage from "@/pages/student/peer-tutoring"
 import QuestionHistoryPage from "@/pages/student/question-history"
 import SessionLobby from "@/pages/student/SessionLobby"
 import LiveLobby from "@/pages/student/LiveLobby"
+import NotesPage from "@/pages/student/NotesPage"
 
-export default function StudentWorkspace({ initialPage = "dashboard", user }) {
+export default function StudentWorkspace({ 
+  initialPage = "dashboard", 
+  user,
+  notes,
+  subjects,
+  onAddNote,
+  onDeleteNote,
+  onRateNote,
+  onReportNote
+}) {
   const [currentPage, setCurrentPage] = useState(initialPage)
 
   useEffect(() => {
@@ -27,7 +37,7 @@ export default function StudentWorkspace({ initialPage = "dashboard", user }) {
     },
     {
       title: "Study Materials",
-      url: "/student/materials",
+      url: "/student/notes",
       icon: <BookOpen className="size-4" />,
     },
     {
@@ -61,7 +71,7 @@ export default function StudentWorkspace({ initialPage = "dashboard", user }) {
   const getPageTitle = () => {
     switch (currentPage) {
       case "dashboard": return "Dashboard Overview";
-      case "materials": return "Study Materials";
+      case "notes": return "Study Materials";
       case "tutors": return "Peer Tutoring";
       case "session-lobby": return "Session Lobby";
       case "live-lobby": return "Live Lobby";
@@ -90,7 +100,17 @@ export default function StudentWorkspace({ initialPage = "dashboard", user }) {
         <main className="flex-1 overflow-auto p-6 lg:p-10 bg-background">
           <div className="mx-auto max-w-7xl">
             {currentPage === "dashboard" && <StudentDashboard user={user} />}
-            {currentPage === "materials" && <OrganizedContentPage user={user} />}
+            {currentPage === "notes" && (
+              <NotesPage 
+                user={user} 
+                notes={notes} 
+                subjects={subjects} 
+                onAddNote={onAddNote}
+                onDeleteNote={onDeleteNote}
+                onRateNote={onRateNote}
+                onReportNote={onReportNote}
+              />
+            )}
             {currentPage === "tutors" && <PeerTutoringPage user={user} />}
             {currentPage === "session-lobby" && <SessionLobby user={user} />}
             {currentPage === "live-lobby" && <LiveLobby user={user} />}

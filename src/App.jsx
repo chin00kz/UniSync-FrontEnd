@@ -14,6 +14,45 @@ function App() {
   const [isMaintenanceMode, setIsMaintenanceMode] = useState(false);
   const [isLoadingSettings, setIsLoadingSettings] = useState(true);
   const [user, setUser] = useState(() => JSON.parse(localStorage.getItem("user") || "null"));
+  const [subjects, setSubjects] = useState(() => {
+    const saved = localStorage.getItem('uniSyncSubjects');
+    return saved ? JSON.parse(saved) : {
+      "Year 1": [
+        { code: "IT1010", name: "Introduction to Programming" },
+        { code: "IT1020", name: "Computer Systems" },
+        { code: "IT1030", name: "Mathematics for IT" }
+      ],
+      "Year 2": [
+        { code: "IT2010", name: "Object Oriented Programming" },
+        { code: "IT2020", name: "Database Management Systems" },
+        { code: "SE2030", name: "Software Engineering" }
+      ],
+      "Year 3": [
+        { code: "IT3040", name: "Data Structures & Algorithms" },
+        { code: "SE3050", name: "Software Testing" },
+        { code: "IT3060", name: "Network Engineering" }
+      ],
+      "Year 4": [
+        { code: "IT4010", name: "Final Year Project" },
+        { code: "IT4020", name: "Advanced Data Science" }
+      ]
+    };
+  });
+
+  const [notes, setNotes] = useState(() => {
+    const saved = localStorage.getItem('uniSyncNotes');
+    return saved ? JSON.parse(saved) : [
+      { id: 1, title: "Algorithms Week 1 Revision", subjectCode: "IT3040", year: "Year 3", rating: 4.5, uploadedBy: "it210055", uploadedAt: new Date().toISOString() },
+      { id: 2, title: "Java OOP Mini Guide", subjectCode: "IT2010", year: "Year 2", rating: 5, uploadedBy: "it210122", uploadedAt: new Date().toISOString() },
+      { id: 3, title: "DBMS SQL Cheat Sheet", subjectCode: "IT2020", year: "Year 2", rating: 3.5, uploadedBy: "it210033", uploadedAt: new Date().toISOString() },
+      { id: 4, title: "Intro to Python Bits", subjectCode: "IT1010", year: "Year 1", rating: 4, uploadedBy: "it220555", uploadedAt: new Date().toISOString() }
+    ];
+  });
+
+  const [reportHistory, setReportHistory] = useState(() => {
+    const saved = localStorage.getItem('uniSyncReportHistory');
+    return saved ? JSON.parse(saved) : [];
+  });
 
   // Apply theme as soon as possible (optimistically)
   useEffect(() => {
@@ -54,6 +93,42 @@ function App() {
     return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
+  // Sync state to localStorage
+  useEffect(() => {
+    localStorage.setItem('uniSyncSubjects', JSON.stringify(subjects));
+    localStorage.setItem('uniSyncNotes', JSON.stringify(notes));
+    localStorage.setItem('uniSyncReportHistory', JSON.stringify(reportHistory));
+  }, [subjects, notes, reportHistory]);
+
+  // Notes Handlers
+  const handleAddNote = (newNote) => setNotes(prev => [newNote, ...prev]);
+  const handleDeleteNote = (id) => setNotes(prev => prev.filter(n => n.id !== id));
+  const handleRateNote = (id, rating) => setNotes(prev => prev.map(n => n.id === id ? { ...n, rating } : n));
+  const handleReportNote = (id, reason) => setNotes(prev => prev.map(n => n.id === id ? { ...n, isReported: true, reportReason: reason, reportedBy: user?.name } : n));
+
+  const handleAdminRemoveNote = (noteId) => {
+    const note = notes.find(n => n.id === noteId);
+    if (note) {
+      setReportHistory(prev => [{ noteTitle: note.title, action: 'Note Removed', handledBy: user?.name, date: new Date().toISOString() }, ...prev]);
+      setNotes(prev => prev.filter(n => n.id !== noteId));
+    }
+  };
+
+  const handleAdminDismissReport = (noteId) => {
+    const note = notes.find(n => n.id === noteId);
+    if (note) {
+      setReportHistory(prev => [{ noteTitle: note.title, action: 'Dismissed', handledBy: user?.name, date: new Date().toISOString() }, ...prev]);
+      setNotes(prev => prev.map(n => n.id === noteId ? { ...n, isReported: false } : n));
+    }
+  };
+
+  const handleAddSubject = (year, code, name) => {
+    setSubjects(prev => {
+      const existing = prev[year] || [];
+      return { ...prev, [year]: [...existing, { code, name }] };
+    });
+  };
+
   if (isLoadingSettings) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-background">
@@ -83,23 +158,26 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
 
         {/* Admin Dashboard Routes */}
-        <Route path="/dashboard" element={<ProtectedRoute><AdminWorkspace initialPage="dashboard" user={user} /></ProtectedRoute>} />
+        <Route path="/dashboard" element={<ProtectedRoute><AdminWorkspace initialPage="dashboard" user={user} notes={notes} subjects={subjects} onAddNote={handleAddNote} onDeleteNote={handleDeleteNote} onRateNote={handleRateNote} onReportNote={handleReportNote} onRemoveNote={handleAdminRemoveNote} onDismissReport={handleAdminDismissReport} onAddSubject={handleAddSubject} /></ProtectedRoute>} />
         <Route path="/dashboard/admins" element={<ProtectedRoute><AdminWorkspace initialPage="admins" user={user} /></ProtectedRoute>} />
         <Route path="/dashboard/users" element={<ProtectedRoute><AdminWorkspace initialPage="users" user={user} /></ProtectedRoute>} />
         <Route path="/dashboard/reports" element={<ProtectedRoute><AdminWorkspace initialPage="reports" user={user} /></ProtectedRoute>} />
         <Route path="/dashboard/audit-logs" element={<ProtectedRoute><AdminWorkspace initialPage="audit-logs" user={user} /></ProtectedRoute>} />
         <Route path="/dashboard/bans" element={<ProtectedRoute><AdminWorkspace initialPage="bans" user={user} /></ProtectedRoute>} />
         <Route path="/dashboard/account" element={<ProtectedRoute><AdminWorkspace initialPage="account" user={user} /></ProtectedRoute>} />
+        <Route path="/dashboard/notes" element={<ProtectedRoute><AdminWorkspace initialPage="notes" user={user} notes={notes} subjects={subjects} onAddNote={handleAddNote} onDeleteNote={handleDeleteNote} onRateNote={handleRateNote} onReportNote={handleReportNote} onRemoveNote={handleAdminRemoveNote} onDismissReport={handleAdminDismissReport} onAddSubject={handleAddSubject} /></ProtectedRoute>} />
+        <Route path="/dashboard/sessions" element={<ProtectedRoute><AdminWorkspace initialPage="sessions" user={user} /></ProtectedRoute>} />
         <Route path="/dashboard/settings" element={<ProtectedRoute><AdminWorkspace initialPage="settings" user={user} /></ProtectedRoute>} />
+        <Route path="/dashboard/add-subject" element={<ProtectedRoute><AdminWorkspace initialPage="add-subject" user={user} subjects={subjects} onAddSubject={handleAddSubject} /></ProtectedRoute>} />
 
         <Route path="/tutor" element={<ProtectedRoute><TutorWorkspace user={user} /></ProtectedRoute>} />
         <Route path="/tutor/dashboard" element={<ProtectedRoute><TutorWorkspace initialPage="dashboard" user={user} /></ProtectedRoute>} />
         <Route path="/tutor/bookings" element={<ProtectedRoute><TutorWorkspace initialPage="bookings" user={user} /></ProtectedRoute>} />
         <Route path="/tutor/sessionreview" element={<ProtectedRoute><TutorWorkspace initialPage="review" user={user} /></ProtectedRoute>} />
         <Route path="/tutor/account" element={<ProtectedRoute><TutorWorkspace initialPage="account" user={user} /></ProtectedRoute>} />
-        <Route path="/student" element={<ProtectedRoute><StudentWorkspace user={user} /></ProtectedRoute>} />
+        <Route path="/student" element={<ProtectedRoute><StudentWorkspace user={user} notes={notes} subjects={subjects} onAddNote={handleAddNote} onDeleteNote={handleDeleteNote} onRateNote={handleRateNote} onReportNote={handleReportNote} /></ProtectedRoute>} />
         <Route path="/student/dashboard" element={<ProtectedRoute><StudentWorkspace initialPage="dashboard" user={user} /></ProtectedRoute>} />
-        <Route path="/student/materials" element={<ProtectedRoute><StudentWorkspace initialPage="materials" user={user} /></ProtectedRoute>} />
+        <Route path="/student/notes" element={<ProtectedRoute><StudentWorkspace initialPage="notes" user={user} notes={notes} subjects={subjects} onAddNote={handleAddNote} onDeleteNote={handleDeleteNote} onRateNote={handleRateNote} onReportNote={handleReportNote} /></ProtectedRoute>} />
         <Route path="/student/tutors" element={<ProtectedRoute><StudentWorkspace initialPage="tutors" user={user} /></ProtectedRoute>} />
         <Route path="/student/session-lobby" element={<ProtectedRoute><StudentWorkspace initialPage="session-lobby" user={user} /></ProtectedRoute>} />
         <Route path="/student/live-lobby" element={<ProtectedRoute><StudentWorkspace initialPage="live-lobby" user={user} /></ProtectedRoute>} />

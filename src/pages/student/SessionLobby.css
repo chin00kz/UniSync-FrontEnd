@@ -32,6 +32,13 @@ body {
   overflow: hidden;
 }
 
+.dashboard-layout.subpage-layout {
+  height: auto;
+  width: 100%;
+  display: block;
+  overflow: visible;
+}
+
 /* --- SIDEBAR --- */
 .sidebar-container {
   width: 250px;
