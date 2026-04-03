@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import YearView from '../../components/notes/YearView';
 import UploadNoteForm from '../../components/notes/UploadNoteForm';
+import './Notes.css';
 
 /**
  * NotesPage — switches between YearView and UploadNoteForm.

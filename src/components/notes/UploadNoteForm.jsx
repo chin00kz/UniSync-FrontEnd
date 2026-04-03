@@ -42,7 +42,7 @@ export default function UploadNoteForm({ subjects, currentUser, onSubmit, onCanc
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setFormError('');
     setSuccess('');
@@ -65,33 +65,38 @@ export default function UploadNoteForm({ subjects, currentUser, onSubmit, onCanc
       return;
     }
 
-    const newNote = {
-      id: Date.now(),
-      title: title.trim(),
-      subjectCode,
-      year: academicYear,
-      rating: 0,
-      fileName: file.name,
-      isReported: false,
-      reportReason: null,
-      reportedBy: null,
-      reportedAt: null,
-      uploadedBy: currentUser,
-      uploadedAt: new Date().toISOString(),
-    };
+    const formData = new FormData();
+    formData.append('title', title.trim());
+    formData.append('subjectCode', subjectCode);
+    formData.append('year', academicYear);
+    formData.append('uploadedBy', currentUser);
+    formData.append('fileName', file.name);
+    formData.append('file', file);
 
-    onSubmit(newNote);
-    setSuccess(`"${file.name}" uploaded successfully!`);
+    try {
+      const response = await fetch('/api/notes', {
+        method: 'POST',
+        body: formData,
+      });
 
-    // Reset form after short delay
-    setTimeout(() => {
-      setTitle('');
-      setAcademicYear('');
-      setSubjectCode('');
-      setFile(null);
-      setSuccess('');
-      onCancel();
-    }, 1500);
+      if (!response.ok) {
+        const data = await response.json();
+        setFormError(data.error || 'Upload failed');
+        return;
+      }
+
+      setSuccess(`"${file.name}" uploaded successfully!`);
+      setTimeout(() => {
+        setTitle('');
+        setAcademicYear('');
+        setSubjectCode('');
+        setFile(null);
+        setSuccess('');
+        onCancel();
+      }, 1500);
+    } catch (err) {
+      setFormError('Network error');
+    }
   };
 
   return (
