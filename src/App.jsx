@@ -39,15 +39,28 @@ function App() {
     };
   });
 
-  const [notes, setNotes] = useState(() => {
-    const saved = localStorage.getItem('uniSyncNotes');
-    return saved ? JSON.parse(saved) : [
-      { id: 1, title: "Algorithms Week 1 Revision", subjectCode: "IT3040", year: "Year 3", rating: 4.5, uploadedBy: "it210055", uploadedAt: new Date().toISOString() },
-      { id: 2, title: "Java OOP Mini Guide", subjectCode: "IT2010", year: "Year 2", rating: 5, uploadedBy: "it210122", uploadedAt: new Date().toISOString() },
-      { id: 3, title: "DBMS SQL Cheat Sheet", subjectCode: "IT2020", year: "Year 2", rating: 3.5, uploadedBy: "it210033", uploadedAt: new Date().toISOString() },
-      { id: 4, title: "Intro to Python Bits", subjectCode: "IT1010", year: "Year 1", rating: 4, uploadedBy: "it220555", uploadedAt: new Date().toISOString() }
-    ];
-  });
+  const [notes, setNotes] = useState([]);
+
+  // Fetch notes from backend on mount
+  useEffect(() => {
+    const fetchNotes = async () => {
+      try {
+        const response = await fetch('/api/notes');
+        const result = await response.json();
+        if (result.success && Array.isArray(result.data)) {
+          // Map backend notes to frontend format if needed
+          setNotes(result.data.map(n => ({
+            ...n,
+            id: n._id || n.id,
+            uploadedAt: n.createdAt,
+          })));
+        }
+      } catch (err) {
+        console.error('Failed to fetch notes:', err);
+      }
+    };
+    fetchNotes();
+  }, []);
 
   const [reportHistory, setReportHistory] = useState(() => {
     const saved = localStorage.getItem('uniSyncReportHistory');
@@ -122,12 +135,27 @@ function App() {
     }
   };
 
-  const handleAddSubject = (year, code, name) => {
-    setSubjects(prev => {
-      const existing = prev[year] || [];
-      return { ...prev, [year]: [...existing, { code, name }] };
+  const handleAddSubject = async (year, code, name) => {
+  try {
+    const response = await fetch("http://localhost:5000/api/subjects", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ year, code, name }),
     });
-  };
+    const result = await response.json();
+    if (result.success) {
+      // Optionally update local state or refetch subjects
+      setSubjects(prev => {
+        const existing = prev[year] || [];
+        return { ...prev, [year]: [...existing, { code, name }] };
+      });
+    } else {
+      alert(result.error || "Failed to add subject");
+    }
+  } catch (err) {
+    alert("Error adding subject: " + err.message);
+  }
+};
 
   if (isLoadingSettings) {
     return (
@@ -137,8 +165,10 @@ function App() {
     );
   }
 
-  // Determine if the current user is an admin
-  const isAdmin = user && ['admin', 'superadmin', 'moderator'].includes(user.role);
+  // Role checking helpers
+  const isAdmin = user && ['admin', 'superadmin'].includes(user.role);
+  const isModerator = user?.role === 'moderator';
+  const canAccessDashboard = isAdmin || isModerator;
 
   // If maintenance mode is ON, and user is NOT an admin, intercept
   if (isMaintenanceMode && !isAdmin) {

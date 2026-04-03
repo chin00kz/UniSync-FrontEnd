@@ -23,6 +23,25 @@ export default function NoteCard({ note, onDelete, onReport, onRate, role, curre
     }
   };
 
+  // Download file from backend
+  const handleDownload = async () => {
+    try {
+      const res = await fetch(`/api/notes/${note.id}/download`);
+      if (!res.ok) throw new Error('Download failed');
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = note.fileName || note.title || 'note-file';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      alert('Failed to download file.');
+    }
+  };
+
   return (
     <div className="note-card" style={{ padding: '0', overflow: 'hidden', backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-nav)', boxShadow: 'var(--shadow-card)' }}>
       {/* Subtle Color Header */}
@@ -48,7 +67,7 @@ export default function NoteCard({ note, onDelete, onReport, onRate, role, curre
         <div className="note-actions" style={{ marginTop: 'auto' }}>
           <button
             className="btn-download"
-            onClick={() => alert(`Downloading "${note.fileName || note.title}"…`)}
+            onClick={handleDownload}
           >
             Download
           </button>
