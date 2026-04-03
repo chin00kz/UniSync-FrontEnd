@@ -137,8 +137,10 @@ function App() {
     );
   }
 
-  // Determine if the current user is an admin
-  const isAdmin = user && ['admin', 'superadmin', 'moderator'].includes(user.role);
+  // Role checking helpers
+  const isAdmin = user && ['admin', 'superadmin'].includes(user.role);
+  const isModerator = user?.role === 'moderator';
+  const canAccessDashboard = isAdmin || isModerator;
 
   // If maintenance mode is ON, and user is NOT an admin, intercept
   if (isMaintenanceMode && !isAdmin) {
