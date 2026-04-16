@@ -72,6 +72,11 @@ function App() {
     const savedUser = JSON.parse(localStorage.getItem("user") || "null");
     setUser(savedUser);
 
+    // Clean up large data from localStorage once (to fix quota issues)
+    if (localStorage.getItem('uniSyncNotes')) {
+      localStorage.removeItem('uniSyncNotes');
+    }
+
     // Fetch live system settings
     const fetchSettings = async () => {
       try {
@@ -109,7 +114,7 @@ function App() {
   // Sync state to localStorage
   useEffect(() => {
     localStorage.setItem('uniSyncSubjects', JSON.stringify(subjects));
-    localStorage.setItem('uniSyncNotes', JSON.stringify(notes));
+    // localStorage.setItem('uniSyncNotes', JSON.stringify(notes)); // REMOVED: Caused QuotaExceededError due to large binary data
     localStorage.setItem('uniSyncReportHistory', JSON.stringify(reportHistory));
   }, [subjects, notes, reportHistory]);
 
@@ -136,26 +141,26 @@ function App() {
   };
 
   const handleAddSubject = async (year, code, name) => {
-  try {
-    const response = await fetch("http://localhost:5000/api/subjects", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ year, code, name }),
-    });
-    const result = await response.json();
-    if (result.success) {
-      // Optionally update local state or refetch subjects
-      setSubjects(prev => {
-        const existing = prev[year] || [];
-        return { ...prev, [year]: [...existing, { code, name }] };
+    try {
+      const response = await fetch("http://localhost:5000/api/subjects", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ year, code, name }),
       });
-    } else {
-      alert(result.error || "Failed to add subject");
+      const result = await response.json();
+      if (result.success) {
+        // Optionally update local state or refetch subjects
+        setSubjects(prev => {
+          const existing = prev[year] || [];
+          return { ...prev, [year]: [...existing, { code, name }] };
+        });
+      } else {
+        alert(result.error || "Failed to add subject");
+      }
+    } catch (err) {
+      alert("Error adding subject: " + err.message);
     }
-  } catch (err) {
-    alert("Error adding subject: " + err.message);
-  }
-};
+  };
 
   if (isLoadingSettings) {
     return (
