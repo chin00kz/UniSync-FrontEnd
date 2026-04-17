@@ -1,5 +1,21 @@
 /* Notes.css — Shared styles for Notes feature */
 
+:root {
+  --primary-gradient: linear-gradient(135deg, #3b82f6 0%, #ec4899 100%);
+  --primary-blue: #3b82f6;
+  --text-main: #111827;
+  --text-muted: #6b7280;
+  --text-inactive: #9ca3af;
+  --border-nav: #e5e7eb;
+  --border-light: #f3f4f6;
+  --bg-main: #f9fafb;
+  --bg-card: #ffffff;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --radius-pill: 9999px;
+  --sans: 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
+}
+
 /* --- PAGE LAYOUT --- */
 .year-dashboard {
   padding: 24px 32px;

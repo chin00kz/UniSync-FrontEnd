@@ -72,6 +72,11 @@ function App() {
     const savedUser = JSON.parse(localStorage.getItem("user") || "null");
     setUser(savedUser);
 
+    // Clean up large data from localStorage once (to fix quota issues)
+    if (localStorage.getItem('uniSyncNotes')) {
+      localStorage.removeItem('uniSyncNotes');
+    }
+
     // Fetch live system settings
     const fetchSettings = async () => {
       try {
@@ -109,7 +114,7 @@ function App() {
   // Sync state to localStorage
   useEffect(() => {
     localStorage.setItem('uniSyncSubjects', JSON.stringify(subjects));
-    localStorage.setItem('uniSyncNotes', JSON.stringify(notes));
+    // localStorage.setItem('uniSyncNotes', JSON.stringify(notes)); // REMOVED: Caused QuotaExceededError due to large binary data
     localStorage.setItem('uniSyncReportHistory', JSON.stringify(reportHistory));
   }, [subjects, notes, reportHistory]);
 
