@@ -141,26 +141,26 @@ function App() {
   };
 
   const handleAddSubject = async (year, code, name) => {
-  try {
-    const response = await fetch("http://localhost:5000/api/subjects", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ year, code, name }),
-    });
-    const result = await response.json();
-    if (result.success) {
-      // Optionally update local state or refetch subjects
-      setSubjects(prev => {
-        const existing = prev[year] || [];
-        return { ...prev, [year]: [...existing, { code, name }] };
+    try {
+      const response = await fetch("http://localhost:5000/api/subjects", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ year, code, name }),
       });
-    } else {
-      alert(result.error || "Failed to add subject");
+      const result = await response.json();
+      if (result.success) {
+        // Optionally update local state or refetch subjects
+        setSubjects(prev => {
+          const existing = prev[year] || [];
+          return { ...prev, [year]: [...existing, { code, name }] };
+        });
+      } else {
+        alert(result.error || "Failed to add subject");
+      }
+    } catch (err) {
+      alert("Error adding subject: " + err.message);
     }
-  } catch (err) {
-    alert("Error adding subject: " + err.message);
-  }
-};
+  };
 
   if (isLoadingSettings) {
     return (

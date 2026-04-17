@@ -73,13 +73,17 @@ export default function ProtectedRoute({ children }) {
     return <Navigate to="/tutor/dashboard" replace />
   }
 
+  if (user.role === "moderator" && path.startsWith("/tutor")) {
+    return <Navigate to="/dashboard" replace />
+  }
+
   if (user.role === "student" && (path.startsWith("/dashboard") || path.startsWith("/tutor"))) {
     return <Navigate to="/student/dashboard" replace />
   }
 
-  if ((user.role === "admin" || user.role === "superadmin") && path.startsWith("/tutor")) {
-    // Admins are naturally allowed to see everything, but let's keep them in the admin dashboard by default
-    // or just let them stay if they explicitly went there.
+  if (["admin", "superadmin", "moderator"].includes(user.role) && path.startsWith("/tutor")) {
+    // Admins and Moderators stay in Admin Dashboard areas usually
+    return <Navigate to="/dashboard" replace />
   }
 
   return children

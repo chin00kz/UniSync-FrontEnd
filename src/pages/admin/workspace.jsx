@@ -18,6 +18,7 @@ import { Separator } from "@/components/ui/separator"
 import { AppSidebar } from "@/components/app-sidebar"
 
 import DashboardPage from "./dashboard"
+import ModeratorDashboard from "./moderator-dashboard"
 import AdminManagementPage from "./admin-management"
 import UserManagementPage from "./user-management"
 import ReportsPage from "./reports"
@@ -48,83 +49,118 @@ export default function AdminWorkspace({
     setCurrentPage(initialPage)
   }, [initialPage])
 
-  const adminNav = [
-    {
-      title: "Overview",
-      url: "/dashboard",
-      icon: <PieChartIcon className="size-4" />,
-    },
-    {
-      title: "Content Management",
-      url: "#",
-      icon: <BookOpenIcon className="size-4" />,
-      items: [
+  const isModerator = user?.role === 'moderator'
+  
+  const getFilteredNav = () => {
+    if (isModerator) {
+      return [
         {
-          title: "Notes",
-          url: "/dashboard/notes",
+          title: "Overview",
+          url: "/dashboard",
+          icon: <PieChartIcon className="size-4" />,
         },
         {
-          title: "Sessions",
-          url: "/dashboard/sessions",
-        },
-      ],
-    },
-    {
-      title: "User Control",
-      url: "#",
-      icon: <Settings2Icon className="size-4" />,
-      items: [
-        {
-          title: "Student/Staff",
-          url: "/dashboard/users",
-        },
-        {
-          title: "Administrators",
-          url: "/dashboard/admins",
-        },
-      ],
-    },
-    {
-      title: "Moderation",
-      url: "#",
-      icon: <ShieldAlertIcon className="size-4" />,
-      items: [
-        {
-          title: "Reports Queue",
-          url: "/dashboard/reports",
+          title: "Content Management",
+          url: "#",
+          icon: <BookOpenIcon className="size-4" />,
+          items: [
+            {
+              title: "Notes",
+              url: "/dashboard/notes",
+            },
+            {
+              title: "Sessions",
+              url: "/dashboard/sessions",
+            },
+          ],
         },
         {
-          title: "Banned Users",
-          url: "/dashboard/bans",
+          title: "Account",
+          url: "/dashboard/account",
+          icon: <UserIcon className="size-4" />,
         },
-      ],
-    },
-    {
-      title: "System Logs",
-      url: "#",
-      icon: <HistoryIcon className="size-4" />,
-      items: [
-        {
-          title: "Audit Journal",
-          url: "/dashboard/audit-logs",
-        },
-      ],
-    },
-    {
-      title: "Administration",
-      url: "/dashboard/settings",
-      icon: <SettingsIcon className="size-4" />,
-    },
-    {
-      title: "Account",
-      url: "/dashboard/account",
-      icon: <UserIcon className="size-4" />,
-    },
-  ]
+      ]
+    }
+    
+    // Default Admin Nav
+    return [
+      {
+        title: "Overview",
+        url: "/dashboard",
+        icon: <PieChartIcon className="size-4" />,
+      },
+      {
+        title: "Content Management",
+        url: "#",
+        icon: <BookOpenIcon className="size-4" />,
+        items: [
+          {
+            title: "Notes",
+            url: "/dashboard/notes",
+          },
+          {
+            title: "Sessions",
+            url: "/dashboard/sessions",
+          },
+        ],
+      },
+      {
+        title: "User Control",
+        url: "#",
+        icon: <Settings2Icon className="size-4" />,
+        items: [
+          {
+            title: "Student/Staff",
+            url: "/dashboard/users",
+          },
+          {
+            title: "Administrators",
+            url: "/dashboard/admins",
+          },
+        ],
+      },
+      {
+        title: "Moderation",
+        url: "#",
+        icon: <ShieldAlertIcon className="size-4" />,
+        items: [
+          {
+            title: "Reports Queue",
+            url: "/dashboard/reports",
+          },
+          {
+            title: "Banned Users",
+            url: "/dashboard/bans",
+          },
+        ],
+      },
+      {
+        title: "System Logs",
+        url: "#",
+        icon: <HistoryIcon className="size-4" />,
+        items: [
+          {
+            title: "Audit Journal",
+            url: "/dashboard/audit-logs",
+          },
+        ],
+      },
+      {
+        title: "Administration",
+        url: "/dashboard/settings",
+        icon: <SettingsIcon className="size-4" />,
+      },
+      {
+        title: "Account",
+        url: "/dashboard/account",
+        icon: <UserIcon className="size-4" />,
+      },
+    ]
+  }
 
   const getPageTitle = () => {
     switch (currentPage) {
-      case "dashboard": return "Global Dashboard";
+      case "dashboard": return isModerator ? "Moderator Dashboard" : "Global Dashboard";
       case "admins": return "Admin Management";
       case "notes": return "Notes Management";
       case "add-subject": return "Add Subject";
@@ -135,13 +171,15 @@ export default function AdminWorkspace({
       case "bans": return "Banned Accounts";
       case "account": return "Account Settings";
       case "settings": return "Administration";
-      default: return "Admin Portal";
+      default: return isModerator ? "Moderator Portal" : "Admin Portal";
     }
   }
 
+  const navToUse = getFilteredNav()
+
   return (
     <SidebarProvider>
-      <AppSidebar navMain={adminNav} portalName="Admin Portal" />
+      <AppSidebar navMain={navToUse} portalName={isModerator ? "Moderator Portal" : "Admin Portal"} />
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center gap-2 border-b px-6">
           <SidebarTrigger className="-ml-1" />
@@ -156,8 +194,10 @@ export default function AdminWorkspace({
         </header>
         <main className="flex-1 overflow-hidden bg-background">
           <div className="h-full">
-            {currentPage === "dashboard" && <DashboardPage isSubPage={true} user={user} />}
-            {currentPage === "admins" && <AdminManagementPage isSubPage={true} user={user} />}
+            {currentPage === "dashboard" && (
+              isModerator ? <ModeratorDashboard isSubPage={true} user={user} /> : <DashboardPage isSubPage={true} user={user} />
+            )}
+            {currentPage === "admins" && !isModerator && <AdminManagementPage isSubPage={true} user={user} />}
             {currentPage === "add-subject" && <AddSubject isSubPage={true} user={user} subjects={subjects} onAddSubject={onAddSubject} />}
             {currentPage === "notes" && (
               <NotesPage 
@@ -176,12 +216,12 @@ export default function AdminWorkspace({
               />
             )}
             {currentPage === "sessions" && <SessionsPage isSubPage={true} user={user} />}
-            {currentPage === "users" && <UserManagementPage isSubPage={true} user={user} />}
-            {currentPage === "reports" && <ReportsPage isSubPage={true} user={user} />}
-            {currentPage === "audit-logs" && <AuditLogsPage isSubPage={true} user={user} />}
-            {currentPage === "bans" && <BannedUsersPage isSubPage={true} user={user} />}
+            {currentPage === "users" && !isModerator && <UserManagementPage isSubPage={true} user={user} />}
+            {currentPage === "reports" && !isModerator && <ReportsPage isSubPage={true} user={user} />}
+            {currentPage === "audit-logs" && !isModerator && <AuditLogsPage isSubPage={true} user={user} />}
+            {currentPage === "bans" && !isModerator && <BannedUsersPage isSubPage={true} user={user} />}
             {currentPage === "account" && <AccountPage isSubPage={true} user={user} />}
-            {currentPage === "settings" && <SettingsPage isSubPage={true} user={user} />}
+            {currentPage === "settings" && !isModerator && <SettingsPage isSubPage={true} user={user} />}
           </div>
         </main>
       </SidebarInset>
