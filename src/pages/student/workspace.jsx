@@ -112,7 +112,7 @@ export default function StudentWorkspace({
               />
             )}
             {currentPage === "tutors" && <PeerTutoringPage user={user} />}
-            {currentPage === "session-lobby" && <SessionLobby user={user} />}
+            {currentPage === "session-lobby" && <SessionLobby user={user} isSubPage={true} />}
             {currentPage === "live-lobby" && <LiveLobby user={user} />}
             {currentPage === "post" && <StudentPost onPostSuccess={() => { setCurrentPage("dashboard") }} user={user} />}
             {currentPage === "history" && <QuestionHistoryPage user={user} />}

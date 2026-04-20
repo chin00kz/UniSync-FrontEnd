@@ -9,6 +9,7 @@ import ProtectedRoute from "./components/protected-route"
 import MaintenancePage from "./pages/maintenance"
 import { Loader2 } from "lucide-react"
 import "./App.css"
+import { NotificationProvider } from "./context/NotificationContext"
 
 function App() {
   const [isMaintenanceMode, setIsMaintenanceMode] = useState(false);
@@ -188,41 +189,44 @@ function App() {
   }
 
   return (
-    <Router>
-      <Routes>
-        <Route path="/login" element={<LoginPage />} />
+    <NotificationProvider>
+      <Router>
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
 
-        {/* Admin Dashboard Routes */}
-        <Route path="/dashboard" element={<ProtectedRoute><AdminWorkspace initialPage="dashboard" user={user} notes={notes} subjects={subjects} onAddNote={handleAddNote} onDeleteNote={handleDeleteNote} onRateNote={handleRateNote} onReportNote={handleReportNote} onRemoveNote={handleAdminRemoveNote} onDismissReport={handleAdminDismissReport} onAddSubject={handleAddSubject} /></ProtectedRoute>} />
-        <Route path="/dashboard/admins" element={<ProtectedRoute><AdminWorkspace initialPage="admins" user={user} /></ProtectedRoute>} />
-        <Route path="/dashboard/users" element={<ProtectedRoute><AdminWorkspace initialPage="users" user={user} /></ProtectedRoute>} />
-        <Route path="/dashboard/reports" element={<ProtectedRoute><AdminWorkspace initialPage="reports" user={user} /></ProtectedRoute>} />
-        <Route path="/dashboard/audit-logs" element={<ProtectedRoute><AdminWorkspace initialPage="audit-logs" user={user} /></ProtectedRoute>} />
-        <Route path="/dashboard/bans" element={<ProtectedRoute><AdminWorkspace initialPage="bans" user={user} /></ProtectedRoute>} />
-        <Route path="/dashboard/account" element={<ProtectedRoute><AdminWorkspace initialPage="account" user={user} /></ProtectedRoute>} />
-        <Route path="/dashboard/notes" element={<ProtectedRoute><AdminWorkspace initialPage="notes" user={user} notes={notes} subjects={subjects} onAddNote={handleAddNote} onDeleteNote={handleDeleteNote} onRateNote={handleRateNote} onReportNote={handleReportNote} onRemoveNote={handleAdminRemoveNote} onDismissReport={handleAdminDismissReport} onAddSubject={handleAddSubject} /></ProtectedRoute>} />
-        <Route path="/dashboard/sessions" element={<ProtectedRoute><AdminWorkspace initialPage="sessions" user={user} /></ProtectedRoute>} />
-        <Route path="/dashboard/settings" element={<ProtectedRoute><AdminWorkspace initialPage="settings" user={user} /></ProtectedRoute>} />
-        <Route path="/dashboard/add-subject" element={<ProtectedRoute><AdminWorkspace initialPage="add-subject" user={user} subjects={subjects} onAddSubject={handleAddSubject} /></ProtectedRoute>} />
+          {/* Admin Dashboard Routes */}
+          <Route path="/dashboard" element={<ProtectedRoute><AdminWorkspace initialPage="dashboard" user={user} notes={notes} subjects={subjects} onAddNote={handleAddNote} onDeleteNote={handleDeleteNote} onRateNote={handleRateNote} onReportNote={handleReportNote} onRemoveNote={handleAdminRemoveNote} onDismissReport={handleAdminDismissReport} onAddSubject={handleAddSubject} /></ProtectedRoute>} />
+          <Route path="/dashboard/admins" element={<ProtectedRoute><AdminWorkspace initialPage="admins" user={user} /></ProtectedRoute>} />
+          <Route path="/dashboard/users" element={<ProtectedRoute><AdminWorkspace initialPage="users" user={user} /></ProtectedRoute>} />
+          <Route path="/dashboard/reports" element={<ProtectedRoute><AdminWorkspace initialPage="reports" user={user} /></ProtectedRoute>} />
+          <Route path="/dashboard/audit-logs" element={<ProtectedRoute><AdminWorkspace initialPage="audit-logs" user={user} /></ProtectedRoute>} />
+          <Route path="/dashboard/bans" element={<ProtectedRoute><AdminWorkspace initialPage="bans" user={user} /></ProtectedRoute>} />
+          <Route path="/dashboard/account" element={<ProtectedRoute><AdminWorkspace initialPage="account" user={user} /></ProtectedRoute>} />
+          <Route path="/dashboard/notes" element={<ProtectedRoute><AdminWorkspace initialPage="notes" user={user} notes={notes} subjects={subjects} onAddNote={handleAddNote} onDeleteNote={handleDeleteNote} onRateNote={handleRateNote} onReportNote={handleReportNote} onRemoveNote={handleAdminRemoveNote} onDismissReport={handleAdminDismissReport} onAddSubject={handleAddSubject} /></ProtectedRoute>} />
+          <Route path="/dashboard/sessions" element={<ProtectedRoute><AdminWorkspace initialPage="sessions" user={user} /></ProtectedRoute>} />
+          <Route path="/dashboard/live-lobby" element={<ProtectedRoute><AdminWorkspace initialPage="live-lobby" user={user} /></ProtectedRoute>} />
+          <Route path="/dashboard/settings" element={<ProtectedRoute><AdminWorkspace initialPage="settings" user={user} /></ProtectedRoute>} />
+          <Route path="/dashboard/add-subject" element={<ProtectedRoute><AdminWorkspace initialPage="add-subject" user={user} subjects={subjects} onAddSubject={handleAddSubject} /></ProtectedRoute>} />
 
-        <Route path="/tutor" element={<ProtectedRoute><TutorWorkspace user={user} /></ProtectedRoute>} />
-        <Route path="/tutor/dashboard" element={<ProtectedRoute><TutorWorkspace initialPage="dashboard" user={user} /></ProtectedRoute>} />
-        <Route path="/tutor/bookings" element={<ProtectedRoute><TutorWorkspace initialPage="bookings" user={user} /></ProtectedRoute>} />
-        <Route path="/tutor/sessionreview" element={<ProtectedRoute><TutorWorkspace initialPage="review" user={user} /></ProtectedRoute>} />
-        <Route path="/tutor/account" element={<ProtectedRoute><TutorWorkspace initialPage="account" user={user} /></ProtectedRoute>} />
-        <Route path="/student" element={<ProtectedRoute><StudentWorkspace user={user} notes={notes} subjects={subjects} onAddNote={handleAddNote} onDeleteNote={handleDeleteNote} onRateNote={handleRateNote} onReportNote={handleReportNote} /></ProtectedRoute>} />
-        <Route path="/student/dashboard" element={<ProtectedRoute><StudentWorkspace initialPage="dashboard" user={user} /></ProtectedRoute>} />
-        <Route path="/student/notes" element={<ProtectedRoute><StudentWorkspace initialPage="notes" user={user} notes={notes} subjects={subjects} onAddNote={handleAddNote} onDeleteNote={handleDeleteNote} onRateNote={handleRateNote} onReportNote={handleReportNote} /></ProtectedRoute>} />
-        <Route path="/student/tutors" element={<ProtectedRoute><StudentWorkspace initialPage="tutors" user={user} /></ProtectedRoute>} />
-        <Route path="/student/session-lobby" element={<ProtectedRoute><StudentWorkspace initialPage="session-lobby" user={user} /></ProtectedRoute>} />
-        <Route path="/student/live-lobby" element={<ProtectedRoute><StudentWorkspace initialPage="live-lobby" user={user} /></ProtectedRoute>} />
-        <Route path="/student/post" element={<ProtectedRoute><StudentWorkspace initialPage="post" user={user} /></ProtectedRoute>} />
-        <Route path="/student/history" element={<ProtectedRoute><StudentWorkspace initialPage="history" user={user} /></ProtectedRoute>} />
-        <Route path="/student/account" element={<ProtectedRoute><StudentWorkspace initialPage="account" user={user} /></ProtectedRoute>} />
+          <Route path="/tutor" element={<ProtectedRoute><TutorWorkspace user={user} /></ProtectedRoute>} />
+          <Route path="/tutor/dashboard" element={<ProtectedRoute><TutorWorkspace initialPage="dashboard" user={user} /></ProtectedRoute>} />
+          <Route path="/tutor/bookings" element={<ProtectedRoute><TutorWorkspace initialPage="bookings" user={user} /></ProtectedRoute>} />
+          <Route path="/tutor/sessionreview" element={<ProtectedRoute><TutorWorkspace initialPage="review" user={user} /></ProtectedRoute>} />
+          <Route path="/tutor/account" element={<ProtectedRoute><TutorWorkspace initialPage="account" user={user} /></ProtectedRoute>} />
+          <Route path="/student" element={<ProtectedRoute><StudentWorkspace user={user} notes={notes} subjects={subjects} onAddNote={handleAddNote} onDeleteNote={handleDeleteNote} onRateNote={handleRateNote} onReportNote={handleReportNote} /></ProtectedRoute>} />
+          <Route path="/student/dashboard" element={<ProtectedRoute><StudentWorkspace initialPage="dashboard" user={user} /></ProtectedRoute>} />
+          <Route path="/student/notes" element={<ProtectedRoute><StudentWorkspace initialPage="notes" user={user} notes={notes} subjects={subjects} onAddNote={handleAddNote} onDeleteNote={handleDeleteNote} onRateNote={handleRateNote} onReportNote={handleReportNote} /></ProtectedRoute>} />
+          <Route path="/student/tutors" element={<ProtectedRoute><StudentWorkspace initialPage="tutors" user={user} /></ProtectedRoute>} />
+          <Route path="/student/session-lobby" element={<ProtectedRoute><StudentWorkspace initialPage="session-lobby" user={user} /></ProtectedRoute>} />
+          <Route path="/student/live-lobby" element={<ProtectedRoute><StudentWorkspace initialPage="live-lobby" user={user} /></ProtectedRoute>} />
+          <Route path="/student/post" element={<ProtectedRoute><StudentWorkspace initialPage="post" user={user} /></ProtectedRoute>} />
+          <Route path="/student/history" element={<ProtectedRoute><StudentWorkspace initialPage="history" user={user} /></ProtectedRoute>} />
+          <Route path="/student/account" element={<ProtectedRoute><StudentWorkspace initialPage="account" user={user} /></ProtectedRoute>} />
 
-        <Route path="*" element={<Navigate to="/login" replace />} />
-      </Routes>
-    </Router>
+          <Route path="*" element={<Navigate to="/login" replace />} />
+        </Routes>
+      </Router>
+    </NotificationProvider>
   )
 }
 

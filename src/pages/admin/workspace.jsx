@@ -29,6 +29,7 @@ import SettingsPage from "./settings"
 import AddSubject from "./AddSubject"
 import NotesPage from "../student/NotesPage"
 import SessionsPage from "../student/SessionLobby"
+import LiveLobby from "./LiveLobby"
 
 export default function AdminWorkspace({ 
   initialPage = "dashboard", 
@@ -165,6 +166,7 @@ export default function AdminWorkspace({
       case "notes": return "Notes Management";
       case "add-subject": return "Add Subject";
       case "sessions": return "Sessions Management";
+      case "live-lobby": return "Live Session Lobby";
       case "users": return "User Management";
       case "reports": return "Moderation Reports";
       case "audit-logs": return "System Audit Logs";
@@ -216,6 +218,7 @@ export default function AdminWorkspace({
               />
             )}
             {currentPage === "sessions" && <SessionsPage isSubPage={true} user={user} />}
+            {currentPage === "live-lobby" && <LiveLobby user={user} />}
             {currentPage === "users" && !isModerator && <UserManagementPage isSubPage={true} user={user} />}
             {currentPage === "reports" && !isModerator && <ReportsPage isSubPage={true} user={user} />}
             {currentPage === "audit-logs" && !isModerator && <AuditLogsPage isSubPage={true} user={user} />}
