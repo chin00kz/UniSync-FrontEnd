@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react"
-import { 
-  SettingsIcon, 
-  ShieldAlertIcon, 
-  UsersIcon, 
-  HistoryIcon, 
+import {
+  SettingsIcon,
+  ShieldAlertIcon,
+  UsersIcon,
+  HistoryIcon,
   FileTextIcon,
   ShieldIcon,
   SearchIcon,
@@ -22,7 +22,7 @@ export default function BannedUsersPage({ isSubPage = false, user }) {
   const [isMaintenanceMode, setIsMaintenanceMode] = useState(false)
   const [isTogglingMaintenance, setIsTogglingMaintenance] = useState(false)
   const [isGeneratingReport, setIsGeneratingReport] = useState(false)
-  
+
   const [isDarkTheme, setIsDarkTheme] = useState(false)
   const [isTogglingTheme, setIsTogglingTheme] = useState(false)
 
@@ -220,8 +220,8 @@ export default function BannedUsersPage({ isSubPage = false, user }) {
     }
   ];
 
-  const filteredSettings = systemSettings.filter(setting => 
-    setting.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+  const filteredSettings = systemSettings.filter(setting =>
+    setting.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     setting.description.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
@@ -244,12 +244,12 @@ export default function BannedUsersPage({ isSubPage = false, user }) {
           <p className="text-sm text-muted-foreground mt-0.5">{item.description}</p>
         </div>
       </div>
-      
+
       {item.action && (
-        <Button 
-          variant="outline" 
-          size="sm" 
-          onClick={item.action} 
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={item.action}
           disabled={item.isLoading}
           className="ml-4 w-28 border-border hover:bg-slate-100 hidden sm:flex dark:text-foreground"
         >
@@ -274,7 +274,7 @@ export default function BannedUsersPage({ isSubPage = false, user }) {
           <div />
         </div>
       )}
-      
+
       <main className="flex-1 overflow-auto p-6 lg:p-10 bg-background">
         <div className="mx-auto max-w-4xl space-y-6">
           <div className="flex flex-col gap-1">

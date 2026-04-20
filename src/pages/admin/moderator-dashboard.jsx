@@ -40,8 +40,8 @@ export default function ModeratorDashboard({ isSubPage = false, user }) {
       
       if (result.success) {
         setStats({
-          totalNotes: 24, // Mocked for now as stats endpoint doesn't return notes count yet
-          activeSessions: 12, // Mocked
+          totalNotes: result.data.counts.notes || 0,
+          activeSessions: result.data.counts.sessions || 0,
           recentActivity: result.data.recentActivity || []
         })
       }
