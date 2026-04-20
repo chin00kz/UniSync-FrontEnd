@@ -1,37 +1,54 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useNotification } from '../../context/NotificationContext';
 import './SessionLobby.css';
 
 function SessionLobby({ user, isSubPage = false }) {
   const navigate = useNavigate();
+  const { showToast, confirm } = useNotification();
   const [currentUserObj, setCurrentUserObj] = useState(user || null);
 
   useEffect(() => {
     if (user) {
       setCurrentUserObj(user);
-      return;
-    }
-
-    const userStr = localStorage.getItem('user');
-    if (!userStr) {
-      navigate('/login');
     } else {
-      setCurrentUserObj(JSON.parse(userStr));
+      const userStr = localStorage.getItem('user');
+      if (!userStr) {
+        navigate('/login');
+      } else {
+        setCurrentUserObj(JSON.parse(userStr));
+      }
     }
   }, [navigate, user]);
 
-  // Existing Logic States
-  const [lobbies, setLobbies] = useState([
-    { id: 1, ownerId: 'A1', name: 'Software Engineering Revision', type: 'Public', maxParticipants: 10, privateCode: null },
-    { id: 2, ownerId: 'A1', name: 'Math Quiz Group', type: 'Public', maxParticipants: 5, privateCode: null },
-    { id: 3, ownerId: 'S2', name: 'UI/UX Mockup Brainstorm', type: 'Private', maxParticipants: 4, privateCode: 'UXS321' }
-  ]);
+  const fetchLobbies = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch('http://localhost:5000/api/lobbies');
+      const data = await response.json();
+      if (data.success) {
+        setLobbies(data.data);
+      }
+    } catch (err) {
+      console.error('Error fetching lobbies:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchLobbies();
+  }, []);
+
+  // Persistent Logic States
+  const [lobbies, setLobbies] = useState([]);
   const [formData, setFormData] = useState({
     lobbyName: '',
     lobbyType: 'Public',
     maxParticipants: 2,
   });
 
+  const [isLoading, setIsLoading] = useState(true);
   const [privateCode, setPrivateCode] = useState('');
   const [error, setError] = useState('');
 
@@ -60,7 +77,7 @@ function SessionLobby({ user, isSubPage = false }) {
     setError('');
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const { lobbyName, lobbyType, maxParticipants } = formData;
 
@@ -69,31 +86,37 @@ function SessionLobby({ user, isSubPage = false }) {
       return;
     }
 
-    const newLobby = {
-      id: lobbies.length + 1,
-      ownerId: currentUserObj?.id,
-      name: lobbyName,
-      type: lobbyType,
-      maxParticipants,
-      privateCode: lobbyType === 'Private' ? generatePrivateCode() : null,
-    };
+    try {
+      const newPrivateCode = lobbyType === 'Private' ? generatePrivateCode() : null;
+      const response = await fetch('http://localhost:5000/api/lobbies', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: lobbyName,
+          type: lobbyType,
+          maxParticipants,
+          privateCode: newPrivateCode,
+          ownerId: currentUserObj?.id || currentUserObj?._id,
+          ownerName: currentUserObj?.name
+        })
+      });
 
-    setLobbies((prev) => [...prev, newLobby]);
-    setPrivateCode(newLobby.privateCode || '');
-    setFormData({ lobbyName: '', lobbyType: 'Public', maxParticipants: 2 });
-    setError('');
+      const data = await response.json();
+      if (data.success) {
+        setLobbies((prev) => [data.data, ...prev]);
+        setPrivateCode(newPrivateCode || '');
+        setFormData({ lobbyName: '', lobbyType: 'Public', maxParticipants: 2 });
+        setError('');
+        
+        // Show success alert and let user see the list update before joining
+        showToast('Lobby created successfully! You can now join it from the list.', 'success');
+      }
+    } catch (err) {
+      console.error('Error creating lobby:', err);
+      setError('Failed to create lobby. Please try again.');
+    }
   };
 
-  const populateDummyData = () => {
-    const types = ['Public', 'Private'];
-    const randomType = types[Math.floor(Math.random() * types.length)];
-    const names = ['Pre-Exam Study Group', 'DSA Algorithm Practice', 'React UI Planning', 'Late Night Cram Session'];
-    const randomName = names[Math.floor(Math.random() * names.length)];
-    const randomLimit = Math.floor(Math.random() * 9) + 2;
-
-    setFormData({ lobbyName: randomName, lobbyType: randomType, maxParticipants: randomLimit });
-    setError('');
-  };
 
   const handleJoinClick = (lobby) => {
     setSelectedLobby(lobby);
@@ -107,36 +130,56 @@ function SessionLobby({ user, isSubPage = false }) {
 
   const handleJoinSubmit = () => {
     if (!selectedLobby) return;
-    const joinMessageSuffix = `\n(Audio: ${muteAudio ? 'Off' : 'On'}, Mic: ${muteMic ? 'Off' : 'On'}, Video: ${muteVideo ? 'Off' : 'On'})`;
+    const isAdmin = currentUserObj && ['admin', 'superadmin', 'moderator'].includes(currentUserObj.role);
+    const targetPath = isAdmin ? '/dashboard/live-lobby' : '/student/live-lobby';
 
     if (selectedLobby.type === 'Private') {
       if (enteredCode.toUpperCase() === selectedLobby.privateCode) {
-        alert(`Access Granted! Joined Private Lobby: ${selectedLobby.name}${joinMessageSuffix}`);
         setJoinModalVisible(false);
+        navigate(targetPath, { state: { roomName: selectedLobby.name, inviteCode: selectedLobby.privateCode } });
       } else {
         setJoinError('Invalid Invite Code. Please try again.');
       }
     } else {
-      alert(`Successfully joined Public Lobby: ${selectedLobby.name}${joinMessageSuffix}`);
       setJoinModalVisible(false);
+      navigate(targetPath, { state: { roomName: selectedLobby.name } });
     }
   };
 
   const handleShareLink = (lobbyId) => {
     const mockLink = `http://localhost:5173/lobby/${lobbyId}`;
     navigator.clipboard.writeText(mockLink);
-    alert(`Lobby Link copied to clipboard!\n${mockLink}`);
+    showToast('Lobby Link copied to clipboard!', 'success');
   };
 
-  const handleDeleteLobby = (lobbyId) => {
-    if (window.confirm("Are you sure you want to delete this lobby?")) {
-      setLobbies((prev) => prev.filter(l => l.id !== lobbyId));
+  const handleDeleteLobby = async (lobbyId) => {
+    const isAdminOrMod = ['admin', 'moderator'].includes(currentUserObj?.role);
+    const confirmMsg = isAdminOrMod ? "Are you sure you want to end this session?" : "Are you sure you want to delete this lobby?";
+    
+    if (await confirm({ 
+      title: isAdminOrMod ? 'End Session' : 'Delete Lobby', 
+      message: confirmMsg,
+      variant: 'destructive',
+      confirmText: isAdminOrMod ? 'End' : 'Delete'
+    })) {
+      try {
+        const response = await fetch(`http://localhost:5000/api/lobbies/${lobbyId}`, {
+          method: 'DELETE'
+        });
+        const data = await response.json();
+        if (data.success) {
+          setLobbies((prev) => prev.filter(l => (l._id || l.id) !== lobbyId));
+        }
+      } catch (err) {
+        console.error('Error deleting lobby:', err);
+        showToast('Failed to delete lobby. Please try again.', 'error');
+      }
     }
   };
 
   const handleEditLobbyClick = (lobby) => {
     setEditFormData({
-      id: lobby.id,
+      id: lobby._id || lobby.id,
       lobbyName: lobby.name,
       lobbyType: lobby.type,
       maxParticipants: lobby.maxParticipants
@@ -144,26 +187,43 @@ function SessionLobby({ user, isSubPage = false }) {
     setEditModalVisible(true);
   };
 
-  const handleEditSubmit = (e) => {
+  const handleEditSubmit = async (e) => {
     e.preventDefault();
     if (editFormData.maxParticipants < 2 || editFormData.maxParticipants > 10) {
-      alert('Max participants must be between 2 and 10.');
+      showToast('Max participants must be between 2 and 10.', 'warning');
       return;
     }
 
-    setLobbies(prev => prev.map(l => {
-      if (l.id === editFormData.id) {
-        return {
-          ...l,
+    try {
+      const response = await fetch(`http://localhost:5000/api/lobbies/${editFormData.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
           name: editFormData.lobbyName,
           type: editFormData.lobbyType,
-          maxParticipants: editFormData.maxParticipants,
-          privateCode: (editFormData.lobbyType === 'Private' && l.type !== 'Private') ? generatePrivateCode() : l.privateCode
-        };
+          maxParticipants: editFormData.maxParticipants
+        })
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setLobbies(prev => prev.map(l => {
+          const lId = l._id || l.id;
+          if (lId === editFormData.id) {
+            return result.data; // Return the updated lobby from backend
+          }
+          return l;
+        }));
+        setEditModalVisible(false);
+        showToast('Session updated successfully!', 'success');
+      } else {
+        showToast(result.error || 'Failed to update session.', 'error');
       }
-      return l;
-    }));
-    setEditModalVisible(false);
+    } catch (err) {
+      console.error('Error updating lobby:', err);
+      showToast('Network error while updating session.', 'error');
+    }
   };
 
   const handleLogout = () => {
@@ -251,7 +311,7 @@ function SessionLobby({ user, isSubPage = false }) {
           <div className="summary-cards">
             <div className="sum-card">
               <div className="sum-title">{isAdmin ? 'Total Active Lobbies' : 'My Created Lobbies'}</div>
-              <div className="sum-value">{isAdmin ? lobbies.length : lobbies.filter(l => l.ownerId === currentUserObj.id).length}</div>
+              <div className="sum-value">{isAdmin ? lobbies.length : lobbies.filter(l => l.ownerId === (currentUserObj?.id || currentUserObj?._id)).length}</div>
               <div className="sum-desc">{isAdmin ? 'Currently open for joining' : 'Lobbies controlled by you'}</div>
               <div className="sum-icon-bg">👥</div>
             </div>
@@ -294,9 +354,12 @@ function SessionLobby({ user, isSubPage = false }) {
                     </thead>
                     <tbody>
                       {lobbies.map((lobby) => {
-                        const canManage = currentUserObj.role === 'admin' || (currentUserObj.role === 'student' && lobby.ownerId === currentUserObj.id);
+                        const currentId = currentUserObj?.id || currentUserObj?._id;
+                        const isAdminOrMod = ['admin', 'moderator', 'superadmin'].includes(currentUserObj?.role);
+                        const canManage = isAdminOrMod || (currentUserObj?.role === 'student' && lobby.ownerId === currentId);
+                        const lobbyId = lobby._id || lobby.id;
                         return (
-                          <tr key={lobby.id}>
+                          <tr key={lobbyId}>
                             <td style={{ fontWeight: '600', color: "var(--text-primary)" }}>{lobby.name}</td>
                             <td>
                               <span className={`badge ${lobby.type === 'Private' ? 'private' : 'public'}`}>
@@ -317,8 +380,8 @@ function SessionLobby({ user, isSubPage = false }) {
                                     <button onClick={() => handleEditLobbyClick(lobby)} className="btn btn-secondary btn-action">
                                       Edit
                                     </button>
-                                    <button onClick={() => handleDeleteLobby(lobby.id)} className="btn btn-action" style={{ borderColor: '#ef4444', color: '#ef4444', background: 'transparent' }}>
-                                      Delete
+                                    <button onClick={() => handleDeleteLobby(lobbyId)} className="btn btn-action btn-danger">
+                                      {isAdminOrMod ? 'End' : 'Delete'}
                                     </button>
                                   </>
                                 )}
@@ -389,9 +452,6 @@ function SessionLobby({ user, isSubPage = false }) {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   <button type="submit" className="btn btn-primary-gradient">
                     Create Lobby
-                  </button>
-                  <button type="button" onClick={populateDummyData} className="btn btn-secondary" style={{ width: '100%' }}>
-                    Populate Dummy Data
                   </button>
                 </div>
               </form>
