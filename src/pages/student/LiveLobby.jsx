@@ -1,18 +1,18 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useNotification } from '../../context/NotificationContext';
-import { 
-  Mic, 
-  MicOff, 
-  Video, 
-  VideoOff, 
-  PhoneOff, 
-  Copy, 
-  Check, 
-  Users, 
-  MessageSquare, 
-  Settings, 
-  ChevronLeft, 
+import {
+  Mic,
+  MicOff,
+  Video,
+  VideoOff,
+  PhoneOff,
+  Copy,
+  Check,
+  Users,
+  MessageSquare,
+  Settings,
+  ChevronLeft,
   ChevronRight,
   Share2,
   Maximize2
@@ -34,7 +34,7 @@ const LIVEKIT_URL = 'wss://unisync-lobby-yhm6nffn.livekit.cloud';
 export default function LiveLobby({ user }) {
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   // Retrieve roomName from navigation state (passed from SessionLobby)
   const roomNameFromState = location.state?.roomName || 'General Study Session';
   const inviteCodeFromState = location.state?.inviteCode || 'N/A';
@@ -159,31 +159,52 @@ function LiveKitLobbyContent({ roomName, inviteCode, user, showToast, confirm })
     }
   }, [messages, activeTab]);
 
+  useEffect(() => {
+    if (!focusedTrack) {
+      return;
+    }
+
+    const stillVisible = tracks.some((track) => {
+      const sameParticipant = track.participant.sid === focusedTrack.participant.sid;
+      const sameSource = track.source === focusedTrack.source;
+      return sameParticipant && sameSource;
+    });
+
+    if (!stillVisible) {
+      setFocusedTrack(null);
+    }
+  }, [tracks, focusedTrack]);
+
   const renderTrack = (trackReference, isStrip = false) => {
-    const isLocal = trackReference.participant.identity === localParticipant?.identity;
-    const isSpeaking = trackReference.participant.isSpeaking;
-    const isCameraDisabled = !trackReference.participant.isCameraEnabled;
+    const participant = trackReference.participant;
+    const publication = trackReference.publication;
+    const mediaTrack = publication?.track;
+    const tileKey = `${participant.sid}-${trackReference.source}-${publication?.trackSid || 'placeholder'}`;
+
+    const isLocal = participant.identity === localParticipant?.identity;
+    const isSpeaking = participant.isSpeaking;
+    const isCameraDisabled = !participant.isCameraEnabled || !mediaTrack;
 
     return (
-      <div 
-        key={trackReference.participant.sid} 
+      <div
+        key={tileKey}
         className={`video-card ${isStrip ? 'in-strip' : ''} ${isSpeaking ? 'is-speaking' : ''}`}
         onClick={() => !isStrip && setFocusedTrack(trackReference)}
       >
         <div className="camera-feed">
           {isCameraDisabled ? (
             <div className="avatar">
-              {trackReference.participant.identity.substring(0, 2).toUpperCase()}
+              {participant.identity.substring(0, 2).toUpperCase()}
             </div>
           ) : (
-            <VideoTrack track={trackReference.publication.track} isLocal={isLocal} />
+            <VideoTrack track={mediaTrack} isLocal={isLocal} />
           )}
         </div>
-        
+
         <div className={`name-tag ${isSpeaking ? 'mic-active' : ''}`}>
-          <span className="name-text">{trackReference.participant.identity} {isLocal ? '(You)' : ''}</span>
+          <span className="name-text">{participant.identity} {isLocal ? '(You)' : ''}</span>
           <div className="status-icons">
-            {!trackReference.participant.isMicrophoneEnabled && <MicOff size={12} className="text-red-500" />}
+            {!participant.isMicrophoneEnabled && <MicOff size={12} className="text-red-500" />}
           </div>
         </div>
       </div>
@@ -193,7 +214,7 @@ function LiveKitLobbyContent({ roomName, inviteCode, user, showToast, confirm })
   return (
     <div className="lobby-container">
       <RoomAudioRenderer />
-      
+
       {/* MAIN VIDEO AREA */}
       <div className="main-area">
         {focusedTrack ? (
@@ -222,32 +243,32 @@ function LiveKitLobbyContent({ roomName, inviteCode, user, showToast, confirm })
         {/* FLOATING CONTROL BAR */}
         <div className="control-bar-wrapper">
           <div className="control-bar">
-            <button 
+            <button
               onClick={() => localParticipant.setMicrophoneEnabled(!localParticipant.isMicrophoneEnabled)}
               className={`control-btn ${!localParticipant?.isMicrophoneEnabled ? 'btn-red' : 'btn-light'}`}
               title={localParticipant?.isMicrophoneEnabled ? 'Mute' : 'Unmute'}
             >
               {localParticipant?.isMicrophoneEnabled ? <Mic size={20} /> : <MicOff size={20} />}
             </button>
-            <button 
+            <button
               onClick={() => localParticipant.setCameraEnabled(!localParticipant.isCameraEnabled)}
               className={`control-btn ${!localParticipant?.isCameraEnabled ? 'btn-red' : 'btn-light'}`}
               title={localParticipant?.isCameraEnabled ? 'Stop Video' : 'Start Video'}
             >
               {localParticipant?.isCameraEnabled ? <Video size={20} /> : <VideoOff size={20} />}
             </button>
-            
+
             <div className="divider"></div>
-            
+
             <button className="control-btn btn-light" title="Share Screen">
               <Share2 size={20} />
             </button>
-            
+
             <button className="control-btn btn-light" title="Settings">
               <Settings size={20} />
             </button>
 
-            <button 
+            <button
               onClick={async () => {
                 const confirmed = await confirm({
                   title: 'Leave Session',
@@ -255,13 +276,13 @@ function LiveKitLobbyContent({ roomName, inviteCode, user, showToast, confirm })
                   confirmText: 'Leave',
                   variant: 'destructive'
                 });
-                
+
                 if (confirmed) {
                   const isAdmin = user && ['admin', 'superadmin', 'moderator'].includes(user.role);
                   navigate(isAdmin ? '/dashboard/sessions' : '/student/session-lobby');
                 }
-              }} 
-              className="control-btn btn-danger-pill" 
+              }}
+              className="control-btn btn-danger-pill"
               title="Leave Session"
             >
               <PhoneOff size={20} />
@@ -370,11 +391,15 @@ function LiveKitLobbyContent({ roomName, inviteCode, user, showToast, confirm })
 function VideoTrack({ track, isLocal }) {
   const videoRef = useRef(null);
   useEffect(() => {
-    if (videoRef.current) {
-      track.attach(videoRef.current);
+    if (!track || !videoRef.current) {
+      return;
     }
+
+    const element = videoRef.current;
+    track.attach(element);
+
     return () => {
-      track.detach();
+      track.detach(element);
     };
   }, [track]);
 
