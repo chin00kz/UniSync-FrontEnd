@@ -136,13 +136,26 @@ function SessionLobby({ user, isSubPage = false }) {
     if (selectedLobby.type === 'Private') {
       if (enteredCode.toUpperCase() === selectedLobby.privateCode) {
         setJoinModalVisible(false);
-        navigate(targetPath, { state: { roomName: selectedLobby.name, inviteCode: selectedLobby.privateCode } });
+        navigate(targetPath, {
+          state: {
+            roomName: selectedLobby.name,
+            inviteCode: selectedLobby.privateCode,
+            hostOwnerId: selectedLobby.ownerId,
+            hostOwnerName: selectedLobby.ownerName,
+          }
+        });
       } else {
         setJoinError('Invalid Invite Code. Please try again.');
       }
     } else {
       setJoinModalVisible(false);
-      navigate(targetPath, { state: { roomName: selectedLobby.name } });
+      navigate(targetPath, {
+        state: {
+          roomName: selectedLobby.name,
+          hostOwnerId: selectedLobby.ownerId,
+          hostOwnerName: selectedLobby.ownerName,
+        }
+      });
     }
   };
 

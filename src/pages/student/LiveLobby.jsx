@@ -22,8 +22,9 @@ import {
   useTracks,
   useLocalParticipant,
   RoomAudioRenderer,
+  useRoomContext,
 } from '@livekit/components-react';
-import { Track } from 'livekit-client';
+import { Track, RoomEvent } from 'livekit-client';
 import '@livekit/components-styles';
 import './LiveLobby.css';
 
@@ -38,6 +39,8 @@ export default function LiveLobby({ user }) {
   // Retrieve roomName from navigation state (passed from SessionLobby)
   const roomNameFromState = location.state?.roomName || 'General Study Session';
   const inviteCodeFromState = location.state?.inviteCode || 'N/A';
+  const hostOwnerIdFromState = location.state?.hostOwnerId || null;
+  const hostOwnerNameFromState = location.state?.hostOwnerName || null;
 
   const isAdmin = user && ['admin', 'superadmin', 'moderator'].includes(user.role);
   const exitPath = isAdmin ? '/dashboard/sessions' : '/student/session-lobby';
@@ -90,14 +93,23 @@ export default function LiveLobby({ user }) {
       data-lk-theme="default"
       style={{ height: '100%' }}
     >
-      <LiveKitLobbyContent roomName={roomName} inviteCode={inviteCodeFromState} user={user} showToast={showToast} confirm={confirm} />
+      <LiveKitLobbyContent
+        roomName={roomName}
+        inviteCode={inviteCodeFromState}
+        hostOwnerId={hostOwnerIdFromState}
+        hostOwnerName={hostOwnerNameFromState}
+        user={user}
+        showToast={showToast}
+        confirm={confirm}
+      />
     </LiveKitRoom>
   );
 }
 
 // Internal component to use LiveKit hooks within the context of LiveKitRoom
-function LiveKitLobbyContent({ roomName, inviteCode, user, showToast, confirm }) {
+function LiveKitLobbyContent({ roomName, inviteCode, hostOwnerId, hostOwnerName, user, showToast, confirm }) {
   const navigate = useNavigate();
+  const room = useRoomContext();
   const { localParticipant } = useLocalParticipant();
   const tracks = useTracks([
     { source: Track.Source.Camera, withPlaceholder: true },
@@ -110,6 +122,18 @@ function LiveKitLobbyContent({ roomName, inviteCode, user, showToast, confirm })
   const [currentPage, setCurrentPage] = useState(0);
   const [chatInput, setChatInput] = useState('');
   const [messages, setMessages] = useState([]);
+
+  const exitPath = user && ['admin', 'superadmin', 'moderator'].includes(user.role) ? '/dashboard/sessions' : '/student/session-lobby';
+  const currentUserId = user?.id || user?._id;
+  const currentIdentity = localParticipant?.identity || user?.name;
+  const isHost = Boolean(
+    (hostOwnerId && currentUserId && String(hostOwnerId) === String(currentUserId)) ||
+    (hostOwnerName && currentIdentity && String(hostOwnerName) === String(currentIdentity))
+  );
+
+  const participants = Array.from(
+    new Map(tracks.map((t) => [t.participant.sid, t.participant])).values()
+  );
 
   const lobbyInfo = {
     name: roomName,
@@ -139,14 +163,120 @@ function LiveKitLobbyContent({ roomName, inviteCode, user, showToast, confirm })
     showToast('Invite code copied to clipboard!', 'success');
     setTimeout(() => setCopied(false), 2000);
   };
-  const handleSendMessage = (e) => {
+  const handleSendMessage = async (e) => {
     e.preventDefault();
-    if (!chatInput.trim()) return;
-    setMessages(prev => [...prev, {
-      id: Date.now(), type: 'chat', sender: localParticipant?.identity || 'You', text: chatInput.trim(), time: getFormattedTime()
-    }]);
+    const text = chatInput.trim();
+    if (!text) return;
+    const outgoing = {
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      type: 'chat',
+      sender: currentIdentity || 'You',
+      text,
+      time: getFormattedTime(),
+    };
+    setMessages((prev) => [...prev, outgoing]);
+    try {
+      const encoded = new TextEncoder().encode(JSON.stringify({ type: 'chat', payload: outgoing }));
+      await localParticipant.publishData(encoded, { reliable: true });
+    } catch (err) {
+      showToast('Failed to send message.', 'error');
+    }
     setChatInput('');
   };
+
+  const sendModerationAction = async (action, targetIdentity) => {
+    if (!isHost || !targetIdentity || targetIdentity === currentIdentity) return;
+
+    const packet = {
+      type: 'moderation',
+      payload: {
+        action,
+        targetIdentity,
+        by: currentIdentity,
+        reason: action === 'kick' ? 'Kicked by Host' : 'Muted by Host',
+        time: getFormattedTime(),
+      },
+    };
+
+    try {
+      const encoded = new TextEncoder().encode(JSON.stringify(packet));
+      await localParticipant.publishData(encoded, { reliable: true });
+
+      if (action === 'kick') {
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+            type: 'system',
+            sender: 'System',
+            text: `${targetIdentity} was kicked. Kicked by Host`,
+            time: getFormattedTime(),
+          },
+        ]);
+      } else {
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+            type: 'system',
+            sender: 'System',
+            text: `${targetIdentity} was muted by host`,
+            time: getFormattedTime(),
+          },
+        ]);
+      }
+    } catch (err) {
+      showToast('Action failed. Try again.', 'error');
+    }
+  };
+
+  useEffect(() => {
+    if (!room) return;
+
+    const onDataReceived = async (payload) => {
+      try {
+        const decoded = JSON.parse(new TextDecoder().decode(payload));
+        if (decoded?.type === 'chat' && decoded.payload) {
+          setMessages((prev) => {
+            if (prev.some((m) => m.id === decoded.payload.id)) return prev;
+            return [...prev, decoded.payload];
+          });
+        }
+
+        if (decoded?.type === 'moderation' && decoded.payload) {
+          const { action, targetIdentity, by, reason } = decoded.payload;
+          if (targetIdentity !== currentIdentity) return;
+
+          if (action === 'mute') {
+            await localParticipant.setMicrophoneEnabled(false);
+            showToast(`Muted by ${by}`, 'warning');
+          }
+
+          if (action === 'kick') {
+            setMessages((prev) => [
+              ...prev,
+              {
+                id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+                type: 'system',
+                sender: 'System',
+                text: reason || 'Kicked by Host',
+                time: getFormattedTime(),
+              },
+            ]);
+            showToast(reason || 'Kicked by Host', 'error');
+            room.disconnect();
+            navigate(exitPath);
+          }
+        }
+      } catch (err) {
+      }
+    };
+
+    room.on(RoomEvent.DataReceived, onDataReceived);
+    return () => {
+      room.off(RoomEvent.DataReceived, onDataReceived);
+    };
+  }, [room, localParticipant, currentIdentity, showToast, navigate, exitPath]);
 
   const messagesEndRef = useRef(null);
   const scrollToBottom = () => {
@@ -305,7 +435,7 @@ function LiveKitLobbyContent({ roomName, inviteCode, user, showToast, confirm })
           <div className="info-item">
             <span className="info-label">Availability</span>
             <div className="info-row">
-              <span className="info-value">{tracks.length} / {lobbyInfo.maxParticipants} Participants</span>
+              <span className="info-value">{participants.length} / {lobbyInfo.maxParticipants} Participants</span>
             </div>
           </div>
           <div className="info-item">
@@ -342,7 +472,7 @@ function LiveKitLobbyContent({ roomName, inviteCode, user, showToast, confirm })
                 {messages.map(msg => (
                   <div key={msg.id} className="chat-row-grid">
                     <div className="chat-time-col">{msg.time}</div>
-                    <div className={`chat-sender-col ${msg.sender === (localParticipant?.identity || 'You') ? 'host' : ''}`}>
+                    <div className={`chat-sender-col ${msg.sender === (currentIdentity || 'You') ? 'host' : ''}`}>
                       {msg.sender}
                     </div>
                     <div className="chat-text-col">{msg.text}</div>
@@ -365,16 +495,38 @@ function LiveKitLobbyContent({ roomName, inviteCode, user, showToast, confirm })
                 <div>Status</div>
               </div>
               <div className="participant-list-container">
-                {tracks.map((t) => (
-                  <div key={t.participant.sid} className="participant-row-grid">
+                {participants.map((participant) => (
+                  <div key={participant.sid} className="participant-row-grid">
                     <div className="participant-avatar-col">
-                      {t.participant.identity.substring(0, 2).toUpperCase()}
+                      {participant.identity.substring(0, 2).toUpperCase()}
                     </div>
                     <div className="participant-name-col">
-                      {t.participant.identity} {t.participant.identity === localParticipant?.identity ? '(You)' : ''}
+                      <span>
+                        {participant.identity} {participant.identity === localParticipant?.identity ? '(You)' : ''}
+                      </span>
+                      {isHost && participant.identity !== localParticipant?.identity && (
+                        <span style={{ display: 'inline-flex', gap: '8px', marginLeft: '10px' }}>
+                          <button
+                            type="button"
+                            className="icon-btn-sm"
+                            title="Mute Participant"
+                            onClick={() => sendModerationAction('mute', participant.identity)}
+                          >
+                            <MicOff size={14} />
+                          </button>
+                          <button
+                            type="button"
+                            className="icon-btn-sm"
+                            title="Kick Participant"
+                            onClick={() => sendModerationAction('kick', participant.identity)}
+                          >
+                            <PhoneOff size={14} />
+                          </button>
+                        </span>
+                      )}
                     </div>
-                    <div className={`participant-status-col ${t.participant.isMicrophoneEnabled ? 'active' : ''}`}>
-                      {t.participant.isMicrophoneEnabled ? 'Live' : 'Muted'}
+                    <div className={`participant-status-col ${participant.isMicrophoneEnabled ? 'active' : ''}`}>
+                      {participant.isMicrophoneEnabled ? 'Live' : 'Muted'}
                     </div>
                   </div>
                 ))}
